@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: "Inter", system-ui, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #08080f;
+    color: #e8e8f0;
+    font-family: var(--font-inter);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track  { background: #0e0e1a; }
+  ::-webkit-scrollbar-thumb  { background: #2a2a50; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #6c47ff; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-arc-600 hover:bg-arc-500 text-white font-semibold px-5 py-2.5 rounded-xl
+           transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-arc-500/50;
+  }
+
+  .btn-ghost {
+    @apply bg-surface-2 hover:bg-surface-3 text-gray-300 hover:text-white font-medium
+           px-4 py-2 rounded-xl border border-border transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-arc-600/30;
+  }
+
+  .card {
+    @apply bg-surface-1 border border-border rounded-2xl transition-all duration-200
+           hover:border-arc-600/30 hover:shadow-lg hover:shadow-arc-600/5;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
+           border tracking-wide uppercase;
+  }
+
+  .filter-tab {
+    @apply px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200
+           focus:outline-none;
+  }
+
+  .filter-tab-active {
+    @apply bg-arc-600 text-white shadow-sm shadow-arc-600/30;
+  }
+
+  .filter-tab-inactive {
+    @apply text-gray-400 hover:text-white hover:bg-surface-2;
+  }
+
+  .progress-bar {
+    @apply h-1.5 rounded-full transition-all duration-500;
+  }
+}
+
+/* Gradient glow for arc brand */
+.arc-glow {
+  box-shadow: 0 0 40px rgba(108, 71, 255, 0.15);
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background: rgba(8, 8, 15, 0.85);
+  backdrop-filter: blur(8px);
+}
