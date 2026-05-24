@@ -1,0 +1,11 @@
+{
+  "name": "cirbet",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy:arc":       "npm run deploy:arc    --prefix contracts",
+    "compile":          "npm run compile       --prefix contracts",
+    "dev":              "npm run dev            --prefix frontend",
+    "build":            "npm run build          --prefix frontend"
+  }
+}
