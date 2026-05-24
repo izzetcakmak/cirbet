@@ -8,6 +8,13 @@ const EXPECTED_OWNER = "0xd4f1254c803662c46d9c21f80f4f3c15ff57e2c9";
 async function main() {
   const [deployer] = await ethers.getSigners();
 
+  if (!deployer) {
+    console.error(`\n❌  No deployer account found!`);
+    console.error(`   contracts/.env dosyasını oluştur ve PRIVATE_KEY ekle:`);
+    console.error(`   PRIVATE_KEY=<0xd4f1254c... cüzdanının private key'i>\n`);
+    process.exit(1);
+  }
+
   if (deployer.address.toLowerCase() !== EXPECTED_OWNER.toLowerCase()) {
     console.error(`\n❌  Wrong deployer!`);
     console.error(`   Expected : ${EXPECTED_OWNER}`);
