@@ -1,0 +1,339 @@
+export const LANGUAGES = [
+  { code: "en", flag: "🇺🇸", name: "English",    short: "EN" },
+  { code: "tr", flag: "🇹🇷", name: "Türkçe",     short: "TR" },
+  { code: "es", flag: "🇪🇸", name: "Español",    short: "ES" },
+  { code: "fr", flag: "🇫🇷", name: "Français",   short: "FR" },
+  { code: "de", flag: "🇩🇪", name: "Deutsch",    short: "DE" },
+  { code: "zh", flag: "🇨🇳", name: "中文",        short: "ZH" },
+  { code: "ja", flag: "🇯🇵", name: "日本語",      short: "JA" },
+  { code: "ko", flag: "🇰🇷", name: "한국어",      short: "KO" },
+  { code: "ar", flag: "🇸🇦", name: "العربية",    short: "AR" },
+  { code: "ru", flag: "🇷🇺", name: "Русский",    short: "RU" },
+  { code: "pt", flag: "🇧🇷", name: "Português",  short: "PT" },
+  { code: "it", flag: "🇮🇹", name: "Italiano",   short: "IT" },
+] as const;
+
+export type LangCode = typeof LANGUAGES[number]["code"];
+
+export interface Translations {
+  // Nav
+  navMarkets: string; navFaucet: string; navExplorer: string; navDocs: string;
+  navMyAccount: string; navAdmin: string; navCreate: string;
+  // Hero
+  heroTitle: string; heroSubtitle: string; heroBadge: string;
+  // Stats
+  statsMarkets: string; statsActive: string; statsResolved: string; statsNetwork: string;
+  // Filters
+  filterAll: string; filterCrypto: string; filterSports: string; filterGeneral: string;
+  filterActive: string; filterLocked: string; filterResolved: string; filterMarkets: string;
+  // Market card
+  placeBet: string; viewResult: string; lockedBtn: string; pool: string; closed: string; ended: string;
+  // Wallet
+  connectWallet: string; connecting: string; switchNetwork: string; chooseWallet: string;
+  disconnect: string; viewOnScan: string; connectedTo: string;
+  // Admin
+  adminTitle: string; adminHome: string;
+  adminPending: string; adminTotal: string; adminActive: string; adminResolved: string; adminCancelled: string;
+  adminAllMarkets: string; adminPendingApproval: string; adminToResolve: string;
+  adminLock: string; adminResolve: string; adminView: string; adminDelete: string;
+  adminTimeLeft: string; adminTimeExpired: string; adminPool: string;
+  adminSelectWinner: string; adminConfirmResolve: string;
+  // My Account
+  accountTitle: string; accountSubtitle: string; accountBack: string;
+  accountTotalBet: string; accountPendingWin: string; accountClaimedWin: string; accountTotalBets: string;
+  accountAllBets: string; accountClaims: string; accountRefunds: string;
+  accountCreatorFees: string; accountClaimed: string;
+  accountYourChoice: string; accountBetAmount: string; accountNoBets: string;
+  accountClaim: string; accountClaiming: string; accountWithdrawFees: string;
+  // Create Market
+  createTitle: string; createQuestion: string; createOptions: string; createEndTime: string;
+  createCategory: string; createImageUrl: string; createAddOption: string;
+  createCreate: string; createCreating: string; createCancel: string;
+  createOptionPlaceholder: string; createQuestionPlaceholder: string;
+  // Common
+  back: string; loading: string; noData: string;
+}
+
+const en: Translations = {
+  navMarkets:"Markets", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
+  navMyAccount:"My Account", navAdmin:"Admin", navCreate:"Create",
+  heroTitle:"Prediction Market", heroSubtitle:"Bet on real-world outcomes with native USDC on Arc Network. Sub-second finality. Zero gas friction.", heroBadge:"Live on Arc Testnet · Chain ID 5042002",
+  statsMarkets:"Markets", statsActive:"Active", statsResolved:"Resolved", statsNetwork:"Network",
+  filterAll:"All", filterCrypto:"Crypto", filterSports:"Sports", filterGeneral:"General", filterActive:"Active", filterLocked:"Locked", filterResolved:"Resolved", filterMarkets:"markets",
+  placeBet:"Place Bet", viewResult:"View Result", lockedBtn:"Locked", pool:"pool", closed:"Closed", ended:"Ended",
+  connectWallet:"Connect Wallet", connecting:"Connecting…", switchNetwork:"Switch to Arc Testnet", chooseWallet:"Choose wallet", disconnect:"Disconnect", viewOnScan:"View on ArcScan", connectedTo:"Connected to",
+  adminTitle:"Admin Panel", adminHome:"Home",
+  adminPending:"Pending", adminTotal:"Total", adminActive:"Active", adminResolved:"Resolved", adminCancelled:"Cancelled",
+  adminAllMarkets:"All Markets", adminPendingApproval:"Pending Approval", adminToResolve:"To Resolve",
+  adminLock:"Lock", adminResolve:"Resolve", adminView:"View", adminDelete:"Delete",
+  adminTimeLeft:"left", adminTimeExpired:"Time Expired", adminPool:"Pool",
+  adminSelectWinner:"Select winner", adminConfirmResolve:"Confirm",
+  accountTitle:"My Account", accountSubtitle:"Your bets and winnings", accountBack:"Back",
+  accountTotalBet:"Total Bet", accountPendingWin:"Pending Winnings", accountClaimedWin:"Claimed Winnings", accountTotalBets:"Total Bets",
+  accountAllBets:"All Bets", accountClaims:"Claims", accountRefunds:"Refunds", accountCreatorFees:"Creator Fees", accountClaimed:"Claimed",
+  accountYourChoice:"Your Choice", accountBetAmount:"Bet Amount", accountNoBets:"No bets yet", accountClaim:"Claim", accountClaiming:"Claiming…", accountWithdrawFees:"Withdraw Fees",
+  createTitle:"Create Market", createQuestion:"Question", createOptions:"Options", createEndTime:"End Date & Time", createCategory:"Category", createImageUrl:"Image URL (optional)", createAddOption:"+ Add Option", createCreate:"Create", createCreating:"Creating…", createCancel:"Cancel",
+  createOptionPlaceholder:"Option", createQuestionPlaceholder:"e.g. Will Bitcoin reach $200k?",
+  back:"Back", loading:"Loading…", noData:"No data",
+};
+
+const tr: Translations = {
+  navMarkets:"Marketler", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Dokümanlar",
+  navMyAccount:"Hesabım", navAdmin:"Admin", navCreate:"Oluştur",
+  heroTitle:"Tahmin Piyasası", heroSubtitle:"Arc Network'te native USDC ile gerçek dünya sonuçlarına bahis yap. Saniyenin altında kesinlik. Sıfır gas yükü.", heroBadge:"Arc Testnet'te Canlı · Chain ID 5042002",
+  statsMarkets:"Market", statsActive:"Aktif", statsResolved:"Çözümlendi", statsNetwork:"Ağ",
+  filterAll:"Tümü", filterCrypto:"Kripto", filterSports:"Spor", filterGeneral:"Genel", filterActive:"Aktif", filterLocked:"Kilitli", filterResolved:"Çözümlendi", filterMarkets:"market",
+  placeBet:"Bahis Yap", viewResult:"Sonucu Gör", lockedBtn:"Kilitli", pool:"havuz", closed:"Kapandı", ended:"Bitti",
+  connectWallet:"Cüzdan Bağla", connecting:"Bağlanıyor…", switchNetwork:"Arc Testnet'e Geç", chooseWallet:"Cüzdan seç", disconnect:"Bağlantıyı Kes", viewOnScan:"ArcScan'de Gör", connectedTo:"Bağlı:",
+  adminTitle:"Admin Paneli", adminHome:"Ana Sayfa",
+  adminPending:"Bekleyen", adminTotal:"Toplam", adminActive:"Aktif", adminResolved:"Çözümlendi", adminCancelled:"İptal",
+  adminAllMarkets:"Tüm Marketler", adminPendingApproval:"Onay Bekleyen", adminToResolve:"Çözülecek",
+  adminLock:"Kilitle", adminResolve:"Çöz", adminView:"Görüntüle", adminDelete:"Sil",
+  adminTimeLeft:"kaldı", adminTimeExpired:"Süre Doldu", adminPool:"Havuz",
+  adminSelectWinner:"Kazananı seç", adminConfirmResolve:"Onayla",
+  accountTitle:"Hesabım", accountSubtitle:"Bahisleriniz ve kazançlarınız", accountBack:"Geri",
+  accountTotalBet:"Toplam Bahis", accountPendingWin:"Bekleyen Kazanç", accountClaimedWin:"Alınan Kazanç", accountTotalBets:"Toplam Bahis",
+  accountAllBets:"Tüm Bahisler", accountClaims:"Talepler", accountRefunds:"İadeler", accountCreatorFees:"Oluşturucu Ücretleri", accountClaimed:"Alındı",
+  accountYourChoice:"Seçiminiz", accountBetAmount:"Bahis Miktarı", accountNoBets:"Henüz bahis yok", accountClaim:"Talep Et", accountClaiming:"Talep ediliyor…", accountWithdrawFees:"Ücretleri Çek",
+  createTitle:"Market Oluştur", createQuestion:"Soru", createOptions:"Seçenekler", createEndTime:"Bitiş Tarihi ve Saati", createCategory:"Kategori", createImageUrl:"Görsel URL (isteğe bağlı)", createAddOption:"+ Seçenek Ekle", createCreate:"Oluştur", createCreating:"Oluşturuluyor…", createCancel:"İptal",
+  createOptionPlaceholder:"Seçenek", createQuestionPlaceholder:"ör: Bitcoin $200k'ya ulaşacak mı?",
+  back:"Geri", loading:"Yükleniyor…", noData:"Veri yok",
+};
+
+const es: Translations = {
+  navMarkets:"Mercados", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
+  navMyAccount:"Mi Cuenta", navAdmin:"Admin", navCreate:"Crear",
+  heroTitle:"Mercado de Predicciones", heroSubtitle:"Apuesta en resultados del mundo real con USDC nativo en Arc Network. Finalidad en menos de un segundo. Sin fricción de gas.", heroBadge:"En vivo en Arc Testnet · Chain ID 5042002",
+  statsMarkets:"Mercados", statsActive:"Activos", statsResolved:"Resueltos", statsNetwork:"Red",
+  filterAll:"Todos", filterCrypto:"Cripto", filterSports:"Deportes", filterGeneral:"General", filterActive:"Activo", filterLocked:"Bloqueado", filterResolved:"Resuelto", filterMarkets:"mercados",
+  placeBet:"Apostar", viewResult:"Ver Resultado", lockedBtn:"Bloqueado", pool:"fondo", closed:"Cerrado", ended:"Finalizado",
+  connectWallet:"Conectar Billetera", connecting:"Conectando…", switchNetwork:"Cambiar a Arc Testnet", chooseWallet:"Elegir billetera", disconnect:"Desconectar", viewOnScan:"Ver en ArcScan", connectedTo:"Conectado a",
+  adminTitle:"Panel de Administración", adminHome:"Inicio",
+  adminPending:"Pendiente", adminTotal:"Total", adminActive:"Activo", adminResolved:"Resuelto", adminCancelled:"Cancelado",
+  adminAllMarkets:"Todos los Mercados", adminPendingApproval:"Pendiente de Aprobación", adminToResolve:"Por Resolver",
+  adminLock:"Bloquear", adminResolve:"Resolver", adminView:"Ver", adminDelete:"Eliminar",
+  adminTimeLeft:"restante", adminTimeExpired:"Tiempo Expirado", adminPool:"Fondo",
+  adminSelectWinner:"Seleccionar ganador", adminConfirmResolve:"Confirmar",
+  accountTitle:"Mi Cuenta", accountSubtitle:"Tus apuestas y ganancias", accountBack:"Atrás",
+  accountTotalBet:"Total Apostado", accountPendingWin:"Ganancias Pendientes", accountClaimedWin:"Ganancias Reclamadas", accountTotalBets:"Total Apuestas",
+  accountAllBets:"Todas las Apuestas", accountClaims:"Reclamos", accountRefunds:"Reembolsos", accountCreatorFees:"Tarifas del Creador", accountClaimed:"Reclamado",
+  accountYourChoice:"Tu Elección", accountBetAmount:"Monto Apostado", accountNoBets:"Sin apuestas aún", accountClaim:"Reclamar", accountClaiming:"Reclamando…", accountWithdrawFees:"Retirar Tarifas",
+  createTitle:"Crear Mercado", createQuestion:"Pregunta", createOptions:"Opciones", createEndTime:"Fecha y Hora de Cierre", createCategory:"Categoría", createImageUrl:"URL de imagen (opcional)", createAddOption:"+ Agregar Opción", createCreate:"Crear", createCreating:"Creando…", createCancel:"Cancelar",
+  createOptionPlaceholder:"Opción", createQuestionPlaceholder:"ej. ¿Llegará Bitcoin a $200k?",
+  back:"Atrás", loading:"Cargando…", noData:"Sin datos",
+};
+
+const fr: Translations = {
+  navMarkets:"Marchés", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
+  navMyAccount:"Mon Compte", navAdmin:"Admin", navCreate:"Créer",
+  heroTitle:"Marché de Prédictions", heroSubtitle:"Pariez sur des résultats réels avec l'USDC natif sur Arc Network. Finalité en moins d'une seconde. Zéro friction de gaz.", heroBadge:"En direct sur Arc Testnet · Chain ID 5042002",
+  statsMarkets:"Marchés", statsActive:"Actifs", statsResolved:"Résolus", statsNetwork:"Réseau",
+  filterAll:"Tous", filterCrypto:"Crypto", filterSports:"Sports", filterGeneral:"Général", filterActive:"Actif", filterLocked:"Verrouillé", filterResolved:"Résolu", filterMarkets:"marchés",
+  placeBet:"Parier", viewResult:"Voir le Résultat", lockedBtn:"Verrouillé", pool:"cagnotte", closed:"Fermé", ended:"Terminé",
+  connectWallet:"Connecter le Portefeuille", connecting:"Connexion…", switchNetwork:"Passer à Arc Testnet", chooseWallet:"Choisir un portefeuille", disconnect:"Déconnecter", viewOnScan:"Voir sur ArcScan", connectedTo:"Connecté à",
+  adminTitle:"Panneau d'Administration", adminHome:"Accueil",
+  adminPending:"En attente", adminTotal:"Total", adminActive:"Actif", adminResolved:"Résolu", adminCancelled:"Annulé",
+  adminAllMarkets:"Tous les Marchés", adminPendingApproval:"En attente d'approbation", adminToResolve:"À Résoudre",
+  adminLock:"Verrouiller", adminResolve:"Résoudre", adminView:"Voir", adminDelete:"Supprimer",
+  adminTimeLeft:"restant", adminTimeExpired:"Temps Expiré", adminPool:"Cagnotte",
+  adminSelectWinner:"Sélectionner le gagnant", adminConfirmResolve:"Confirmer",
+  accountTitle:"Mon Compte", accountSubtitle:"Vos paris et gains", accountBack:"Retour",
+  accountTotalBet:"Total Misé", accountPendingWin:"Gains en attente", accountClaimedWin:"Gains réclamés", accountTotalBets:"Total Paris",
+  accountAllBets:"Tous les Paris", accountClaims:"Réclamations", accountRefunds:"Remboursements", accountCreatorFees:"Frais du Créateur", accountClaimed:"Réclamé",
+  accountYourChoice:"Votre Choix", accountBetAmount:"Montant Misé", accountNoBets:"Aucun pari", accountClaim:"Réclamer", accountClaiming:"Réclamation…", accountWithdrawFees:"Retirer les Frais",
+  createTitle:"Créer un Marché", createQuestion:"Question", createOptions:"Options", createEndTime:"Date et Heure de Fin", createCategory:"Catégorie", createImageUrl:"URL de l'image (facultatif)", createAddOption:"+ Ajouter une Option", createCreate:"Créer", createCreating:"Création…", createCancel:"Annuler",
+  createOptionPlaceholder:"Option", createQuestionPlaceholder:"ex. Le Bitcoin atteindra-t-il 200k$ ?",
+  back:"Retour", loading:"Chargement…", noData:"Aucune donnée",
+};
+
+const de: Translations = {
+  navMarkets:"Märkte", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
+  navMyAccount:"Mein Konto", navAdmin:"Admin", navCreate:"Erstellen",
+  heroTitle:"Vorhersagemarkt", heroSubtitle:"Wette auf reale Ergebnisse mit nativem USDC im Arc Network. Finality unter einer Sekunde. Keine Gasgebühren.", heroBadge:"Live auf Arc Testnet · Chain ID 5042002",
+  statsMarkets:"Märkte", statsActive:"Aktiv", statsResolved:"Aufgelöst", statsNetwork:"Netzwerk",
+  filterAll:"Alle", filterCrypto:"Krypto", filterSports:"Sport", filterGeneral:"Allgemein", filterActive:"Aktiv", filterLocked:"Gesperrt", filterResolved:"Aufgelöst", filterMarkets:"Märkte",
+  placeBet:"Wette Platzieren", viewResult:"Ergebnis Ansehen", lockedBtn:"Gesperrt", pool:"Pool", closed:"Geschlossen", ended:"Beendet",
+  connectWallet:"Wallet Verbinden", connecting:"Verbinde…", switchNetwork:"Zu Arc Testnet Wechseln", chooseWallet:"Wallet auswählen", disconnect:"Trennen", viewOnScan:"Auf ArcScan ansehen", connectedTo:"Verbunden mit",
+  adminTitle:"Admin-Panel", adminHome:"Startseite",
+  adminPending:"Ausstehend", adminTotal:"Gesamt", adminActive:"Aktiv", adminResolved:"Aufgelöst", adminCancelled:"Abgebrochen",
+  adminAllMarkets:"Alle Märkte", adminPendingApproval:"Ausstehende Genehmigung", adminToResolve:"Aufzulösen",
+  adminLock:"Sperren", adminResolve:"Auflösen", adminView:"Ansehen", adminDelete:"Löschen",
+  adminTimeLeft:"verbleibend", adminTimeExpired:"Zeit abgelaufen", adminPool:"Pool",
+  adminSelectWinner:"Gewinner auswählen", adminConfirmResolve:"Bestätigen",
+  accountTitle:"Mein Konto", accountSubtitle:"Ihre Wetten und Gewinne", accountBack:"Zurück",
+  accountTotalBet:"Gesamt Gewettet", accountPendingWin:"Ausstehende Gewinne", accountClaimedWin:"Beanspruchte Gewinne", accountTotalBets:"Wetten Gesamt",
+  accountAllBets:"Alle Wetten", accountClaims:"Ansprüche", accountRefunds:"Erstattungen", accountCreatorFees:"Ersteller-Gebühren", accountClaimed:"Beansprucht",
+  accountYourChoice:"Ihre Wahl", accountBetAmount:"Wetteinsatz", accountNoBets:"Noch keine Wetten", accountClaim:"Beanspruchen", accountClaiming:"Wird beansprucht…", accountWithdrawFees:"Gebühren Abheben",
+  createTitle:"Markt Erstellen", createQuestion:"Frage", createOptions:"Optionen", createEndTime:"Enddatum und -zeit", createCategory:"Kategorie", createImageUrl:"Bild-URL (optional)", createAddOption:"+ Option Hinzufügen", createCreate:"Erstellen", createCreating:"Wird erstellt…", createCancel:"Abbrechen",
+  createOptionPlaceholder:"Option", createQuestionPlaceholder:"z.B. Wird Bitcoin 200k$ erreichen?",
+  back:"Zurück", loading:"Lädt…", noData:"Keine Daten",
+};
+
+const zh: Translations = {
+  navMarkets:"市场", navFaucet:"水龙头", navExplorer:"浏览器", navDocs:"文档",
+  navMyAccount:"我的账户", navAdmin:"管理", navCreate:"创建",
+  heroTitle:"预测市场", heroSubtitle:"在Arc网络上使用原生USDC竞猜真实世界的结果。亚秒级确定性。零Gas摩擦。", heroBadge:"在Arc测试网上线 · 链ID 5042002",
+  statsMarkets:"市场", statsActive:"活跃", statsResolved:"已解决", statsNetwork:"网络",
+  filterAll:"全部", filterCrypto:"加密", filterSports:"体育", filterGeneral:"综合", filterActive:"活跃", filterLocked:"已锁定", filterResolved:"已解决", filterMarkets:"个市场",
+  placeBet:"下注", viewResult:"查看结果", lockedBtn:"已锁定", pool:"奖池", closed:"已关闭", ended:"已结束",
+  connectWallet:"连接钱包", connecting:"连接中…", switchNetwork:"切换到Arc测试网", chooseWallet:"选择钱包", disconnect:"断开连接", viewOnScan:"在ArcScan查看", connectedTo:"已连接到",
+  adminTitle:"管理员面板", adminHome:"主页",
+  adminPending:"待处理", adminTotal:"总计", adminActive:"活跃", adminResolved:"已解决", adminCancelled:"已取消",
+  adminAllMarkets:"所有市场", adminPendingApproval:"待审批", adminToResolve:"待解决",
+  adminLock:"锁定", adminResolve:"解决", adminView:"查看", adminDelete:"删除",
+  adminTimeLeft:"剩余", adminTimeExpired:"时间已到", adminPool:"奖池",
+  adminSelectWinner:"选择获胜者", adminConfirmResolve:"确认",
+  accountTitle:"我的账户", accountSubtitle:"您的下注和奖金", accountBack:"返回",
+  accountTotalBet:"总下注额", accountPendingWin:"待领奖金", accountClaimedWin:"已领奖金", accountTotalBets:"总下注次数",
+  accountAllBets:"所有下注", accountClaims:"领取", accountRefunds:"退款", accountCreatorFees:"创建者费用", accountClaimed:"已领取",
+  accountYourChoice:"您的选择", accountBetAmount:"下注金额", accountNoBets:"暂无下注", accountClaim:"领取", accountClaiming:"领取中…", accountWithdrawFees:"提取费用",
+  createTitle:"创建市场", createQuestion:"问题", createOptions:"选项", createEndTime:"截止日期和时间", createCategory:"类别", createImageUrl:"图片URL（可选）", createAddOption:"+ 添加选项", createCreate:"创建", createCreating:"创建中…", createCancel:"取消",
+  createOptionPlaceholder:"选项", createQuestionPlaceholder:"例如：比特币会达到20万美元吗？",
+  back:"返回", loading:"加载中…", noData:"暂无数据",
+};
+
+const ja: Translations = {
+  navMarkets:"マーケット", navFaucet:"フォーセット", navExplorer:"エクスプローラー", navDocs:"ドキュメント",
+  navMyAccount:"マイアカウント", navAdmin:"管理", navCreate:"作成",
+  heroTitle:"予測マーケット", heroSubtitle:"Arcネットワーク上のネイティブUSDCで実世界の結果に賭けましょう。サブ秒の確定性。ガス手数料ゼロ。", heroBadge:"Arc Testnetで稼働中 · チェーンID 5042002",
+  statsMarkets:"マーケット", statsActive:"アクティブ", statsResolved:"解決済み", statsNetwork:"ネットワーク",
+  filterAll:"すべて", filterCrypto:"クリプト", filterSports:"スポーツ", filterGeneral:"一般", filterActive:"アクティブ", filterLocked:"ロック済み", filterResolved:"解決済み", filterMarkets:"マーケット",
+  placeBet:"ベット", viewResult:"結果を見る", lockedBtn:"ロック済み", pool:"プール", closed:"終了", ended:"終了",
+  connectWallet:"ウォレット接続", connecting:"接続中…", switchNetwork:"Arc Testnetに切り替え", chooseWallet:"ウォレットを選択", disconnect:"切断", viewOnScan:"ArcScanで見る", connectedTo:"接続先",
+  adminTitle:"管理者パネル", adminHome:"ホーム",
+  adminPending:"保留中", adminTotal:"合計", adminActive:"アクティブ", adminResolved:"解決済み", adminCancelled:"キャンセル",
+  adminAllMarkets:"すべてのマーケット", adminPendingApproval:"承認待ち", adminToResolve:"解決予定",
+  adminLock:"ロック", adminResolve:"解決", adminView:"表示", adminDelete:"削除",
+  adminTimeLeft:"残り", adminTimeExpired:"時間切れ", adminPool:"プール",
+  adminSelectWinner:"勝者を選択", adminConfirmResolve:"確認",
+  accountTitle:"マイアカウント", accountSubtitle:"あなたのベットと賞金", accountBack:"戻る",
+  accountTotalBet:"総ベット額", accountPendingWin:"保留中の賞金", accountClaimedWin:"受け取り済み賞金", accountTotalBets:"総ベット数",
+  accountAllBets:"すべてのベット", accountClaims:"クレーム", accountRefunds:"返金", accountCreatorFees:"作成者手数料", accountClaimed:"受け取り済み",
+  accountYourChoice:"あなたの選択", accountBetAmount:"ベット額", accountNoBets:"ベットなし", accountClaim:"受け取る", accountClaiming:"受け取り中…", accountWithdrawFees:"手数料を引き出す",
+  createTitle:"マーケット作成", createQuestion:"質問", createOptions:"選択肢", createEndTime:"終了日時", createCategory:"カテゴリー", createImageUrl:"画像URL（任意）", createAddOption:"+ 選択肢を追加", createCreate:"作成", createCreating:"作成中…", createCancel:"キャンセル",
+  createOptionPlaceholder:"選択肢", createQuestionPlaceholder:"例：ビットコインは20万ドルに達するか？",
+  back:"戻る", loading:"読み込み中…", noData:"データなし",
+};
+
+const ko: Translations = {
+  navMarkets:"마켓", navFaucet:"파우셋", navExplorer:"익스플로러", navDocs:"문서",
+  navMyAccount:"내 계정", navAdmin:"관리자", navCreate:"생성",
+  heroTitle:"예측 마켓", heroSubtitle:"Arc 네트워크에서 네이티브 USDC로 실제 결과에 베팅하세요. 1초 미만의 확정성. 제로 가스 마찰.", heroBadge:"Arc 테스트넷 라이브 · 체인 ID 5042002",
+  statsMarkets:"마켓", statsActive:"활성", statsResolved:"해결됨", statsNetwork:"네트워크",
+  filterAll:"전체", filterCrypto:"크립토", filterSports:"스포츠", filterGeneral:"일반", filterActive:"활성", filterLocked:"잠김", filterResolved:"해결됨", filterMarkets:"개 마켓",
+  placeBet:"베팅", viewResult:"결과 보기", lockedBtn:"잠김", pool:"풀", closed:"마감", ended:"종료",
+  connectWallet:"지갑 연결", connecting:"연결 중…", switchNetwork:"Arc 테스트넷으로 전환", chooseWallet:"지갑 선택", disconnect:"연결 해제", viewOnScan:"ArcScan에서 보기", connectedTo:"연결됨",
+  adminTitle:"관리자 패널", adminHome:"홈",
+  adminPending:"대기 중", adminTotal:"전체", adminActive:"활성", adminResolved:"해결됨", adminCancelled:"취소됨",
+  adminAllMarkets:"모든 마켓", adminPendingApproval:"승인 대기", adminToResolve:"해결 예정",
+  adminLock:"잠금", adminResolve:"해결", adminView:"보기", adminDelete:"삭제",
+  adminTimeLeft:"남음", adminTimeExpired:"시간 만료", adminPool:"풀",
+  adminSelectWinner:"승자 선택", adminConfirmResolve:"확인",
+  accountTitle:"내 계정", accountSubtitle:"내 베팅과 상금", accountBack:"뒤로",
+  accountTotalBet:"총 베팅액", accountPendingWin:"보류 중 상금", accountClaimedWin:"수령한 상금", accountTotalBets:"총 베팅 수",
+  accountAllBets:"모든 베팅", accountClaims:"청구", accountRefunds:"환불", accountCreatorFees:"생성자 수수료", accountClaimed:"수령됨",
+  accountYourChoice:"선택 항목", accountBetAmount:"베팅 금액", accountNoBets:"베팅 없음", accountClaim:"청구", accountClaiming:"청구 중…", accountWithdrawFees:"수수료 출금",
+  createTitle:"마켓 생성", createQuestion:"질문", createOptions:"선택지", createEndTime:"종료 날짜 및 시간", createCategory:"카테고리", createImageUrl:"이미지 URL (선택)", createAddOption:"+ 선택지 추가", createCreate:"생성", createCreating:"생성 중…", createCancel:"취소",
+  createOptionPlaceholder:"선택지", createQuestionPlaceholder:"예: 비트코인이 $200k에 도달할까요?",
+  back:"뒤로", loading:"로드 중…", noData:"데이터 없음",
+};
+
+const ar: Translations = {
+  navMarkets:"الأسواق", navFaucet:"الصنبور", navExplorer:"المستكشف", navDocs:"الوثائق",
+  navMyAccount:"حسابي", navAdmin:"الإدارة", navCreate:"إنشاء",
+  heroTitle:"سوق التنبؤات", heroSubtitle:"راهن على نتائج العالم الحقيقي باستخدام USDC الأصلي على شبكة Arc. نهائية دون ثانية. لا احتكاك للغاز.", heroBadge:"مباشر على Arc Testnet · معرف السلسلة 5042002",
+  statsMarkets:"الأسواق", statsActive:"نشط", statsResolved:"محلول", statsNetwork:"الشبكة",
+  filterAll:"الكل", filterCrypto:"كريبتو", filterSports:"رياضة", filterGeneral:"عام", filterActive:"نشط", filterLocked:"مقفل", filterResolved:"محلول", filterMarkets:"أسواق",
+  placeBet:"راهن", viewResult:"عرض النتيجة", lockedBtn:"مقفل", pool:"المجموع", closed:"مغلق", ended:"انتهى",
+  connectWallet:"ربط المحفظة", connecting:"جارٍ الاتصال…", switchNetwork:"التبديل إلى Arc Testnet", chooseWallet:"اختر محفظة", disconnect:"قطع الاتصال", viewOnScan:"عرض على ArcScan", connectedTo:"متصل بـ",
+  adminTitle:"لوحة الإدارة", adminHome:"الرئيسية",
+  adminPending:"قيد الانتظار", adminTotal:"الإجمالي", adminActive:"نشط", adminResolved:"محلول", adminCancelled:"ملغى",
+  adminAllMarkets:"جميع الأسواق", adminPendingApproval:"بانتظار الموافقة", adminToResolve:"للحل",
+  adminLock:"قفل", adminResolve:"حل", adminView:"عرض", adminDelete:"حذف",
+  adminTimeLeft:"متبقي", adminTimeExpired:"انتهى الوقت", adminPool:"المجموع",
+  adminSelectWinner:"اختر الفائز", adminConfirmResolve:"تأكيد",
+  accountTitle:"حسابي", accountSubtitle:"رهاناتك ومكاسبك", accountBack:"رجوع",
+  accountTotalBet:"إجمالي الرهان", accountPendingWin:"مكاسب معلقة", accountClaimedWin:"مكاسب مستلمة", accountTotalBets:"إجمالي الرهانات",
+  accountAllBets:"جميع الرهانات", accountClaims:"المطالبات", accountRefunds:"المبالغ المستردة", accountCreatorFees:"رسوم المنشئ", accountClaimed:"مستلم",
+  accountYourChoice:"اختيارك", accountBetAmount:"مبلغ الرهان", accountNoBets:"لا رهانات بعد", accountClaim:"استلام", accountClaiming:"جارٍ الاستلام…", accountWithdrawFees:"سحب الرسوم",
+  createTitle:"إنشاء سوق", createQuestion:"السؤال", createOptions:"الخيارات", createEndTime:"تاريخ ووقت الانتهاء", createCategory:"الفئة", createImageUrl:"رابط الصورة (اختياري)", createAddOption:"+ إضافة خيار", createCreate:"إنشاء", createCreating:"جارٍ الإنشاء…", createCancel:"إلغاء",
+  createOptionPlaceholder:"خيار", createQuestionPlaceholder:"مثال: هل سيصل البيتكوين إلى 200 ألف دولار؟",
+  back:"رجوع", loading:"جارٍ التحميل…", noData:"لا توجد بيانات",
+};
+
+const ru: Translations = {
+  navMarkets:"Рынки", navFaucet:"Кран", navExplorer:"Обозреватель", navDocs:"Документы",
+  navMyAccount:"Мой Аккаунт", navAdmin:"Админ", navCreate:"Создать",
+  heroTitle:"Рынок Предсказаний", heroSubtitle:"Делайте ставки на реальные результаты с нативным USDC в сети Arc. Окончательность менее секунды. Нулевые газовые издержки.", heroBadge:"В эфире на Arc Testnet · ID цепи 5042002",
+  statsMarkets:"Рынки", statsActive:"Активные", statsResolved:"Решённые", statsNetwork:"Сеть",
+  filterAll:"Все", filterCrypto:"Крипто", filterSports:"Спорт", filterGeneral:"Общее", filterActive:"Активный", filterLocked:"Заблокирован", filterResolved:"Решён", filterMarkets:"рынков",
+  placeBet:"Сделать Ставку", viewResult:"Посмотреть Результат", lockedBtn:"Заблокирован", pool:"пул", closed:"Закрыт", ended:"Завершён",
+  connectWallet:"Подключить Кошелёк", connecting:"Подключение…", switchNetwork:"Переключиться на Arc Testnet", chooseWallet:"Выбрать кошелёк", disconnect:"Отключить", viewOnScan:"Смотреть на ArcScan", connectedTo:"Подключён к",
+  adminTitle:"Панель Администратора", adminHome:"Главная",
+  adminPending:"Ожидает", adminTotal:"Всего", adminActive:"Активный", adminResolved:"Решён", adminCancelled:"Отменён",
+  adminAllMarkets:"Все Рынки", adminPendingApproval:"Ожидает Одобрения", adminToResolve:"К Решению",
+  adminLock:"Заблокировать", adminResolve:"Решить", adminView:"Просмотр", adminDelete:"Удалить",
+  adminTimeLeft:"осталось", adminTimeExpired:"Время истекло", adminPool:"Пул",
+  adminSelectWinner:"Выбрать победителя", adminConfirmResolve:"Подтвердить",
+  accountTitle:"Мой Аккаунт", accountSubtitle:"Ваши ставки и выигрыши", accountBack:"Назад",
+  accountTotalBet:"Всего Поставлено", accountPendingWin:"Ожидаемые Выигрыши", accountClaimedWin:"Полученные Выигрыши", accountTotalBets:"Всего Ставок",
+  accountAllBets:"Все Ставки", accountClaims:"Заявки", accountRefunds:"Возвраты", accountCreatorFees:"Комиссии Создателя", accountClaimed:"Получено",
+  accountYourChoice:"Ваш Выбор", accountBetAmount:"Сумма Ставки", accountNoBets:"Ставок пока нет", accountClaim:"Получить", accountClaiming:"Получение…", accountWithdrawFees:"Вывести Комиссии",
+  createTitle:"Создать Рынок", createQuestion:"Вопрос", createOptions:"Варианты", createEndTime:"Дата и Время Окончания", createCategory:"Категория", createImageUrl:"URL изображения (опционально)", createAddOption:"+ Добавить Вариант", createCreate:"Создать", createCreating:"Создание…", createCancel:"Отмена",
+  createOptionPlaceholder:"Вариант", createQuestionPlaceholder:"Напр.: Достигнет ли биткоин $200k?",
+  back:"Назад", loading:"Загрузка…", noData:"Нет данных",
+};
+
+const pt: Translations = {
+  navMarkets:"Mercados", navFaucet:"Torneira", navExplorer:"Explorer", navDocs:"Docs",
+  navMyAccount:"Minha Conta", navAdmin:"Admin", navCreate:"Criar",
+  heroTitle:"Mercado de Previsões", heroSubtitle:"Aposte em resultados do mundo real com USDC nativo na Rede Arc. Finalidade em menos de um segundo. Zero fricção de gás.", heroBadge:"Ao vivo na Arc Testnet · Chain ID 5042002",
+  statsMarkets:"Mercados", statsActive:"Ativos", statsResolved:"Resolvidos", statsNetwork:"Rede",
+  filterAll:"Todos", filterCrypto:"Cripto", filterSports:"Esportes", filterGeneral:"Geral", filterActive:"Ativo", filterLocked:"Bloqueado", filterResolved:"Resolvido", filterMarkets:"mercados",
+  placeBet:"Apostar", viewResult:"Ver Resultado", lockedBtn:"Bloqueado", pool:"fundo", closed:"Fechado", ended:"Encerrado",
+  connectWallet:"Conectar Carteira", connecting:"Conectando…", switchNetwork:"Mudar para Arc Testnet", chooseWallet:"Escolher carteira", disconnect:"Desconectar", viewOnScan:"Ver no ArcScan", connectedTo:"Conectado a",
+  adminTitle:"Painel de Administração", adminHome:"Início",
+  adminPending:"Pendente", adminTotal:"Total", adminActive:"Ativo", adminResolved:"Resolvido", adminCancelled:"Cancelado",
+  adminAllMarkets:"Todos os Mercados", adminPendingApproval:"Aguardando Aprovação", adminToResolve:"Para Resolver",
+  adminLock:"Bloquear", adminResolve:"Resolver", adminView:"Ver", adminDelete:"Excluir",
+  adminTimeLeft:"restante", adminTimeExpired:"Tempo Expirado", adminPool:"Fundo",
+  adminSelectWinner:"Selecionar vencedor", adminConfirmResolve:"Confirmar",
+  accountTitle:"Minha Conta", accountSubtitle:"Suas apostas e ganhos", accountBack:"Voltar",
+  accountTotalBet:"Total Apostado", accountPendingWin:"Ganhos Pendentes", accountClaimedWin:"Ganhos Recebidos", accountTotalBets:"Total de Apostas",
+  accountAllBets:"Todas as Apostas", accountClaims:"Reivindicações", accountRefunds:"Reembolsos", accountCreatorFees:"Taxas do Criador", accountClaimed:"Recebido",
+  accountYourChoice:"Sua Escolha", accountBetAmount:"Valor da Aposta", accountNoBets:"Sem apostas ainda", accountClaim:"Receber", accountClaiming:"Recebendo…", accountWithdrawFees:"Retirar Taxas",
+  createTitle:"Criar Mercado", createQuestion:"Pergunta", createOptions:"Opções", createEndTime:"Data e Hora de Encerramento", createCategory:"Categoria", createImageUrl:"URL da imagem (opcional)", createAddOption:"+ Adicionar Opção", createCreate:"Criar", createCreating:"Criando…", createCancel:"Cancelar",
+  createOptionPlaceholder:"Opção", createQuestionPlaceholder:"ex.: O Bitcoin vai atingir $200k?",
+  back:"Voltar", loading:"Carregando…", noData:"Sem dados",
+};
+
+const it: Translations = {
+  navMarkets:"Mercati", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
+  navMyAccount:"Il Mio Account", navAdmin:"Admin", navCreate:"Crea",
+  heroTitle:"Mercato delle Previsioni", heroSubtitle:"Scommetti su risultati del mondo reale con USDC nativo su Arc Network. Finalità inferiore al secondo. Zero frizione di gas.", heroBadge:"In diretta su Arc Testnet · Chain ID 5042002",
+  statsMarkets:"Mercati", statsActive:"Attivi", statsResolved:"Risolti", statsNetwork:"Rete",
+  filterAll:"Tutti", filterCrypto:"Cripto", filterSports:"Sport", filterGeneral:"Generale", filterActive:"Attivo", filterLocked:"Bloccato", filterResolved:"Risolto", filterMarkets:"mercati",
+  placeBet:"Scommetti", viewResult:"Vedi Risultato", lockedBtn:"Bloccato", pool:"pool", closed:"Chiuso", ended:"Terminato",
+  connectWallet:"Connetti Wallet", connecting:"Connessione…", switchNetwork:"Passa ad Arc Testnet", chooseWallet:"Scegli wallet", disconnect:"Disconnetti", viewOnScan:"Vedi su ArcScan", connectedTo:"Connesso a",
+  adminTitle:"Pannello di Amministrazione", adminHome:"Home",
+  adminPending:"In Sospeso", adminTotal:"Totale", adminActive:"Attivo", adminResolved:"Risolto", adminCancelled:"Annullato",
+  adminAllMarkets:"Tutti i Mercati", adminPendingApproval:"In Attesa di Approvazione", adminToResolve:"Da Risolvere",
+  adminLock:"Blocca", adminResolve:"Risolvi", adminView:"Visualizza", adminDelete:"Elimina",
+  adminTimeLeft:"rimanente", adminTimeExpired:"Tempo Scaduto", adminPool:"Pool",
+  adminSelectWinner:"Seleziona vincitore", adminConfirmResolve:"Conferma",
+  accountTitle:"Il Mio Account", accountSubtitle:"Le tue scommesse e vincite", accountBack:"Indietro",
+  accountTotalBet:"Totale Scommesso", accountPendingWin:"Vincite in Sospeso", accountClaimedWin:"Vincite Riscattate", accountTotalBets:"Totale Scommesse",
+  accountAllBets:"Tutte le Scommesse", accountClaims:"Riscatti", accountRefunds:"Rimborsi", accountCreatorFees:"Commissioni Creatore", accountClaimed:"Riscattato",
+  accountYourChoice:"La Tua Scelta", accountBetAmount:"Importo Scommessa", accountNoBets:"Nessuna scommessa", accountClaim:"Riscatta", accountClaiming:"Riscattando…", accountWithdrawFees:"Prelievo Commissioni",
+  createTitle:"Crea Mercato", createQuestion:"Domanda", createOptions:"Opzioni", createEndTime:"Data e Ora di Fine", createCategory:"Categoria", createImageUrl:"URL immagine (opzionale)", createAddOption:"+ Aggiungi Opzione", createCreate:"Crea", createCreating:"Creazione…", createCancel:"Annulla",
+  createOptionPlaceholder:"Opzione", createQuestionPlaceholder:"es.: Il Bitcoin raggiungerà i $200k?",
+  back:"Indietro", loading:"Caricamento…", noData:"Nessun dato",
+};
+
+export const TRANSLATIONS: Record<LangCode, Translations> = {
+  en, tr, es, fr, de, zh, ja, ko, ar, ru, pt, it,
+};
+
+export function t(lang: LangCode, key: keyof Translations): string {
+  return TRANSLATIONS[lang]?.[key] ?? TRANSLATIONS.en[key];
+}

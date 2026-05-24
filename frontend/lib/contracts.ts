@@ -2,111 +2,75 @@ export const PREDICTION_MARKET_ADDRESS =
   (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`) ??
   "0x0000000000000000000000000000000000000000";
 
+export const OWNER_ADDRESS = "0xd4f1254c803662c46d9c21f80f4f3c15ff57e2c9" as const;
+
 export const PREDICTION_MARKET_ABI = [
   // ── Read ──────────────────────────────────────────────────────────────────
+  { name:"totalMarkets", type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"accumulatedFees", type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"owner", type:"function", stateMutability:"view", inputs:[], outputs:[{type:"address"}] },
   {
-    name: "totalMarkets",
-    type: "function",
-    stateMutability: "view",
-    inputs: [],
-    outputs: [{ type: "uint256" }],
+    name:"getMarket", type:"function", stateMutability:"view",
+    inputs:[{name:"marketId",type:"uint256"}],
+    outputs:[{ type:"tuple", components:[
+      {name:"id",            type:"uint256"},
+      {name:"question",      type:"string"},
+      {name:"options",       type:"string[]"},
+      {name:"endTime",       type:"uint256"},
+      {name:"category",      type:"uint8"},
+      {name:"state",         type:"uint8"},
+      {name:"winningOption", type:"uint256"},
+      {name:"totalPool",     type:"uint256"},
+      {name:"optionPools",   type:"uint256[]"},
+      {name:"imageUrl",      type:"string"},
+      {name:"createdAt",     type:"uint256"},
+    ]}],
   },
   {
-    name: "getMarket",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "marketId", type: "uint256" }],
-    outputs: [
-      {
-        type: "tuple",
-        components: [
-          { name: "id",            type: "uint256" },
-          { name: "question",      type: "string"  },
-          { name: "options",       type: "string[]" },
-          { name: "endTime",       type: "uint256" },
-          { name: "category",      type: "uint8"   },
-          { name: "state",         type: "uint8"   },
-          { name: "winningOption", type: "uint256" },
-          { name: "totalPool",     type: "uint256" },
-          { name: "optionPools",   type: "uint256[]" },
-          { name: "imageUrl",      type: "string"  },
-          { name: "createdAt",     type: "uint256" },
-        ],
-      },
+    name:"getUserBets", type:"function", stateMutability:"view",
+    inputs:[{name:"marketId",type:"uint256"},{name:"user",type:"address"}],
+    outputs:[{ type:"tuple[]", components:[
+      {name:"optionIndex",type:"uint256"},
+      {name:"amount",     type:"uint256"},
+      {name:"claimed",    type:"bool"},
+    ]}],
+  },
+  { name:"FEE_BPS", type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+
+  // ── User write ─────────────────────────────────────────────────────────────
+  {
+    name:"placeBet", type:"function", stateMutability:"payable",
+    inputs:[{name:"marketId",type:"uint256"},{name:"optionIdx",type:"uint256"}],
+    outputs:[],
+  },
+  { name:"claimWinnings", type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+
+  // ── Admin write ────────────────────────────────────────────────────────────
+  {
+    name:"createMarket", type:"function", stateMutability:"nonpayable",
+    inputs:[
+      {name:"question", type:"string"},
+      {name:"options",  type:"string[]"},
+      {name:"endTime",  type:"uint256"},
+      {name:"category", type:"uint8"},
+      {name:"imageUrl", type:"string"},
     ],
+    outputs:[{name:"id",type:"uint256"}],
   },
+  { name:"lockMarket",    type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
   {
-    name: "getUserBets",
-    type: "function",
-    stateMutability: "view",
-    inputs: [
-      { name: "marketId", type: "uint256" },
-      { name: "user",     type: "address" },
-    ],
-    outputs: [
-      {
-        type: "tuple[]",
-        components: [
-          { name: "optionIndex", type: "uint256" },
-          { name: "amount",      type: "uint256" },
-          { name: "claimed",     type: "bool"    },
-        ],
-      },
-    ],
+    name:"resolveMarket", type:"function", stateMutability:"nonpayable",
+    inputs:[{name:"marketId",type:"uint256"},{name:"winningOption",type:"uint256"}],
+    outputs:[],
   },
-  {
-    name: "FEE_BPS",
-    type: "function",
-    stateMutability: "view",
-    inputs: [],
-    outputs: [{ type: "uint256" }],
-  },
-  // ── Write ─────────────────────────────────────────────────────────────────
-  {
-    name: "placeBet",
-    type: "function",
-    stateMutability: "payable",
-    inputs: [
-      { name: "marketId",  type: "uint256" },
-      { name: "optionIdx", type: "uint256" },
-    ],
-    outputs: [],
-  },
-  {
-    name: "claimWinnings",
-    type: "function",
-    stateMutability: "nonpayable",
-    inputs: [{ name: "marketId", type: "uint256" }],
-    outputs: [],
-  },
-  // ── Events ────────────────────────────────────────────────────────────────
-  {
-    name: "BetPlaced",
-    type: "event",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true  },
-      { name: "bettor",   type: "address", indexed: true  },
-      { name: "option",   type: "uint256", indexed: false },
-      { name: "amount",   type: "uint256", indexed: false },
-    ],
-  },
-  {
-    name: "MarketResolved",
-    type: "event",
-    inputs: [
-      { name: "marketId",      type: "uint256", indexed: true  },
-      { name: "winningOption", type: "uint256", indexed: false },
-    ],
-  },
-  {
-    name: "WinningsClaimed",
-    type: "event",
-    inputs: [
-      { name: "marketId", type: "uint256", indexed: true  },
-      { name: "bettor",   type: "address", indexed: true  },
-      { name: "amount",   type: "uint256", indexed: false },
-    ],
-  },
+  { name:"withdrawFees", type:"function", stateMutability:"nonpayable", inputs:[{name:"to",type:"address"}], outputs:[] },
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+  { name:"MarketCreated",   type:"event", inputs:[{name:"id",type:"uint256",indexed:true},{name:"question",type:"string",indexed:false},{name:"category",type:"uint8",indexed:false},{name:"endTime",type:"uint256",indexed:false}] },
+  { name:"BetPlaced",       type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"option",type:"uint256",indexed:false},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"MarketLocked",    type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true}] },
+  { name:"MarketResolved",  type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"winningOption",type:"uint256",indexed:false}] },
+  { name:"WinningsClaimed", type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
 ] as const;
 
 export const contractConfig = {
