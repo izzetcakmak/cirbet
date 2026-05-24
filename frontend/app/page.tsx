@@ -196,6 +196,7 @@ export default function Home() {
             <a href="https://faucet.circle.com" target="_blank" rel="noreferrer" className="hover:text-gray-400 transition-colors">Faucet</a>
             <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer" className="hover:text-gray-400 transition-colors">Explorer</a>
             <a href="https://x.com/tembetpro" target="_blank" rel="noreferrer" className="hover:text-gray-400 transition-colors">Twitter</a>
+            <a href="mailto:info@cirbet.xyz" className="hover:text-gray-400 transition-colors">info@cirbet.xyz</a>
           </div>
         </div>
       </footer>
