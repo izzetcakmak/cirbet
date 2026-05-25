@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { Zap, LayoutDashboard, Shield, Plus, Lightbulb } from "lucide-react";
+import { LayoutDashboard, Shield, Plus, Lightbulb } from "lucide-react";
 import { WalletButton } from "./WalletButton";
 import { LanguageSelector } from "./LanguageSelector";
 import { CreateMarketModal } from "./CreateMarketModal";
 import { ProposeMarketModal } from "./ProposeMarketModal";
+import { CirBetLogo } from "./CirBetLogo";
 import { useI18n } from "@/lib/i18nContext";
 import { OWNER_ADDRESS } from "@/lib/contracts";
 
@@ -25,12 +26,23 @@ export function Header() {
 
           {/* Logo */}
           <a href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-arc-600 flex items-center justify-center arc-glow">
-              <Zap size={16} className="text-white" fill="white" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-white font-bold text-lg tracking-tight">CirBet</span>
-              <span className="text-arc-400 text-[10px] font-medium tracking-widest uppercase">
+            <CirBetLogo size={38} />
+            <div className="flex flex-col leading-none">
+              <span
+                className="text-[19px] leading-tight tracking-tight"
+                style={{ fontFamily: "var(--font-syne)", fontWeight: 800 }}
+              >
+                <span style={{ color: "#f0efe8" }}>CIR</span>
+                <span style={{
+                  WebkitTextStroke: "1.2px #c8a96e",
+                  color: "transparent",
+                  letterSpacing: "0.08em",
+                }}>BET</span>
+              </span>
+              <span
+                className="text-[8px] uppercase tracking-[0.3em] mt-0.5"
+                style={{ color: "#0099cc", fontFamily: "monospace" }}
+              >
                 Prediction Market
               </span>
             </div>
