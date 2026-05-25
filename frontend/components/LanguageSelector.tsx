@@ -18,7 +18,6 @@ export function LanguageSelector() {
                    transition-colors px-2 py-1 rounded-lg hover:bg-surface-2"
       >
         <Globe size={14} />
-        <span>{current.flag}</span>
         <span className="font-medium">{current.short}</span>
       </button>
 

@@ -6,18 +6,19 @@ import { Clock, TrendingUp, Trophy, Share2 } from "lucide-react";
 import { PlaceBetModal } from "./PlaceBetModal";
 import type { Market } from "@/lib/types";
 import {
-  CATEGORY_LABEL, CATEGORY_COLOR,
-  STATE_COLOR, MARKET_STATE_LABEL,
+  CATEGORY_COLOR,
+  STATE_COLOR,
 } from "@/lib/types";
+import { useI18n } from "@/lib/i18nContext";
 
 interface Props {
   market: Market;
   onRefresh?: () => void;
 }
 
-function timeLeft(endTime: bigint): string {
+function timeLeft(endTime: bigint, endedText: string): string {
   const diff = Number(endTime) - Math.floor(Date.now() / 1000);
-  if (diff <= 0) return "Ended";
+  if (diff <= 0) return endedText;
   const d = Math.floor(diff / 86400);
   const h = Math.floor((diff % 86400) / 3600);
   const m = Math.floor((diff % 3600) / 60);
@@ -27,11 +28,25 @@ function timeLeft(endTime: bigint): string {
 }
 
 export function MarketCard({ market, onRefresh }: Props) {
+  const { t } = useI18n();
   const [showModal, setShowModal] = useState(false);
 
   const totalPool  = Number(formatUnits(market.totalPool, 6));
   const isActive   = market.state === 0;
   const isResolved = market.state === 2;
+
+  // Map numeric category/state to translated display labels
+  const categoryLabel: Record<number, string> = {
+    0: t("filterCrypto"),
+    1: t("filterSports"),
+    2: t("filterGeneral"),
+  };
+  const stateLabel: Record<number, string> = {
+    0: t("filterActive"),
+    1: t("filterLocked"),
+    2: t("filterResolved"),
+    3: t("filterCancelled"),
+  };
 
   function getPct(i: number): number {
     const optPool = Number(formatUnits(market.optionPools[i] ?? 0n, 6));
@@ -65,13 +80,13 @@ export function MarketCard({ market, onRefresh }: Props) {
           {/* Badges */}
           <div className="flex items-center justify-between">
             <span className={`badge ${CATEGORY_COLOR[market.category]}`}>
-              {CATEGORY_LABEL[market.category]}
+              {categoryLabel[market.category] ?? t("filterGeneral")}
             </span>
             <span className={`badge ${STATE_COLOR[market.state]}`}>
               <span className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block
                 ${market.state === 0 ? "bg-green-400" : market.state === 1 ? "bg-amber-400" : "bg-arc-400"}`}
               />
-              {MARKET_STATE_LABEL[market.state]}
+              {stateLabel[market.state] ?? t("filterActive")}
             </span>
           </div>
 
@@ -118,12 +133,12 @@ export function MarketCard({ market, onRefresh }: Props) {
               <span className="font-semibold text-gray-300">
                 {totalPool.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC
               </span>
-              <span>pool</span>
+              <span>{t("pool")}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Clock size={13} />
               <span className={isActive ? "text-gray-400" : "text-gray-600"}>
-                {isActive ? timeLeft(market.endTime) : "Closed"}
+                {isActive ? timeLeft(market.endTime, t("ended")) : t("closed")}
               </span>
             </div>
           </div>
@@ -142,7 +157,7 @@ export function MarketCard({ market, onRefresh }: Props) {
             <svg width="13" height="13" viewBox="0 0 1200 1227" fill="currentColor">
               <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
             </svg>
-            <span className="text-xs">Share</span>
+            <span className="text-xs">{t("shareBtn")}</span>
           </a>
           <button
             onClick={() => setShowModal(true)}
@@ -155,7 +170,7 @@ export function MarketCard({ market, onRefresh }: Props) {
               }`}
             disabled={market.state === 1}
           >
-            {isActive ? "Place Bet" : isResolved ? "View Result" : "Locked"}
+            {isActive ? t("placeBet") : isResolved ? t("viewResult") : t("lockedBtn")}
           </button>
           </div>
         </div>

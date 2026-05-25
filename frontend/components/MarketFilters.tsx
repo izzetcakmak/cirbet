@@ -1,6 +1,7 @@
 "use client";
 
 import type { CategoryFilter, StateFilter } from "@/lib/types";
+import { useI18n } from "@/lib/i18nContext";
 
 const CATEGORIES: CategoryFilter[] = ["All", "Crypto", "Sports", "General"];
 const STATES: StateFilter[]        = ["All", "Active", "Locked", "Resolved"];
@@ -14,6 +15,22 @@ interface Props {
 }
 
 export function MarketFilters({ category, state, onCategory, onState, totalCount }: Props) {
+  const { t } = useI18n();
+
+  const categoryLabels: Record<CategoryFilter, string> = {
+    All:     t("filterAll"),
+    Crypto:  t("filterCrypto"),
+    Sports:  t("filterSports"),
+    General: t("filterGeneral"),
+  };
+
+  const stateLabels: Record<StateFilter, string> = {
+    All:      t("filterAll"),
+    Active:   t("filterActive"),
+    Locked:   t("filterLocked"),
+    Resolved: t("filterResolved"),
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
 
@@ -25,7 +42,7 @@ export function MarketFilters({ category, state, onCategory, onState, totalCount
             onClick={() => onCategory(c)}
             className={`filter-tab ${category === c ? "filter-tab-active" : "filter-tab-inactive"}`}
           >
-            {c}
+            {categoryLabels[c]}
           </button>
         ))}
       </div>
@@ -39,12 +56,12 @@ export function MarketFilters({ category, state, onCategory, onState, totalCount
               onClick={() => onState(s)}
               className={`filter-tab ${state === s ? "filter-tab-active" : "filter-tab-inactive"}`}
             >
-              {s}
+              {stateLabels[s]}
             </button>
           ))}
         </div>
         <span className="text-xs text-gray-500 whitespace-nowrap">
-          {totalCount} market{totalCount !== 1 ? "s" : ""}
+          {totalCount} {t("filterMarkets")}
         </span>
       </div>
     </div>

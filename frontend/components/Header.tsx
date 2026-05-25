@@ -81,7 +81,7 @@ export function Header() {
                            hover:bg-arc-600/20 border border-arc-600/30 transition-all"
               >
                 <Lightbulb size={14} />
-                <span>Propose</span>
+                <span>{t("navPropose")}</span>
               </button>
             )}
 

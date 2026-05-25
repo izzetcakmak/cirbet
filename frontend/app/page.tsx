@@ -10,6 +10,7 @@ import { MarketFilters } from "@/components/MarketFilters";
 import { contractConfig } from "@/lib/contracts";
 import type { Market, CategoryFilter, StateFilter } from "@/lib/types";
 import { CATEGORY_LABEL, MARKET_STATE_LABEL } from "@/lib/types";
+import { useI18n } from "@/lib/i18nContext";
 
 // ─── Market data fetching ─────────────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ function filterMarkets(
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const { t } = useI18n();
   const [category, setCategory] = useState<CategoryFilter>("All");
   const [state,    setState]    = useState<StateFilter>("All");
 
@@ -88,27 +90,25 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 bg-arc-600/10 border border-arc-600/20
                           rounded-full px-4 py-1.5 mb-6 text-xs font-medium text-arc-400">
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-            Live on Arc Testnet · Chain ID 5042002
+            {t("heroBadge")}
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
-            Prediction Market
+            {t("heroTitle")}
           </h1>
           <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
-            Bet on real-world outcomes with native{" "}
-            <span className="text-white font-medium">USDC</span> on Arc Network.
-            Sub-second finality. Zero gas friction.
+            {t("heroSubtitle")}
           </p>
 
           {/* Stats bar */}
           <div className="flex items-center justify-center gap-8 mt-10 text-sm">
-            <Stat label="Markets" value={markets.length.toString()} />
+            <Stat label={t("statsMarkets")} value={markets.length.toString()} />
             <div className="w-px h-8 bg-border" />
-            <Stat label="Active" value={markets.filter((m) => m.state === 0).length.toString()} />
+            <Stat label={t("statsActive")} value={markets.filter((m) => m.state === 0).length.toString()} />
             <div className="w-px h-8 bg-border" />
-            <Stat label="Resolved" value={markets.filter((m) => m.state === 2).length.toString()} />
+            <Stat label={t("statsResolved")} value={markets.filter((m) => m.state === 2).length.toString()} />
             <div className="w-px h-8 bg-border hidden sm:block" />
-            <Stat label="Network" value="Arc Testnet" className="hidden sm:block" />
+            <Stat label={t("statsNetwork")} value="Arc Testnet" className="hidden sm:block" />
           </div>
         </div>
       </section>
@@ -127,7 +127,7 @@ export default function Home() {
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-500">
             <Loader2 size={32} className="animate-spin text-arc-500" />
-            <p className="text-sm">Loading markets from Arc…</p>
+            <p className="text-sm">{t("loadingMarkets")}</p>
           </div>
         )}
 
@@ -138,7 +138,7 @@ export default function Home() {
               <CirBetLogo size={44} />
             </div>
             <div className="text-center">
-              <p className="text-white font-semibold text-lg mb-1">No markets yet</p>
+              <p className="text-white font-semibold text-lg mb-1">{t("noMarketsYet")}</p>
               <p className="text-gray-500 text-sm max-w-sm">
                 Deploy the contract and create your first prediction market to get started.
               </p>
@@ -158,12 +158,12 @@ export default function Home() {
         {!isLoading && markets.length > 0 && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <SearchX size={36} className="text-gray-600" />
-            <p className="text-gray-400 text-sm">No markets match this filter.</p>
+            <p className="text-gray-400 text-sm">{t("noMarketsFilter")}</p>
             <button
               onClick={() => { setCategory("All"); setState("All"); }}
               className="btn-ghost text-xs"
             >
-              Clear filters
+              {t("clearFilters")}
             </button>
           </div>
         )}
