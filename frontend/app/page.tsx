@@ -121,8 +121,6 @@ export default function Home() {
             <Stat label={t("statsActive")}   value={markets.filter((m) => m.state === 0).length.toString()} />
             <div className="w-px h-8 bg-border" />
             <Stat label={t("statsResolved")} value={markets.filter((m) => m.state === 2).length.toString()} />
-            <div className="w-px h-8 bg-border hidden sm:block" />
-            <Stat label="Testnet" value="Arc" className="hidden sm:block" />
           </div>
         </div>
       </section>
