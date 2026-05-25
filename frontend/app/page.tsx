@@ -8,6 +8,7 @@ import { Header } from "@/components/Header";
 import { CirBetLogo } from "@/components/CirBetLogo";
 import { MarketCard } from "@/components/MarketCard";
 import { MarketFilters } from "@/components/MarketFilters";
+import { PlaceBetModal } from "@/components/PlaceBetModal";
 import { contractConfig } from "@/lib/contracts";
 import type { Market, CategoryFilter, StateFilter } from "@/lib/types";
 import { CATEGORY_LABEL, MARKET_STATE_LABEL, CATEGORY_COLOR } from "@/lib/types";
@@ -68,8 +69,9 @@ function filterMarkets(
 
 export default function Home() {
   const { t } = useI18n();
-  const [category, setCategory] = useState<CategoryFilter>("All");
-  const [state,    setState]    = useState<StateFilter>("All");
+  const [category,  setCategory]  = useState<CategoryFilter>("All");
+  const [state,     setState]     = useState<StateFilter>("All");
+  const [betMarket, setBetMarket] = useState<Market | null>(null);
 
   const { markets, isLoading, refetch } = useMarkets();
   const filtered = useMemo(
@@ -163,7 +165,11 @@ export default function Home() {
           >
             {[...topActive, ...topActive, ...topActive, ...topActive].map(
               (market, i) => (
-                <MarqueeCard key={`${market.id}-${i}`} market={market} />
+                <MarqueeCard
+                  key={`${market.id}-${i}`}
+                  market={market}
+                  onOpen={setBetMarket}
+                />
               ),
             )}
           </div>
@@ -239,6 +245,15 @@ export default function Home() {
         )}
       </main>
 
+      {/* Bet modal — opened from marquee cards */}
+      {betMarket && (
+        <PlaceBetModal
+          market={betMarket}
+          onClose={() => setBetMarket(null)}
+          onSuccess={refetch}
+        />
+      )}
+
       {/* Footer */}
       <footer className="border-t border-border py-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4
@@ -273,8 +288,22 @@ function Stat({ label, value, className = "" }: { label: string; value: string; 
 
 // ─── MarqueeCard ──────────────────────────────────────────────────────────────
 
-function MarqueeCard({ market }: { market: Market }) {
+function MarqueeCard({ market, onOpen }: { market: Market; onOpen: (m: Market) => void }) {
+  const { t } = useI18n();
   const totalPool = Number(formatUnits(market.totalPool, 6));
+
+  const categoryLabel: Record<number, string> = {
+    0: t("filterCrypto"),
+    1: t("filterSports"),
+    2: t("filterGeneral"),
+    3: t("filterInflation"),
+    4: t("filterRates"),
+    5: t("filterMacro"),
+    6: t("filterGeopolitical"),
+    7: t("filterCorporate"),
+    8: t("filterEnergy"),
+    9: t("filterPolicy"),
+  };
 
   // Index of the option with the highest pool
   const leadingIdx = market.optionPools.reduce<number>(
@@ -303,15 +332,23 @@ function MarqueeCard({ market }: { market: Market }) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(market)}
+      onKeyDown={(e) => e.key === "Enter" && onOpen(market)}
       className="flex-shrink-0 w-[300px] mx-2.5
-                 bg-surface-1 border border-border hover:border-arc-600/30
+                 bg-surface-1 border border-border
+                 hover:border-arc-600/50 hover:bg-surface-2
+                 hover:shadow-lg hover:shadow-arc-600/10
+                 active:scale-[0.98]
                  rounded-2xl p-4 flex flex-col gap-2.5
-                 cursor-default transition-colors duration-200"
+                 cursor-pointer transition-all duration-200
+                 outline-none focus-visible:ring-2 focus-visible:ring-arc-500/50"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className={`badge ${colorClass} text-[10px] py-0.5`}>
-          {CATEGORY_LABEL[market.category] ?? "General"}
+          {categoryLabel[market.category] ?? t("filterGeneral")}
         </span>
         <span className="text-[11px] text-gray-600 font-mono">{poolLabel}</span>
       </div>
@@ -336,6 +373,11 @@ function MarqueeCard({ market }: { market: Market }) {
           />
         </div>
       </div>
+
+      {/* Click hint */}
+      <p className="text-[10px] text-gray-600 text-right mt-0.5 select-none">
+        {t("placeBet")} →
+      </p>
     </div>
   );
 }
