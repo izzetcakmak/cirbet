@@ -45,5 +45,17 @@ export interface UserBet {
   claimed:     boolean;
 }
 
+export interface Proposal {
+  id:        bigint;
+  question:  string;
+  options:   string[];
+  endTime:   bigint;
+  category:  Category;
+  imageUrl:  string;
+  proposer:  `0x${string}`;
+  status:    0 | 1 | 2; // Pending | Approved | Rejected
+  createdAt: bigint;
+}
+
 export type CategoryFilter = "All" | "Crypto" | "Sports" | "General";
 export type StateFilter    = "All" | "Active"  | "Locked"  | "Resolved";

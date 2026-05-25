@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { Zap, LayoutDashboard, Shield, Plus } from "lucide-react";
+import { Zap, LayoutDashboard, Shield, Plus, Lightbulb } from "lucide-react";
 import { WalletButton } from "./WalletButton";
 import { LanguageSelector } from "./LanguageSelector";
 import { CreateMarketModal } from "./CreateMarketModal";
+import { ProposeMarketModal } from "./ProposeMarketModal";
 import { useI18n } from "@/lib/i18nContext";
 import { OWNER_ADDRESS } from "@/lib/contracts";
 
 export function Header() {
   const { t } = useI18n();
   const { address } = useAccount();
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreate,  setShowCreate]  = useState(false);
+  const [showPropose, setShowPropose] = useState(false);
 
   const isAdmin = address?.toLowerCase() === OWNER_ADDRESS.toLowerCase();
 
@@ -37,29 +39,15 @@ export function Header() {
           {/* Nav links */}
           <nav className="hidden md:flex items-center gap-5 text-sm text-gray-400">
             <a href="#markets" className="hover:text-white transition-colors">{t("navMarkets")}</a>
-            <a
-              href="https://faucet.circle.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              {t("navFaucet")}
-            </a>
-            <a
-              href="https://testnet.arcscan.app"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              {t("navExplorer")}
-            </a>
+            <a href="https://faucet.circle.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navFaucet")}</a>
+            <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navExplorer")}</a>
           </nav>
 
           {/* Right side */}
           <div className="flex items-center gap-2">
             <LanguageSelector />
 
-            {/* My Account */}
+            {/* My Account — any connected user */}
             {address && (
               <a
                 href="/dashboard"
@@ -70,6 +58,19 @@ export function Header() {
                 <LayoutDashboard size={14} />
                 <span>{t("navMyAccount")}</span>
               </a>
+            )}
+
+            {/* Propose Market — connected non-admin users */}
+            {address && !isAdmin && (
+              <button
+                onClick={() => setShowPropose(true)}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                           text-sm text-arc-300 hover:text-white bg-arc-600/10
+                           hover:bg-arc-600/20 border border-arc-600/30 transition-all"
+              >
+                <Lightbulb size={14} />
+                <span>Propose</span>
+              </button>
             )}
 
             {/* Admin panel — owner only */}
@@ -103,12 +104,8 @@ export function Header() {
         </div>
       </header>
 
-      {showCreate && (
-        <CreateMarketModal
-          onClose={() => setShowCreate(false)}
-          onSuccess={() => setShowCreate(false)}
-        />
-      )}
+      {showCreate  && <CreateMarketModal  onClose={() => setShowCreate(false)}  onSuccess={() => setShowCreate(false)} />}
+      {showPropose && <ProposeMarketModal onClose={() => setShowPropose(false)} />}
     </>
   );
 }

@@ -6,125 +6,200 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title CirBet Prediction Market
- * @notice Decentralized prediction market on Arc Network — native USDC (6 decimals) as betting currency
+ * @notice Decentralized prediction market on Arc Network — native USDC (6 decimals)
+ *         Anyone can propose a market; only the owner can approve/reject proposals.
  */
 contract PredictionMarket is Ownable, ReentrancyGuard {
 
-    // ─── Types ───────────────────────────────────────────────────────────────
+    // ─── Types ────────────────────────────────────────────────────────────────
 
-    enum MarketState { Active, Locked, Resolved }
-    enum Category    { Crypto, Sports, General }
+    enum MarketState    { Active, Locked, Resolved }
+    enum Category       { Crypto, Sports, General }
+    enum ProposalStatus { Pending, Approved, Rejected }
 
     struct Market {
-        uint256 id;
-        string  question;
-        string[] options;
-        uint256  endTime;
-        Category category;
+        uint256   id;
+        string    question;
+        string[]  options;
+        uint256   endTime;
+        Category  category;
         MarketState state;
-        uint256  winningOption;   // only valid when Resolved
-        uint256  totalPool;       // total USDC (6 dec) in pool
-        uint256[] optionPools;    // USDC per option
-        string   imageUrl;        // optional cover image
-        uint256  createdAt;
+        uint256   winningOption;
+        uint256   totalPool;
+        uint256[] optionPools;
+        string    imageUrl;
+        uint256   createdAt;
+    }
+
+    struct Proposal {
+        uint256        id;
+        string         question;
+        string[]       options;
+        uint256        endTime;
+        Category       category;
+        string         imageUrl;
+        address        proposer;
+        ProposalStatus status;
+        uint256        createdAt;
     }
 
     struct Bet {
         uint256 optionIndex;
-        uint256 amount;           // USDC (6 dec)
+        uint256 amount;
         bool    claimed;
     }
 
     // ─── State ────────────────────────────────────────────────────────────────
 
-    uint256 public constant FEE_BPS = 300; // 3% platform fee
-    uint256 public constant MIN_BET  = 1_000; // 0.001 USDC
+    uint256 public constant FEE_BPS = 300;   // 3%
+    uint256 public constant MIN_BET = 1_000; // 0.001 USDC
 
-    uint256 private _nextId;
+    uint256 private _nextMarketId;
+    uint256 private _nextProposalId;
     uint256 public  accumulatedFees;
 
-    mapping(uint256 => Market) public markets;
-    // marketId → user → Bet[]
-    mapping(uint256 => mapping(address => Bet[])) public userBets;
-    // marketId → user → total amount bet (for quick lookup)
-    mapping(uint256 => mapping(address => uint256)) public userTotalBet;
+    mapping(uint256 => Market)   private _markets;
+    mapping(uint256 => Proposal) private _proposals;
+    mapping(uint256 => mapping(address => Bet[]))    public userBets;
+    mapping(uint256 => mapping(address => uint256))  public userTotalBet;
 
     // ─── Events ───────────────────────────────────────────────────────────────
 
-    event MarketCreated(uint256 indexed id, string question, Category category, uint256 endTime);
-    event BetPlaced(uint256 indexed marketId, address indexed bettor, uint256 option, uint256 amount);
-    event MarketLocked(uint256 indexed marketId);
-    event MarketResolved(uint256 indexed marketId, uint256 winningOption);
-    event WinningsClaimed(uint256 indexed marketId, address indexed bettor, uint256 amount);
-    event FeeWithdrawn(address indexed to, uint256 amount);
+    event MarketCreated   (uint256 indexed id, string question, Category category, uint256 endTime);
+    event MarketProposed  (uint256 indexed proposalId, address indexed proposer, string question);
+    event ProposalApproved(uint256 indexed proposalId, uint256 indexed marketId);
+    event ProposalRejected(uint256 indexed proposalId);
+    event BetPlaced       (uint256 indexed marketId, address indexed bettor, uint256 option, uint256 amount);
+    event MarketLocked    (uint256 indexed marketId);
+    event MarketResolved  (uint256 indexed marketId, uint256 winningOption);
+    event WinningsClaimed (uint256 indexed marketId, address indexed bettor, uint256 amount);
+    event FeeWithdrawn    (address indexed to, uint256 amount);
 
-    // ─── Constructor ─────────────────────────────────────────────────────────
+    // ─── Constructor ──────────────────────────────────────────────────────────
 
     constructor() Ownable(msg.sender) {}
 
-    // ─── Admin: Market Management ────────────────────────────────────────────
+    // ─── Internal: create market ──────────────────────────────────────────────
 
-    function createMarket(
-        string calldata question,
-        string[] calldata options,
-        uint256 endTime,
-        Category category,
-        string calldata imageUrl
-    ) external onlyOwner returns (uint256 id) {
+    function _createMarket(
+        string memory    question,
+        string[] memory  options,
+        uint256          endTime,
+        Category         category,
+        string memory    imageUrl
+    ) internal returns (uint256 id) {
         require(options.length >= 2 && options.length <= 8, "2-8 options required");
         require(endTime > block.timestamp, "endTime must be future");
 
-        id = _nextId++;
+        id = _nextMarketId++;
 
         uint256[] memory pools = new uint256[](options.length);
-        string[] memory _opts = options;
 
-        markets[id] = Market({
-            id: id,
-            question: question,
-            options: _opts,
-            endTime: endTime,
-            category: category,
-            state: MarketState.Active,
+        _markets[id] = Market({
+            id:            id,
+            question:      question,
+            options:       options,
+            endTime:       endTime,
+            category:      category,
+            state:         MarketState.Active,
             winningOption: 0,
-            totalPool: 0,
-            optionPools: pools,
-            imageUrl: imageUrl,
-            createdAt: block.timestamp
+            totalPool:     0,
+            optionPools:   pools,
+            imageUrl:      imageUrl,
+            createdAt:     block.timestamp
         });
 
         emit MarketCreated(id, question, category, endTime);
     }
 
+    // ─── Admin: direct market creation ───────────────────────────────────────
+
+    function createMarket(
+        string   calldata question,
+        string[] calldata options,
+        uint256           endTime,
+        Category          category,
+        string   calldata imageUrl
+    ) external onlyOwner returns (uint256) {
+        return _createMarket(question, options, endTime, category, imageUrl);
+    }
+
+    // ─── User: propose market ─────────────────────────────────────────────────
+
+    function proposeMarket(
+        string   calldata question,
+        string[] calldata options,
+        uint256           endTime,
+        Category          category,
+        string   calldata imageUrl
+    ) external returns (uint256 proposalId) {
+        require(bytes(question).length > 0,                     "Empty question");
+        require(options.length >= 2 && options.length <= 8,     "2-8 options required");
+        require(endTime > block.timestamp,                       "endTime must be future");
+
+        proposalId = _nextProposalId++;
+
+        string[] memory opts = options;
+
+        _proposals[proposalId] = Proposal({
+            id:        proposalId,
+            question:  question,
+            options:   opts,
+            endTime:   endTime,
+            category:  category,
+            imageUrl:  imageUrl,
+            proposer:  msg.sender,
+            status:    ProposalStatus.Pending,
+            createdAt: block.timestamp
+        });
+
+        emit MarketProposed(proposalId, msg.sender, question);
+    }
+
+    // ─── Admin: approve / reject ──────────────────────────────────────────────
+
+    function approveProposal(uint256 proposalId) external onlyOwner returns (uint256 marketId) {
+        Proposal storage p = _proposals[proposalId];
+        require(p.status == ProposalStatus.Pending,  "Not pending");
+        require(p.endTime > block.timestamp,          "Proposal expired");
+        p.status = ProposalStatus.Approved;
+        marketId = _createMarket(p.question, p.options, p.endTime, p.category, p.imageUrl);
+        emit ProposalApproved(proposalId, marketId);
+    }
+
+    function rejectProposal(uint256 proposalId) external onlyOwner {
+        Proposal storage p = _proposals[proposalId];
+        require(p.status == ProposalStatus.Pending, "Not pending");
+        p.status = ProposalStatus.Rejected;
+        emit ProposalRejected(proposalId);
+    }
+
+    // ─── Admin: market lifecycle ──────────────────────────────────────────────
+
     function lockMarket(uint256 marketId) external onlyOwner {
-        Market storage m = markets[marketId];
-        require(m.state == MarketState.Active, "Not active");
-        require(block.timestamp >= m.endTime, "Not ended yet");
+        Market storage m = _markets[marketId];
+        require(m.state == MarketState.Active,        "Not active");
+        require(block.timestamp >= m.endTime,         "Not ended yet");
         m.state = MarketState.Locked;
         emit MarketLocked(marketId);
     }
 
     function resolveMarket(uint256 marketId, uint256 winningOption) external onlyOwner {
-        Market storage m = markets[marketId];
-        require(m.state == MarketState.Locked, "Not locked");
-        require(winningOption < m.options.length, "Invalid option");
-        m.state = MarketState.Resolved;
+        Market storage m = _markets[marketId];
+        require(m.state == MarketState.Locked,        "Not locked");
+        require(winningOption < m.options.length,     "Invalid option");
+        m.state         = MarketState.Resolved;
         m.winningOption = winningOption;
         emit MarketResolved(marketId, winningOption);
     }
 
-    // ─── User: Betting ────────────────────────────────────────────────────────
+    // ─── User: bet ────────────────────────────────────────────────────────────
 
-    /**
-     * @notice Place a bet — send native USDC as msg.value
-     * @param marketId  Target market
-     * @param optionIdx Index of the chosen option
-     */
     function placeBet(uint256 marketId, uint256 optionIdx) external payable nonReentrant {
-        Market storage m = markets[marketId];
-        require(m.state == MarketState.Active, "Market not active");
-        require(block.timestamp < m.endTime,   "Betting period ended");
-        require(optionIdx < m.options.length,  "Invalid option");
+        Market storage m = _markets[marketId];
+        require(m.state == MarketState.Active,  "Market not active");
+        require(block.timestamp < m.endTime,    "Betting period ended");
+        require(optionIdx < m.options.length,   "Invalid option");
         require(msg.value >= MIN_BET,           "Below minimum bet");
 
         m.optionPools[optionIdx] += msg.value;
@@ -135,31 +210,29 @@ contract PredictionMarket is Ownable, ReentrancyGuard {
             amount:      msg.value,
             claimed:     false
         }));
-
         userTotalBet[marketId][msg.sender] += msg.value;
 
         emit BetPlaced(marketId, msg.sender, optionIdx, msg.value);
     }
 
-    // ─── User: Claiming ───────────────────────────────────────────────────────
+    // ─── User: claim ──────────────────────────────────────────────────────────
 
     function claimWinnings(uint256 marketId) external nonReentrant {
-        Market storage m = markets[marketId];
+        Market storage m = _markets[marketId];
         require(m.state == MarketState.Resolved, "Not resolved");
 
         Bet[] storage bets = userBets[marketId][msg.sender];
         uint256 winningPool = m.optionPools[m.winningOption];
-
         uint256 totalPayout;
+
         for (uint256 i; i < bets.length; i++) {
             Bet storage b = bets[i];
             if (b.claimed || b.optionIndex != m.winningOption) continue;
-            // proportional share of totalPool minus fee
-            uint256 gross = (b.amount * m.totalPool) / winningPool;
-            uint256 fee   = (gross * FEE_BPS) / 10_000;
+            uint256 gross    = (b.amount * m.totalPool) / winningPool;
+            uint256 fee      = (gross * FEE_BPS) / 10_000;
             accumulatedFees += fee;
             totalPayout     += gross - fee;
-            b.claimed = true;
+            b.claimed        = true;
         }
 
         require(totalPayout > 0, "Nothing to claim");
@@ -170,7 +243,7 @@ contract PredictionMarket is Ownable, ReentrancyGuard {
         emit WinningsClaimed(marketId, msg.sender, totalPayout);
     }
 
-    // ─── Admin: Fee Withdrawal ────────────────────────────────────────────────
+    // ─── Admin: fee withdrawal ────────────────────────────────────────────────
 
     function withdrawFees(address payable to) external onlyOwner {
         uint256 amount = accumulatedFees;
@@ -181,25 +254,13 @@ contract PredictionMarket is Ownable, ReentrancyGuard {
         emit FeeWithdrawn(to, amount);
     }
 
-    // ─── View Helpers ─────────────────────────────────────────────────────────
+    // ─── Views ────────────────────────────────────────────────────────────────
 
-    function getMarket(uint256 marketId) external view returns (Market memory) {
-        return markets[marketId];
-    }
-
-    function getOptions(uint256 marketId) external view returns (string[] memory) {
-        return markets[marketId].options;
-    }
-
-    function getOptionPools(uint256 marketId) external view returns (uint256[] memory) {
-        return markets[marketId].optionPools;
-    }
-
-    function getUserBets(uint256 marketId, address user) external view returns (Bet[] memory) {
-        return userBets[marketId][user];
-    }
-
-    function totalMarkets() external view returns (uint256) {
-        return _nextId;
-    }
+    function getMarket(uint256 marketId)       external view returns (Market memory)   { return _markets[marketId]; }
+    function getProposal(uint256 proposalId)   external view returns (Proposal memory) { return _proposals[proposalId]; }
+    function getOptions(uint256 marketId)      external view returns (string[] memory) { return _markets[marketId].options; }
+    function getOptionPools(uint256 marketId)  external view returns (uint256[] memory){ return _markets[marketId].optionPools; }
+    function getUserBets(uint256 marketId, address user) external view returns (Bet[] memory) { return userBets[marketId][user]; }
+    function totalMarkets()   external view returns (uint256) { return _nextMarketId; }
+    function totalProposals() external view returns (uint256) { return _nextProposalId; }
 }

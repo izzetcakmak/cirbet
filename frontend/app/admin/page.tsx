@@ -1,32 +1,24 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import {
+  useAccount, useReadContract, useReadContracts,
+  useWriteContract, useWaitForTransactionReceipt,
+} from "wagmi";
 import { useRouter } from "next/navigation";
-import { Shield, Home, Loader2, Lock, CheckCircle2, AlertCircle, ChevronDown } from "lucide-react";
+import {
+  Shield, Home, Loader2, Lock, CheckCircle2, AlertCircle,
+  ChevronDown, ThumbsUp, ThumbsDown,
+} from "lucide-react";
 import { contractConfig, OWNER_ADDRESS } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
-import type { Market } from "@/lib/types";
+import type { Market, Proposal } from "@/lib/types";
 import { formatUnits } from "viem";
 
-function useAllMarkets() {
-  const { data: total } = useReadContract({ ...contractConfig, functionName: "totalMarkets" });
-  const count = Number(total ?? 0n);
-  const { data: results, isLoading, refetch } = useReadContracts({
-    contracts: Array.from({ length: count }, (_, i) => ({
-      ...contractConfig, functionName: "getMarket" as const, args: [BigInt(i)] as const,
-    })),
-    query: { enabled: count > 0 },
-  });
-  const markets: Market[] = useMemo(() => {
-    if (!results) return [];
-    return results.map((r) => r.result as Market | undefined).filter((m): m is Market => m !== undefined);
-  }, [results]);
-  return { markets, isLoading: isLoading && count > 0, total: count, refetch };
-}
+function formatUSDC(wei: bigint) { return parseFloat(formatUnits(wei, 6)).toFixed(2); }
 
 function timeLeft(endTime: bigint): string {
-  const now = Math.floor(Date.now() / 1000);
+  const now  = Math.floor(Date.now() / 1000);
   const diff = Number(endTime) - now;
   if (diff <= 0) return "Expired";
   const d = Math.floor(diff / 86400);
@@ -37,23 +29,53 @@ function timeLeft(endTime: bigint): string {
   return `${m}m`;
 }
 
-function formatUSDC(wei: bigint): string {
-  return parseFloat(formatUnits(wei, 6)).toFixed(2);
+function useAdminData() {
+  // Markets
+  const { data: totalM } = useReadContract({ ...contractConfig, functionName: "totalMarkets" });
+  const countM = Number(totalM ?? 0n);
+  const { data: marketResults, refetch: refetchM } = useReadContracts({
+    contracts: Array.from({ length: countM }, (_, i) => ({
+      ...contractConfig, functionName: "getMarket" as const, args: [BigInt(i)] as const,
+    })),
+    query: { enabled: countM > 0 },
+  });
+
+  // Proposals
+  const { data: totalP } = useReadContract({ ...contractConfig, functionName: "totalProposals" });
+  const countP = Number(totalP ?? 0n);
+  const { data: proposalResults, refetch: refetchP } = useReadContracts({
+    contracts: Array.from({ length: countP }, (_, i) => ({
+      ...contractConfig, functionName: "getProposal" as const, args: [BigInt(i)] as const,
+    })),
+    query: { enabled: countP > 0 },
+  });
+
+  const markets: Market[] = useMemo(() =>
+    (marketResults ?? []).map((r) => r.result as Market).filter(Boolean),
+  [marketResults]);
+
+  const proposals: Proposal[] = useMemo(() =>
+    (proposalResults ?? []).map((r) => r.result as Proposal).filter(Boolean),
+  [proposalResults]);
+
+  function refetch() { refetchM(); refetchP(); }
+
+  return { markets, proposals, countM, countP, refetch };
 }
 
-type Tab = "all" | "pending" | "resolve";
+type Tab = "pending" | "all" | "resolve";
 
 export default function AdminPage() {
   const { t } = useI18n();
   const router = useRouter();
   const { address } = useAccount();
-  const [tab, setTab] = useState<Tab>("all");
+  const [tab, setTab]               = useState<Tab>("pending");
   const [resolvingId, setResolvingId] = useState<number | null>(null);
   const [selectedWinner, setSelectedWinner] = useState<Record<number, number>>({});
 
-  const { markets, isLoading, total, refetch } = useAllMarkets();
+  const { markets, proposals, countM, countP, refetch } = useAdminData();
 
-  const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
+  const { writeContract, data: txHash, isPending, error: writeError, reset } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
   const isAdmin = address?.toLowerCase() === OWNER_ADDRESS.toLowerCase();
@@ -64,47 +86,49 @@ export default function AdminPage() {
         <div className="text-center space-y-4">
           <Shield size={48} className="text-gray-600 mx-auto" />
           <p className="text-gray-400">Access restricted to admin</p>
-          <button onClick={() => router.push("/")} className="btn-primary px-6 py-2">
-            {t("adminHome")}
-          </button>
+          <button onClick={() => router.push("/")} className="btn-primary px-6 py-2">{t("adminHome")}</button>
         </div>
       </div>
     );
   }
 
   const now = BigInt(Math.floor(Date.now() / 1000));
-
-  const pending  = markets.filter((m) => m.state === 0 && m.endTime > now);
+  const pendingProposals = proposals.filter((p) => p.status === 0);
   const toResolve = markets.filter((m) => m.state === 1 || (m.state === 0 && m.endTime <= now));
-  const displayed = tab === "all" ? markets : tab === "pending" ? pending : toResolve;
 
   const stats = {
-    pending:  pending.length,
-    total:    total,
-    active:   markets.filter((m) => m.state === 0).length,
-    resolved: markets.filter((m) => m.state === 2).length,
-    cancelled:0,
+    pending:   pendingProposals.length,
+    total:     countM,
+    active:    markets.filter((m) => m.state === 0).length,
+    resolved:  markets.filter((m) => m.state === 2).length,
+    cancelled: 0,
   };
 
   function handleLock(id: number) {
+    reset();
     writeContract({ ...contractConfig, functionName: "lockMarket", args: [BigInt(id)] });
   }
-
   function handleResolve(id: number) {
     const winner = selectedWinner[id] ?? 0;
+    reset();
     writeContract({ ...contractConfig, functionName: "resolveMarket", args: [BigInt(id), BigInt(winner)] });
     setResolvingId(null);
+  }
+  function handleApprove(proposalId: number) {
+    reset();
+    writeContract({ ...contractConfig, functionName: "approveProposal", args: [BigInt(proposalId)] });
+  }
+  function handleReject(proposalId: number) {
+    reset();
+    writeContract({ ...contractConfig, functionName: "rejectProposal", args: [BigInt(proposalId)] });
   }
 
   return (
     <div className="min-h-screen bg-surface-0">
-      {/* Header */}
+      {/* Top bar */}
       <div className="bg-surface-1 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-          <button
-            onClick={() => router.push("/")}
-            className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1.5"
-          >
+          <button onClick={() => router.push("/")} className="text-gray-400 hover:text-white text-sm flex items-center gap-1.5 transition-colors">
             <Home size={14} /> {t("adminHome")}
           </button>
           <span className="text-gray-700">/</span>
@@ -133,30 +157,28 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-border pb-0">
+        <div className="flex gap-2 border-b border-border">
           {([
-            { key: "all",     label: t("adminAllMarkets"),       count: total },
-            { key: "pending", label: t("adminPendingApproval"),  count: pending.length },
-            { key: "resolve", label: t("adminToResolve"),        count: toResolve.length },
-          ] as const).map((tab_item) => (
+            { key: "pending", label: t("adminPendingApproval"), count: pendingProposals.length },
+            { key: "resolve", label: t("adminToResolve"),       count: toResolve.length },
+            { key: "all",     label: t("adminAllMarkets"),      count: countM },
+          ] as const).map((item) => (
             <button
-              key={tab_item.key}
-              onClick={() => setTab(tab_item.key)}
+              key={item.key}
+              onClick={() => setTab(item.key)}
               className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                tab === tab_item.key
+                tab === item.key
                   ? "border-arc-500 text-arc-400"
                   : "border-transparent text-gray-500 hover:text-white"
               }`}
             >
-              {tab_item.label}
-              <span className="ml-2 text-xs bg-surface-2 rounded-full px-2 py-0.5">
-                {tab_item.count}
-              </span>
+              {item.label}
+              <span className="ml-2 text-xs bg-surface-2 rounded-full px-2 py-0.5">{item.count}</span>
             </button>
           ))}
         </div>
 
-        {/* Error / Success */}
+        {/* Notifications */}
         {writeError && (
           <div className="flex items-center gap-2 text-red-400 text-sm bg-red-600/10 border border-red-600/30 rounded-xl px-4 py-3">
             <AlertCircle size={16} />
@@ -169,128 +191,239 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Market list */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 size={32} className="animate-spin text-arc-400" />
-          </div>
-        ) : displayed.length === 0 ? (
-          <div className="text-center py-20 text-gray-600">{t("noData")}</div>
-        ) : (
-          <div className="space-y-3">
-            {displayed.map((market) => {
-              const isExpired = market.endTime <= now;
-              const stateLabel = ["Active", "Locked", "Resolved"][market.state] ?? "Unknown";
-              const stateColor = ["text-arc-400", "text-yellow-400", "text-green-400"][market.state] ?? "text-gray-400";
+        {/* ── Pending Approval (proposals) ─────────────────────────────────── */}
+        {tab === "pending" && (
+          pendingProposals.length === 0
+            ? <div className="text-center py-20 text-gray-600">{t("noData")}</div>
+            : <div className="space-y-3">
+                {pendingProposals.map((p) => {
+                  const isExpired = p.endTime <= now;
+                  return (
+                    <div key={Number(p.id)}
+                      className="bg-surface-1 border border-amber-600/20 rounded-xl p-4 space-y-3">
 
-              return (
-                <div key={Number(market.id)}
-                  className="bg-surface-1 border border-border rounded-xl p-4 space-y-3">
-
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-gray-600">#{Number(market.id)}</span>
-                        <span className={`text-xs font-medium ${stateColor}`}>{stateLabel}</span>
-                        {isExpired && market.state === 0 && (
-                          <span className="text-xs text-red-400 bg-red-600/10 px-2 py-0.5 rounded-full">
-                            {t("adminTimeExpired")}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-white text-sm font-medium line-clamp-2">{market.question}</p>
-                      <div className="flex items-center gap-4 mt-1.5 text-xs text-gray-500">
-                        <span>{t("adminPool")}: {formatUSDC(market.totalPool)} USDC</span>
-                        {market.state === 0 && !isExpired && (
-                          <span>{timeLeft(market.endTime)} {t("adminTimeLeft")}</span>
-                        )}
-                        <span>{market.options.length} options</span>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {market.state === 0 && (
-                        <button
-                          onClick={() => handleLock(Number(market.id))}
-                          disabled={isPending || isConfirming}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
-                                     text-yellow-400 bg-yellow-600/10 border border-yellow-600/30
-                                     hover:bg-yellow-600/20 disabled:opacity-40 transition-all"
-                        >
-                          {(isPending || isConfirming)
-                            ? <Loader2 size={12} className="animate-spin" />
-                            : <Lock size={12} />}
-                          {t("adminLock")}
-                        </button>
+                      {/* Cover image */}
+                      {p.imageUrl && (
+                        <div className="w-full h-28 rounded-lg overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={p.imageUrl} alt={p.question} className="w-full h-full object-cover" />
+                        </div>
                       )}
 
-                      {(market.state === 1 || (market.state === 0 && isExpired)) && (
-                        resolvingId === Number(market.id) ? (
-                          <div className="flex items-center gap-2">
-                            <div className="relative">
-                              <select
-                                value={selectedWinner[Number(market.id)] ?? 0}
-                                onChange={(e) => setSelectedWinner((prev) => ({
-                                  ...prev, [Number(market.id)]: Number(e.target.value),
-                                }))}
-                                className="bg-surface-2 border border-border rounded-lg px-2 py-1.5
-                                           text-white text-xs appearance-none pr-6"
-                              >
-                                {market.options.map((opt, i) => (
-                                  <option key={i} value={i}>{opt}</option>
-                                ))}
-                              </select>
-                              <ChevronDown size={12} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            </div>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs text-gray-600">Proposal #{Number(p.id)}</span>
+                            <span className="text-xs text-yellow-400 bg-yellow-600/10 px-2 py-0.5 rounded-full">Pending</span>
+                            {isExpired && <span className="text-xs text-red-400">{t("adminTimeExpired")}</span>}
+                          </div>
+                          <p className="text-white text-sm font-medium line-clamp-2">{p.question}</p>
+                          <div className="flex items-center gap-4 mt-1.5 text-xs text-gray-500">
+                            <span>By: {p.proposer.slice(0, 6)}…{p.proposer.slice(-4)}</span>
+                            {!isExpired && <span>{timeLeft(p.endTime)} {t("adminTimeLeft")}</span>}
+                            <span>{p.options.length} options</span>
+                          </div>
+                        </div>
+
+                        {!isExpired && (
+                          <div className="flex items-center gap-2 shrink-0">
                             <button
-                              onClick={() => handleResolve(Number(market.id))}
+                              onClick={() => handleApprove(Number(p.id))}
                               disabled={isPending || isConfirming}
-                              className="px-3 py-1.5 rounded-lg text-xs text-green-400
-                                         bg-green-600/10 border border-green-600/30
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
+                                         text-green-400 bg-green-600/10 border border-green-600/30
                                          hover:bg-green-600/20 disabled:opacity-40 transition-all"
                             >
                               {(isPending || isConfirming)
                                 ? <Loader2 size={12} className="animate-spin" />
-                                : t("adminConfirmResolve")}
+                                : <ThumbsUp size={12} />}
+                              Approve
                             </button>
                             <button
-                              onClick={() => setResolvingId(null)}
-                              className="text-gray-500 hover:text-white text-xs transition-colors"
+                              onClick={() => handleReject(Number(p.id))}
+                              disabled={isPending || isConfirming}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
+                                         text-red-400 bg-red-600/10 border border-red-600/30
+                                         hover:bg-red-600/20 disabled:opacity-40 transition-all"
                             >
-                              ✕
+                              <ThumbsDown size={12} /> Reject
                             </button>
                           </div>
-                        ) : (
-                          <button
-                            onClick={() => setResolvingId(Number(market.id))}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
-                                       text-green-400 bg-green-600/10 border border-green-600/30
-                                       hover:bg-green-600/20 transition-all"
-                          >
-                            <CheckCircle2 size={12} />
-                            {t("adminResolve")}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
+                        )}
+                      </div>
 
-                  {/* Options preview */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {market.options.map((opt, i) => (
-                      <span key={i}
-                        className="text-xs bg-surface-2 border border-border rounded-lg px-2 py-1 text-gray-400">
-                        {opt}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                      {/* Options preview */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {p.options.map((opt, i) => (
+                          <span key={i} className="text-xs bg-surface-2 border border-border rounded-lg px-2 py-1 text-gray-400">
+                            {opt}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+        )}
+
+        {/* ── To Resolve (expired/locked markets) ──────────────────────────── */}
+        {tab === "resolve" && (
+          toResolve.length === 0
+            ? <div className="text-center py-20 text-gray-600">{t("noData")}</div>
+            : <MarketList
+                markets={toResolve}
+                now={now}
+                resolvingId={resolvingId}
+                setResolvingId={setResolvingId}
+                selectedWinner={selectedWinner}
+                setSelectedWinner={setSelectedWinner}
+                handleLock={handleLock}
+                handleResolve={handleResolve}
+                isPending={isPending}
+                isConfirming={isConfirming}
+                t={t}
+              />
+        )}
+
+        {/* ── All Markets ───────────────────────────────────────────────────── */}
+        {tab === "all" && (
+          markets.length === 0
+            ? <div className="text-center py-20 text-gray-600">{t("noData")}</div>
+            : <MarketList
+                markets={markets}
+                now={now}
+                resolvingId={resolvingId}
+                setResolvingId={setResolvingId}
+                selectedWinner={selectedWinner}
+                setSelectedWinner={setSelectedWinner}
+                handleLock={handleLock}
+                handleResolve={handleResolve}
+                isPending={isPending}
+                isConfirming={isConfirming}
+                t={t}
+              />
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Reusable market list ──────────────────────────────────────────────────────
+
+interface MarketListProps {
+  markets: Market[];
+  now: bigint;
+  resolvingId: number | null;
+  setResolvingId: (id: number | null) => void;
+  selectedWinner: Record<number, number>;
+  setSelectedWinner: React.Dispatch<React.SetStateAction<Record<number, number>>>;
+  handleLock: (id: number) => void;
+  handleResolve: (id: number) => void;
+  isPending: boolean;
+  isConfirming: boolean;
+  t: (key: string) => string;
+}
+
+function MarketList({
+  markets, now, resolvingId, setResolvingId,
+  selectedWinner, setSelectedWinner,
+  handleLock, handleResolve, isPending, isConfirming, t,
+}: MarketListProps) {
+  return (
+    <div className="space-y-3">
+      {markets.map((market) => {
+        const isExpired  = market.endTime <= now;
+        const stateLabel = ["Active", "Locked", "Resolved"][market.state] ?? "Unknown";
+        const stateColor = ["text-arc-400", "text-yellow-400", "text-green-400"][market.state] ?? "text-gray-400";
+        const canLock    = market.state === 0 && isExpired;
+        const canResolve = market.state === 1 || (market.state === 0 && isExpired);
+
+        return (
+          <div key={Number(market.id)} className="bg-surface-1 border border-border rounded-xl overflow-hidden">
+
+            {/* Cover image */}
+            {market.imageUrl && (
+              <div className="w-full h-24 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={market.imageUrl} alt={market.question} className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            <div className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs text-gray-600">#{Number(market.id)}</span>
+                    <span className={`text-xs font-medium ${stateColor}`}>{stateLabel}</span>
+                    {isExpired && market.state === 0 && (
+                      <span className="text-xs text-red-400 bg-red-600/10 px-2 py-0.5 rounded-full">{t("adminTimeExpired")}</span>
+                    )}
+                  </div>
+                  <p className="text-white text-sm font-medium line-clamp-2">{market.question}</p>
+                  <div className="flex items-center gap-4 mt-1.5 text-xs text-gray-500">
+                    <span>{t("adminPool")}: {formatUSDC(market.totalPool)} USDC</span>
+                    {market.state === 0 && !isExpired && <span>{timeLeft(market.endTime)} {t("adminTimeLeft")}</span>}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {canLock && (
+                    <button
+                      onClick={() => handleLock(Number(market.id))}
+                      disabled={isPending || isConfirming}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
+                                 text-yellow-400 bg-yellow-600/10 border border-yellow-600/30
+                                 hover:bg-yellow-600/20 disabled:opacity-40 transition-all"
+                    >
+                      {(isPending || isConfirming) ? <Loader2 size={12} className="animate-spin" /> : <Lock size={12} />}
+                      {t("adminLock")}
+                    </button>
+                  )}
+
+                  {canResolve && (
+                    resolvingId === Number(market.id) ? (
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <select
+                            value={selectedWinner[Number(market.id)] ?? 0}
+                            onChange={(e) => setSelectedWinner((prev) => ({ ...prev, [Number(market.id)]: Number(e.target.value) }))}
+                            className="bg-surface-2 border border-border rounded-lg px-2 py-1.5 text-white text-xs appearance-none pr-6"
+                          >
+                            {market.options.map((opt, i) => <option key={i} value={i}>{opt}</option>)}
+                          </select>
+                          <ChevronDown size={12} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                        <button
+                          onClick={() => handleResolve(Number(market.id))}
+                          disabled={isPending || isConfirming}
+                          className="px-3 py-1.5 rounded-lg text-xs text-green-400 bg-green-600/10 border border-green-600/30 hover:bg-green-600/20 disabled:opacity-40 transition-all"
+                        >
+                          {(isPending || isConfirming) ? <Loader2 size={12} className="animate-spin" /> : t("adminConfirmResolve")}
+                        </button>
+                        <button onClick={() => setResolvingId(null)} className="text-gray-500 hover:text-white text-xs transition-colors">✕</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setResolvingId(Number(market.id))}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs
+                                   text-green-400 bg-green-600/10 border border-green-600/30 hover:bg-green-600/20 transition-all"
+                      >
+                        <CheckCircle2 size={12} /> {t("adminResolve")}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {market.options.map((opt, i) => (
+                  <span key={i} className="text-xs bg-surface-2 border border-border rounded-lg px-2 py-1 text-gray-400">{opt}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
