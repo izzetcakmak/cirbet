@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
-import { Loader2, SearchX, Zap } from "lucide-react";
+import { Loader2, SearchX } from "lucide-react";
 import { Header } from "@/components/Header";
+import { CirBetLogo } from "@/components/CirBetLogo";
 import { MarketCard } from "@/components/MarketCard";
 import { MarketFilters } from "@/components/MarketFilters";
 import { contractConfig } from "@/lib/contracts";
@@ -134,7 +135,7 @@ export default function Home() {
         {!isLoading && markets.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-16 h-16 rounded-2xl bg-surface-2 border border-border flex items-center justify-center">
-              <Zap size={28} className="text-arc-500" />
+              <CirBetLogo size={44} />
             </div>
             <div className="text-center">
               <p className="text-white font-semibold text-lg mb-1">No markets yet</p>
@@ -186,9 +187,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4
                         text-xs text-gray-600">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-lg bg-arc-600 flex items-center justify-center">
-              <Zap size={11} className="text-white" fill="white" />
-            </div>
+            <CirBetLogo size={20} />
             <span>CirBet © 2026 — Built on Arc Network</span>
           </div>
           <div className="flex items-center gap-4">
