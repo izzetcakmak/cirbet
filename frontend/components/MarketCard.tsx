@@ -40,6 +40,13 @@ export function MarketCard({ market, onRefresh }: Props) {
     0: t("filterCrypto"),
     1: t("filterSports"),
     2: t("filterGeneral"),
+    3: "Inflation",
+    4: "Interest Rates",
+    5: "Macro Data",
+    6: "Geopolitical",
+    7: "Corporate",
+    8: "Energy",
+    9: "Policy",
   };
   const stateLabel: Record<number, string> = {
     0: t("filterActive"),

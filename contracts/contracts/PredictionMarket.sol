@@ -22,7 +22,7 @@ contract PredictionMarket is Ownable, ReentrancyGuard {
     // ─── Types ────────────────────────────────────────────────────────────────
 
     enum MarketState    { Active, Locked, Resolved, Cancelled }
-    enum Category       { Crypto, Sports, General }
+    enum Category       { Crypto, Sports, General, Inflation, Rates, Macro, Geopolitical, Corporate, Energy, Policy }
     enum ProposalStatus { Pending, Approved, Rejected }
 
     struct Market {
