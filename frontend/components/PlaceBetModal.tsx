@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits, formatUnits } from "viem";
 import { X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
@@ -8,6 +8,7 @@ import { contractConfig } from "@/lib/contracts";
 import type { Market } from "@/lib/types";
 import { CATEGORY_COLOR, STATE_COLOR } from "@/lib/types";
 import { useI18n } from "@/lib/i18nContext";
+import { BetSuccessCelebration } from "@/components/BetSuccessCelebration";
 
 interface Props {
   market:  Market;
@@ -21,10 +22,17 @@ export function PlaceBetModal({ market, onClose, onSuccess }: Props) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
 
+  const [showCelebration, setShowCelebration] = useState(false);
+
   const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
+
+  // Trigger celebration as soon as tx is confirmed
+  useEffect(() => {
+    if (isSuccess) setShowCelebration(true);
+  }, [isSuccess]);
 
   const isActive = market.state === 0;
   const totalPool = Number(formatUnits(market.totalPool, 6));
@@ -33,6 +41,13 @@ export function PlaceBetModal({ market, onClose, onSuccess }: Props) {
     0: t("filterCrypto"),
     1: t("filterSports"),
     2: t("filterGeneral"),
+    3: t("filterInflation"),
+    4: t("filterRates"),
+    5: t("filterMacro"),
+    6: t("filterGeopolitical"),
+    7: t("filterCorporate"),
+    8: t("filterEnergy"),
+    9: t("filterPolicy"),
   };
   const stateLabel: Record<number, string> = {
     0: t("filterActive"),
@@ -203,7 +218,7 @@ export function PlaceBetModal({ market, onClose, onSuccess }: Props) {
           )}
 
           {/* Status messages */}
-          {isSuccess && (
+          {isSuccess && !showCelebration && (
             <div className="flex items-center gap-2 text-green-400 text-sm bg-green-600/10
                             border border-green-600/30 rounded-xl px-4 py-3">
               <CheckCircle2 size={16} />
@@ -219,6 +234,17 @@ export function PlaceBetModal({ market, onClose, onSuccess }: Props) {
             </div>
           )}
         </div>
+
+        {/* Celebration overlay — rendered inside modal tree but fixed full-screen */}
+        {showCelebration && (
+          <BetSuccessCelebration
+            onDone={() => {
+              setShowCelebration(false);
+              onSuccess?.();
+              onClose();
+            }}
+          />
+        )}
 
         {/* Footer */}
         <div className="flex gap-3 p-6 pt-0">
