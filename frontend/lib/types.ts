@@ -1,10 +1,11 @@
-export type MarketState = 0 | 1 | 2; // Active | Locked | Resolved
+export type MarketState = 0 | 1 | 2 | 3; // Active | Locked | Resolved | Cancelled
 export type Category   = 0 | 1 | 2; // Crypto | Sports | General
 
 export const MARKET_STATE_LABEL: Record<MarketState, string> = {
   0: "Active",
   1: "Locked",
   2: "Resolved",
+  3: "Cancelled",
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
@@ -23,6 +24,7 @@ export const STATE_COLOR: Record<MarketState, string> = {
   0: "text-green-400  bg-green-600/10  border-green-600/30",
   1: "text-amber-400  bg-amber-600/10  border-amber-600/30",
   2: "text-arc-400    bg-arc-600/10    border-arc-600/30",
+  3: "text-red-400    bg-red-600/10    border-red-600/30",
 };
 
 export interface Market {

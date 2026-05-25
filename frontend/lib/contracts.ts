@@ -52,6 +52,21 @@ export const PREDICTION_MARKET_ABI = [
       {name:"claimed",    type:"bool"},
     ]}],
   },
+  {
+    name:"getMarketBettors", type:"function", stateMutability:"view",
+    inputs:[{name:"marketId",type:"uint256"}],
+    outputs:[{type:"address[]"}],
+  },
+  {
+    name:"isRefunded", type:"function", stateMutability:"view",
+    inputs:[{name:"marketId",type:"uint256"},{name:"bettor",type:"address"}],
+    outputs:[{type:"bool"}],
+  },
+  {
+    name:"userTotalBet", type:"function", stateMutability:"view",
+    inputs:[{name:"",type:"uint256"},{name:"",type:"address"}],
+    outputs:[{type:"uint256"}],
+  },
 
   // ── User write ─────────────────────────────────────────────────────────────
   {
@@ -60,6 +75,7 @@ export const PREDICTION_MARKET_ABI = [
     outputs:[],
   },
   { name:"claimWinnings", type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"claimRefund",   type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
   {
     name:"proposeMarket", type:"function", stateMutability:"nonpayable",
     inputs:[
@@ -87,6 +103,7 @@ export const PREDICTION_MARKET_ABI = [
   { name:"approveProposal", type:"function", stateMutability:"nonpayable", inputs:[{name:"proposalId",type:"uint256"}], outputs:[{name:"marketId",type:"uint256"}] },
   { name:"rejectProposal",  type:"function", stateMutability:"nonpayable", inputs:[{name:"proposalId",type:"uint256"}], outputs:[] },
   { name:"lockMarket",      type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"cancelMarket",    type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
   {
     name:"resolveMarket", type:"function", stateMutability:"nonpayable",
     inputs:[{name:"marketId",type:"uint256"},{name:"winningOption",type:"uint256"}],
@@ -102,6 +119,8 @@ export const PREDICTION_MARKET_ABI = [
   { name:"BetPlaced",        type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"option",type:"uint256",indexed:false},{name:"amount",type:"uint256",indexed:false}] },
   { name:"MarketLocked",     type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true}] },
   { name:"MarketResolved",   type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"winningOption",type:"uint256",indexed:false}] },
+  { name:"MarketCancelled",  type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"totalRefunded",type:"uint256",indexed:false},{name:"bettorCount",type:"uint256",indexed:false}] },
+  { name:"RefundClaimed",    type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
   { name:"WinningsClaimed",  type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
 ] as const;
 
