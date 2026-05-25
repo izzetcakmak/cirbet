@@ -77,3 +77,18 @@
   background: rgba(8, 8, 15, 0.85);
   backdrop-filter: blur(8px);
 }
+
+/* Live markets marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-25%); }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-dur, 40s) linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
