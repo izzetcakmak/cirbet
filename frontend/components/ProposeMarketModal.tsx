@@ -7,6 +7,29 @@ import { contractConfig } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
 
 const IMGBB_KEY = process.env.NEXT_PUBLIC_IMGBB_KEY ?? "";
+const MAX_SIZE_MB = 5;
+
+async function validateImageFile(file: File): Promise<string | null> {
+  if (file.size > MAX_SIZE_MB * 1024 * 1024)
+    return `File too large. Max ${MAX_SIZE_MB}MB (yours: ${(file.size / 1024 / 1024).toFixed(1)}MB).`;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const { width, height } = img;
+      if (height > width * 1.15)
+        resolve(`Portrait image detected (${width}×${height}px). Please use a landscape (horizontal) image for best display.`);
+      else if (width < 300)
+        resolve(`Image too small (${width}px wide). Minimum width is 300px.`);
+      else
+        resolve(null);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve("Could not read image."); };
+    img.src = url;
+  });
+}
 
 const CATEGORIES = [
   { value: 0, label: "Crypto" },
@@ -43,6 +66,9 @@ export function ProposeMarketModal({ onClose }: Props) {
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validErr = await validateImageFile(file);
+    if (validErr) { setUploadErr(validErr); if (fileInputRef.current) fileInputRef.current.value = ""; return; }
 
     const reader = new FileReader();
     reader.onload = (ev) => setPreview(ev.target?.result as string);
@@ -227,7 +253,7 @@ export function ProposeMarketModal({ onClose }: Props) {
               >
                 <div className="flex items-center gap-2"><ImageIcon size={18} /><Upload size={16} /></div>
                 <span className="text-sm">Click to choose a file</span>
-                <span className="text-xs text-gray-600">PNG, JPG, GIF, WEBP</span>
+                <span className="text-xs text-gray-600">PNG · JPG · WEBP · max 5MB · landscape only</span>
               </button>
             )}
 

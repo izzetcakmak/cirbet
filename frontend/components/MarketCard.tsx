@@ -134,14 +134,15 @@ export function MarketCard({ market, onRefresh }: Props) {
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎯 "${market.question}"\n\nPredict the outcome on CirBet — powered by Arc Network!\n`)}&url=${encodeURIComponent("https://cirbet.xyz")}&hashtags=CirBet,ArcNetwork,PredictionMarket`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl
-                       text-sm font-medium border border-border text-gray-400
-                       hover:text-white hover:border-gray-500 bg-surface-2
-                       hover:bg-surface-3 transition-all shrink-0"
             title="Share on X"
+            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl
+                       bg-black hover:bg-zinc-800 border border-zinc-700
+                       text-white text-sm font-bold transition-all shrink-0"
           >
-            <Share2 size={14} />
-            <span className="hidden sm:inline text-xs">X</span>
+            <svg width="13" height="13" viewBox="0 0 1200 1227" fill="currentColor">
+              <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+            </svg>
+            <span className="text-xs">Share</span>
           </a>
           <button
             onClick={() => setShowModal(true)}
