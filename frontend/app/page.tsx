@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
-import { Loader2, SearchX } from "lucide-react";
+import { Loader2, SearchX, TrendingUp, Percent, BarChart3, Globe, ArrowRight } from "lucide-react";
 import { Header } from "@/components/Header";
 import { CirBetLogo } from "@/components/CirBetLogo";
 import { MarketCard } from "@/components/MarketCard";
@@ -109,6 +109,65 @@ export default function Home() {
             <Stat label={t("statsResolved")} value={markets.filter((m) => m.state === 2).length.toString()} />
             <div className="w-px h-8 bg-border hidden sm:block" />
             <Stat label={t("statsNetwork")} value="Arc Testnet" className="hidden sm:block" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Institutional Markets teaser ──────────────────────────────────── */}
+      <section className="px-4 pb-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-surface-1 border border-blue-600/20 rounded-2xl overflow-hidden">
+            {/* Banner */}
+            <div className="bg-gradient-to-r from-blue-600/10 via-arc-600/8 to-transparent
+                            px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center
+                            justify-between gap-4 border-b border-blue-600/15">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                  <span className="text-blue-400 text-xs uppercase tracking-widest font-medium">
+                    New — Institutional Markets
+                  </span>
+                </div>
+                <h2 className="text-white font-bold text-lg sm:text-xl leading-snug">
+                  Arc-Native Institutional Forecasting
+                </h2>
+                <p className="text-gray-400 text-sm mt-1 max-w-lg">
+                  Trade macroeconomic, rate, inflation, geopolitical and corporate event
+                  forecasts using USDC on Arc.
+                </p>
+              </div>
+              <a href="/institutional"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+                           text-white bg-blue-600 hover:bg-blue-500 border border-blue-500
+                           transition-all shrink-0">
+                Explore Institutional Markets
+                <ArrowRight size={14} />
+              </a>
+            </div>
+
+            {/* Category pills */}
+            <div className="px-6 py-4 flex flex-wrap gap-3">
+              {[
+                { icon: <TrendingUp size={13} />,  label: "Inflation" },
+                { icon: <Percent size={13} />,     label: "Interest Rates" },
+                { icon: <BarChart3 size={13} />,   label: "Macro Data" },
+                { icon: <Globe size={13} />,        label: "Geopolitical Risk" },
+              ].map(({ icon, label }) => (
+                <a key={label} href="/institutional"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium
+                             text-gray-400 hover:text-white bg-surface-2 hover:bg-surface-3
+                             border border-border transition-all">
+                  {icon}
+                  {label}
+                </a>
+              ))}
+              <a href="/institutional"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium
+                           text-arc-400 hover:text-arc-300 bg-arc-600/10 border border-arc-600/20
+                           transition-all">
+                +3 more categories →
+              </a>
+            </div>
           </div>
         </div>
       </section>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { LayoutDashboard, Shield, Plus, Lightbulb } from "lucide-react";
+import { LayoutDashboard, Shield, Plus, Lightbulb, LineChart } from "lucide-react";
 import { WalletButton } from "./WalletButton";
 import { LanguageSelector } from "./LanguageSelector";
 import { CreateMarketModal } from "./CreateMarketModal";
@@ -50,7 +50,12 @@ export function Header() {
 
           {/* Nav links */}
           <nav className="hidden md:flex items-center gap-5 text-sm text-gray-400">
-            <a href="#markets" className="hover:text-white transition-colors">{t("navMarkets")}</a>
+            <a href="/#markets" className="hover:text-white transition-colors">{t("navMarkets")}</a>
+            <a href="/institutional"
+               className="flex items-center gap-1.5 hover:text-white transition-colors text-blue-400 hover:text-blue-300">
+              <LineChart size={13} />
+              Institutional
+            </a>
             <a href="https://faucet.circle.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navFaucet")}</a>
             <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navExplorer")}</a>
           </nav>
