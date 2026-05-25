@@ -55,6 +55,7 @@ function filterMarkets(
   state: StateFilter,
 ): Market[] {
   return markets.filter((m) => {
+    if (m.state === 3) return false; // cancelled — admin-only, hide from public
     const catOk =
       category === "All" || CATEGORY_LABEL[m.category] === category;
     const stateOk =
@@ -113,7 +114,7 @@ export default function Home() {
 
           {/* Stats bar */}
           <div className="flex items-center justify-center gap-8 mt-10 text-sm">
-            <Stat label={t("statsMarkets")}  value={markets.length.toString()} />
+            <Stat label={t("statsMarkets")}  value={markets.filter((m) => m.state !== 3).length.toString()} />
             <div className="w-px h-8 bg-border" />
             <Stat label={t("statsActive")}   value={markets.filter((m) => m.state === 0).length.toString()} />
             <div className="w-px h-8 bg-border" />
