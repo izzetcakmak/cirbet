@@ -253,7 +253,11 @@ export function ProposeMarketModal({ onClose }: Props) {
           {error && (
             <div className="flex items-center gap-2 text-red-400 text-sm bg-red-600/10 border border-red-600/30 rounded-xl px-4 py-3">
               <AlertCircle size={16} />
-              <span className="truncate">{error.message.split("\n")[0]}</span>
+              <span className="truncate">
+                {error.message.includes("reason:")
+                  ? error.message.split("reason:")[1]?.trim().split("\n")[0]
+                  : error.message.split("\n")[0]}
+              </span>
             </div>
           )}
         </div>
