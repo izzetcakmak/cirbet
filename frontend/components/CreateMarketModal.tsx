@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { X, Plus, Trash2, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Upload, ImageIcon } from "lucide-react";
 import { contractConfig } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
+
+const IMGBB_KEY = process.env.NEXT_PUBLIC_IMGBB_KEY ?? "";
 
 const CATEGORIES = [
   { value: 0, label: "Crypto" },
@@ -16,11 +18,16 @@ interface Props { onClose: () => void; onSuccess?: () => void; }
 
 export function CreateMarketModal({ onClose, onSuccess }: Props) {
   const { t } = useI18n();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [question, setQuestion]   = useState("");
   const [options,  setOptions]    = useState(["", ""]);
   const [endTime,  setEndTime]    = useState("");
   const [category, setCategory]   = useState<0 | 1 | 2>(0);
   const [imageUrl, setImageUrl]   = useState("");
+  const [preview,  setPreview]    = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadErr, setUploadErr] = useState("");
 
   const { writeContract, data: txHash, isPending, error } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
@@ -33,6 +40,48 @@ export function CreateMarketModal({ onClose, onSuccess }: Props) {
   }
   function setOption(i: number, val: string) {
     setOptions(options.map((o, idx) => (idx === i ? val : o)));
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Local preview
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+
+    // Upload to ImgBB
+    setUploading(true);
+    setUploadErr("");
+    setImageUrl("");
+    try {
+      const form = new FormData();
+      form.append("image", file);
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+        method: "POST",
+        body: form,
+      });
+      const json = await res.json();
+      if (json.success) {
+        setImageUrl(json.data.url);
+      } else {
+        setUploadErr("Upload failed: " + (json.error?.message ?? "unknown error"));
+        setPreview("");
+      }
+    } catch {
+      setUploadErr("Upload failed. Check your connection.");
+      setPreview("");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function clearImage() {
+    setImageUrl("");
+    setPreview("");
+    setUploadErr("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function handleCreate() {
@@ -50,7 +99,7 @@ export function CreateMarketModal({ onClose, onSuccess }: Props) {
     question.trim().length > 0 &&
     options.filter((o) => o.trim()).length >= 2 &&
     endTime !== "" &&
-    !isPending && !isConfirming;
+    !isPending && !isConfirming && !uploading;
 
   return (
     <div
@@ -161,20 +210,82 @@ export function CreateMarketModal({ onClose, onSuccess }: Props) {
             </div>
           </div>
 
-          {/* Image URL */}
-          <div className="space-y-1.5">
+          {/* Image upload */}
+          <div className="space-y-2">
             <label className="text-xs text-gray-500 uppercase tracking-wider font-medium">
               {t("createImageUrl")}
             </label>
+
+            {/* Hidden file input */}
             <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://..."
-              className="w-full bg-surface-2 border border-border rounded-xl px-4 py-2.5
-                         text-white text-sm focus:outline-none focus:border-arc-600/60
-                         placeholder:text-gray-600"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
             />
+
+            {preview ? (
+              /* Preview */
+              <div className="relative rounded-xl overflow-hidden border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={preview} alt="preview" className="w-full h-40 object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
+                  {uploading ? (
+                    <span className="flex items-center gap-1.5 text-xs text-white">
+                      <Loader2 size={12} className="animate-spin" /> Uploading…
+                    </span>
+                  ) : imageUrl ? (
+                    <span className="flex items-center gap-1.5 text-xs text-green-400">
+                      <CheckCircle2 size={12} /> Uploaded
+                    </span>
+                  ) : null}
+                  <button
+                    onClick={clearImage}
+                    className="ml-auto flex items-center gap-1 text-xs text-white/70
+                               hover:text-white bg-black/40 rounded-lg px-2 py-1 transition-colors"
+                  >
+                    <X size={11} /> Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Upload zone */
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex flex-col items-center justify-center gap-2 py-6
+                           bg-surface-2 border border-dashed border-border rounded-xl
+                           text-gray-500 hover:text-gray-300 hover:border-arc-600/50
+                           transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <ImageIcon size={18} />
+                  <Upload size={16} />
+                </div>
+                <span className="text-sm">Click to choose a file</span>
+                <span className="text-xs text-gray-600">PNG, JPG, GIF, WEBP</span>
+              </button>
+            )}
+
+            {/* Manual URL fallback */}
+            {!preview && (
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="…or paste an image URL"
+                className="w-full bg-surface-2 border border-border rounded-xl px-4 py-2.5
+                           text-white text-sm focus:outline-none focus:border-arc-600/60
+                           placeholder:text-gray-600"
+              />
+            )}
+
+            {uploadErr && (
+              <p className="text-red-400 text-xs flex items-center gap-1.5">
+                <AlertCircle size={12} /> {uploadErr}
+              </p>
+            )}
           </div>
 
           {/* Status */}
