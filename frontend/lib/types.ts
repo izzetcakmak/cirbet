@@ -39,6 +39,7 @@ export interface Market {
   optionPools:   bigint[];
   imageUrl:      string;
   createdAt:     bigint;
+  creator:       `0x${string}`;
 }
 
 export interface UserBet {

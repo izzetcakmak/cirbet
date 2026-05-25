@@ -10,7 +10,7 @@ import {
 } from "wagmi";
 import { useRouter } from "next/navigation";
 import {
-  LayoutDashboard, Home, Loader2, CheckCircle2, AlertCircle, Trophy, RotateCcw,
+  LayoutDashboard, Home, Loader2, CheckCircle2, AlertCircle, Trophy, RotateCcw, Coins,
 } from "lucide-react";
 import { contractConfig, OWNER_ADDRESS } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
@@ -100,12 +100,21 @@ export default function DashboardPage() {
 
   const { betsWithMarkets, isLoading, refetch } = useUserBets(address);
 
-  const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
+  const { writeContract, data: txHash, isPending, error: writeError, reset } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
   const isAdmin = address?.toLowerCase() === OWNER_ADDRESS.toLowerCase();
 
-  // Stats
+  // ── Creator fee balance ──────────────────────────────────────────────────────
+  const { data: creatorFeeBalance, refetch: refetchCreatorFee } = useReadContract({
+    ...contractConfig,
+    functionName: "creatorFees",
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+    query: { enabled: !!address },
+  });
+  const creatorFeeAmt = (creatorFeeBalance as bigint | undefined) ?? 0n;
+
+  // ── Stats ────────────────────────────────────────────────────────────────────
   const totalBet = betsWithMarkets.reduce((acc, { bet }) => acc + bet.amount, 0n);
 
   const pendingWin = betsWithMarkets.reduce((acc, { market, bet }) => {
@@ -123,7 +132,6 @@ export default function DashboardPage() {
     return acc;
   }, 0n);
 
-  // Claimable refunds from cancelled markets (unique per market)
   const refundableMarketIds = useMemo(() => {
     const seen = new Set<bigint>();
     for (const { market, bet, marketRefunded } of betsWithMarkets) {
@@ -137,7 +145,6 @@ export default function DashboardPage() {
     return acc;
   }, 0n);
 
-  // Tab counts
   const claimsCount  = betsWithMarkets.filter(({ market, bet }) =>
     market.state === 2 && market.winningOption === bet.optionIndex && !bet.claimed
   ).length;
@@ -153,17 +160,23 @@ export default function DashboardPage() {
     return betsWithMarkets;
   }, [betsWithMarkets, tab]);
 
+  // ── Actions ──────────────────────────────────────────────────────────────────
   function handleClaim(marketId: bigint) {
+    reset();
     writeContract({ ...contractConfig, functionName: "claimWinnings", args: [marketId] });
   }
-
   function handleClaimRefund(marketId: bigint) {
+    reset();
     writeContract({ ...contractConfig, functionName: "claimRefund", args: [marketId] });
   }
-
   function handleWithdrawFees() {
     if (!address) return;
+    reset();
     writeContract({ ...contractConfig, functionName: "withdrawFees", args: [address] });
+  }
+  function handleWithdrawCreatorFees() {
+    reset();
+    writeContract({ ...contractConfig, functionName: "withdrawCreatorFees" });
   }
 
   if (!address) {
@@ -209,10 +222,10 @@ export default function DashboardPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,      color: "text-white" },
-            { label: t("accountPendingWin"), value: `${formatUSDC(pendingWin)} USDC`,    color: "text-yellow-400" },
-            { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,    color: "text-green-400" },
-            { label: "Refundable",           value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400" },
+            { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,        color: "text-white" },
+            { label: t("accountPendingWin"), value: `${formatUSDC(pendingWin)} USDC`,      color: "text-yellow-400" },
+            { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,      color: "text-green-400" },
+            { label: t("accountRefunds"),    value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400" },
           ].map((s) => (
             <div key={s.label} className="bg-surface-1 border border-border rounded-xl p-4">
               <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
@@ -221,7 +234,43 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Admin: withdraw fees */}
+        {/* Creator Fee Earnings — visible to any non-admin who has earned fees */}
+        {!isAdmin && (
+          <div className={`border rounded-xl p-4 flex items-center justify-between gap-4 transition-all ${
+            creatorFeeAmt > 0n
+              ? "bg-arc-600/10 border-arc-600/30"
+              : "bg-surface-1 border-border opacity-60"
+          }`}>
+            <div className="flex items-center gap-3">
+              <Coins size={20} className={creatorFeeAmt > 0n ? "text-arc-400" : "text-gray-600"} />
+              <div>
+                <p className={`text-sm font-medium ${creatorFeeAmt > 0n ? "text-arc-300" : "text-gray-500"}`}>
+                  {t("accountCreatorFees")}
+                </p>
+                <p className={`text-xs mt-0.5 ${creatorFeeAmt > 0n ? "text-arc-400 font-bold" : "text-gray-600"}`}>
+                  {formatUSDC(creatorFeeAmt)} USDC
+                </p>
+                <p className="text-gray-600 text-xs mt-0.5">
+                  1% of pool earnings when your market exceeds the volume threshold
+                </p>
+              </div>
+            </div>
+            {creatorFeeAmt > 0n && (
+              <button
+                onClick={handleWithdrawCreatorFees}
+                disabled={isPending || isConfirming}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-arc-300
+                           bg-arc-600/20 border border-arc-600/40 hover:bg-arc-600/30
+                           disabled:opacity-40 transition-all shrink-0"
+              >
+                {(isPending || isConfirming) ? <Loader2 size={14} className="animate-spin" /> : null}
+                Withdraw
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Admin: withdraw platform fees */}
         {isAdmin && (
           <div className="bg-amber-600/10 border border-amber-600/30 rounded-xl p-4 flex items-center justify-between gap-4">
             <div>
@@ -246,7 +295,7 @@ export default function DashboardPage() {
           {([
             { key: "all",     label: t("accountAllBets"), count: betsWithMarkets.length },
             { key: "claims",  label: t("accountClaims"),  count: claimsCount },
-            { key: "refunds", label: "Refunds",           count: refundsCount },
+            { key: "refunds", label: t("accountRefunds"), count: refundsCount },
           ] as const).map((tab_item) => (
             <button
               key={tab_item.key}
@@ -267,7 +316,7 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Notifications */}
+        {/* Tx status */}
         {writeError && (
           <div className="flex items-center gap-2 text-red-400 text-sm bg-red-600/10 border border-red-600/30 rounded-xl px-4 py-3">
             <AlertCircle size={16} />
@@ -281,7 +330,7 @@ export default function DashboardPage() {
         {isSuccess && (
           <div className="flex items-center gap-2 text-green-400 text-sm bg-green-600/10 border border-green-600/30 rounded-xl px-4 py-3">
             <CheckCircle2 size={16} /> Transaction confirmed!{" "}
-            <button onClick={refetch} className="underline text-xs ml-1">Refresh</button>
+            <button onClick={() => { refetch(); refetchCreatorFee(); }} className="underline text-xs ml-1">Refresh</button>
           </div>
         )}
 

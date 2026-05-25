@@ -6,11 +6,17 @@ export const OWNER_ADDRESS = "0xd4f1254c803662c46d9c21f80f4f3c15ff57e2c9" as con
 
 export const PREDICTION_MARKET_ABI = [
   // ── Read ──────────────────────────────────────────────────────────────────
-  { name:"totalMarkets",    type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
-  { name:"totalProposals",  type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
-  { name:"accumulatedFees", type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
-  { name:"owner",           type:"function", stateMutability:"view", inputs:[], outputs:[{type:"address"}] },
-  { name:"FEE_BPS",         type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"totalMarkets",        type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"totalProposals",      type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"accumulatedFees",     type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"creatorFeeThreshold", type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  { name:"owner",               type:"function", stateMutability:"view", inputs:[], outputs:[{type:"address"}] },
+  { name:"FEE_BPS",             type:"function", stateMutability:"view", inputs:[], outputs:[{type:"uint256"}] },
+  {
+    name:"creatorFees", type:"function", stateMutability:"view",
+    inputs:[{name:"creator",type:"address"}],
+    outputs:[{type:"uint256"}],
+  },
   {
     name:"getMarket", type:"function", stateMutability:"view",
     inputs:[{name:"marketId",type:"uint256"}],
@@ -26,6 +32,7 @@ export const PREDICTION_MARKET_ABI = [
       {name:"optionPools",   type:"uint256[]"},
       {name:"imageUrl",      type:"string"},
       {name:"createdAt",     type:"uint256"},
+      {name:"creator",       type:"address"},
     ]}],
   },
   {
@@ -74,8 +81,9 @@ export const PREDICTION_MARKET_ABI = [
     inputs:[{name:"marketId",type:"uint256"},{name:"optionIdx",type:"uint256"}],
     outputs:[],
   },
-  { name:"claimWinnings", type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
-  { name:"claimRefund",   type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"claimWinnings",      type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"claimRefund",        type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"withdrawCreatorFees",type:"function", stateMutability:"nonpayable", inputs:[], outputs:[] },
   {
     name:"proposeMarket", type:"function", stateMutability:"nonpayable",
     inputs:[
@@ -100,28 +108,32 @@ export const PREDICTION_MARKET_ABI = [
     ],
     outputs:[{name:"id",type:"uint256"}],
   },
-  { name:"approveProposal", type:"function", stateMutability:"nonpayable", inputs:[{name:"proposalId",type:"uint256"}], outputs:[{name:"marketId",type:"uint256"}] },
-  { name:"rejectProposal",  type:"function", stateMutability:"nonpayable", inputs:[{name:"proposalId",type:"uint256"}], outputs:[] },
-  { name:"lockMarket",      type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
-  { name:"cancelMarket",    type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"approveProposal",        type:"function", stateMutability:"nonpayable", inputs:[{name:"proposalId",type:"uint256"}], outputs:[{name:"marketId",type:"uint256"}] },
+  { name:"rejectProposal",         type:"function", stateMutability:"nonpayable", inputs:[{name:"proposalId",type:"uint256"}], outputs:[] },
+  { name:"lockMarket",             type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
+  { name:"cancelMarket",           type:"function", stateMutability:"nonpayable", inputs:[{name:"marketId",type:"uint256"}], outputs:[] },
   {
     name:"resolveMarket", type:"function", stateMutability:"nonpayable",
     inputs:[{name:"marketId",type:"uint256"},{name:"winningOption",type:"uint256"}],
     outputs:[],
   },
-  { name:"withdrawFees", type:"function", stateMutability:"nonpayable", inputs:[{name:"to",type:"address"}], outputs:[] },
+  { name:"withdrawFees",           type:"function", stateMutability:"nonpayable", inputs:[{name:"to",type:"address"}], outputs:[] },
+  { name:"setCreatorFeeThreshold", type:"function", stateMutability:"nonpayable", inputs:[{name:"newThreshold",type:"uint256"}], outputs:[] },
 
   // ── Events ─────────────────────────────────────────────────────────────────
-  { name:"MarketCreated",    type:"event", inputs:[{name:"id",type:"uint256",indexed:true},{name:"question",type:"string",indexed:false},{name:"category",type:"uint8",indexed:false},{name:"endTime",type:"uint256",indexed:false}] },
-  { name:"MarketProposed",   type:"event", inputs:[{name:"proposalId",type:"uint256",indexed:true},{name:"proposer",type:"address",indexed:true},{name:"question",type:"string",indexed:false}] },
-  { name:"ProposalApproved", type:"event", inputs:[{name:"proposalId",type:"uint256",indexed:true},{name:"marketId",type:"uint256",indexed:true}] },
-  { name:"ProposalRejected", type:"event", inputs:[{name:"proposalId",type:"uint256",indexed:true}] },
-  { name:"BetPlaced",        type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"option",type:"uint256",indexed:false},{name:"amount",type:"uint256",indexed:false}] },
-  { name:"MarketLocked",     type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true}] },
-  { name:"MarketResolved",   type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"winningOption",type:"uint256",indexed:false}] },
-  { name:"MarketCancelled",  type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"totalRefunded",type:"uint256",indexed:false},{name:"bettorCount",type:"uint256",indexed:false}] },
-  { name:"RefundClaimed",    type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
-  { name:"WinningsClaimed",  type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"MarketCreated",       type:"event", inputs:[{name:"id",type:"uint256",indexed:true},{name:"question",type:"string",indexed:false},{name:"category",type:"uint8",indexed:false},{name:"endTime",type:"uint256",indexed:false},{name:"creator",type:"address",indexed:true}] },
+  { name:"MarketProposed",      type:"event", inputs:[{name:"proposalId",type:"uint256",indexed:true},{name:"proposer",type:"address",indexed:true},{name:"question",type:"string",indexed:false}] },
+  { name:"ProposalApproved",    type:"event", inputs:[{name:"proposalId",type:"uint256",indexed:true},{name:"marketId",type:"uint256",indexed:true}] },
+  { name:"ProposalRejected",    type:"event", inputs:[{name:"proposalId",type:"uint256",indexed:true}] },
+  { name:"BetPlaced",           type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"option",type:"uint256",indexed:false},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"MarketLocked",        type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true}] },
+  { name:"MarketResolved",      type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"winningOption",type:"uint256",indexed:false}] },
+  { name:"MarketCancelled",     type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"totalRefunded",type:"uint256",indexed:false},{name:"bettorCount",type:"uint256",indexed:false}] },
+  { name:"RefundClaimed",       type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"WinningsClaimed",     type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"bettor",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"FeeWithdrawn",        type:"event", inputs:[{name:"to",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"CreatorFeeEarned",    type:"event", inputs:[{name:"marketId",type:"uint256",indexed:true},{name:"creator",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
+  { name:"CreatorFeeWithdrawn", type:"event", inputs:[{name:"creator",type:"address",indexed:true},{name:"amount",type:"uint256",indexed:false}] },
 ] as const;
 
 export const contractConfig = {
