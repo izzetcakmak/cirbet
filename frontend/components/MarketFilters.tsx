@@ -27,13 +27,13 @@ export function MarketFilters({ category, state, onCategory, onState, totalCount
     Crypto:           t("filterCrypto"),
     Sports:           t("filterSports"),
     General:          t("filterGeneral"),
-    Inflation:        "Inflation",
-    "Interest Rates": "Interest Rates",
-    "Macro Data":     "Macro Data",
-    Geopolitical:     "Geopolitical",
-    Corporate:        "Corporate",
-    Energy:           "Energy",
-    Policy:           "Policy",
+    Inflation:        t("filterInflation"),
+    "Interest Rates": t("filterRates"),
+    "Macro Data":     t("filterMacro"),
+    Geopolitical:     t("filterGeopolitical"),
+    Corporate:        t("filterCorporate"),
+    Energy:           t("filterEnergy"),
+    Policy:           t("filterPolicy"),
   };
 
   const stateLabels: Record<StateFilter, string> = {
