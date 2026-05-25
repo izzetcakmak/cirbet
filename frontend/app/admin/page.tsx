@@ -8,7 +8,7 @@ import {
 import { useRouter } from "next/navigation";
 import {
   Shield, Home, Loader2, Lock, CheckCircle2, AlertCircle,
-  ChevronDown, ThumbsUp, ThumbsDown, Bell, XCircle, LayoutGrid,
+  ChevronDown, ThumbsUp, ThumbsDown, Bell, XCircle, LayoutGrid, Ban,
 } from "lucide-react";
 import { contractConfig, OWNER_ADDRESS } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
@@ -61,7 +61,7 @@ function useAdminData() {
   return { markets, proposals, countM, countP, refetch };
 }
 
-type Tab = "notifications" | "pending" | "all" | "resolve";
+type Tab = "notifications" | "pending" | "all" | "resolve" | "cancelled";
 
 export default function AdminPage() {
   const { t } = useI18n();
@@ -204,17 +204,20 @@ export default function AdminPage() {
         {/* Tabs */}
         <div className="flex gap-1 border-b border-border overflow-x-auto">
           {([
-            { key: "notifications", label: "Notifications", icon: <Bell size={13}/>,     count: notifCount },
-            { key: "pending",       label: t("adminPendingApproval"), icon: <ThumbsUp size={13}/>, count: pendingProposals.length },
-            { key: "resolve",       label: t("adminToResolve"),       icon: null,         count: needsResolve.length + needsLock.length },
-            { key: "all",           label: t("adminAllMarkets"),      icon: <LayoutGrid size={13}/>, count: countM },
+            { key: "notifications", label: "Notifications",           icon: <Bell size={13}/>,       count: notifCount,                            accent: false },
+            { key: "pending",       label: t("adminPendingApproval"), icon: <ThumbsUp size={13}/>,   count: pendingProposals.length,               accent: false },
+            { key: "resolve",       label: t("adminToResolve"),       icon: null,                    count: needsResolve.length + needsLock.length, accent: false },
+            { key: "all",           label: t("adminAllMarkets"),      icon: <LayoutGrid size={13}/>, count: markets.filter((m) => m.state !== 3).length, accent: false },
+            { key: "cancelled",     label: "Cancelled",               icon: <Ban size={13}/>,        count: stats.cancelled,                       accent: true  },
           ] as const).map((item) => (
             <button
               key={item.key}
               onClick={() => setTab(item.key)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
                 tab === item.key
-                  ? "border-arc-500 text-arc-400"
+                  ? item.accent
+                    ? "border-red-500 text-red-400"
+                    : "border-arc-500 text-arc-400"
                   : "border-transparent text-gray-500 hover:text-white"
               }`}
             >
@@ -222,7 +225,11 @@ export default function AdminPage() {
               {item.label}
               {item.count > 0 && (
                 <span className={`text-xs rounded-full px-1.5 py-0.5 leading-none font-bold ${
-                  tab === item.key ? "bg-arc-600/30 text-arc-300" : "bg-surface-2 text-gray-400"
+                  tab === item.key
+                    ? item.accent
+                      ? "bg-red-600/20 text-red-300"
+                      : "bg-arc-600/30 text-arc-300"
+                    : "bg-surface-2 text-gray-400"
                 }`}>
                   {item.count}
                 </span>
@@ -383,10 +390,10 @@ export default function AdminPage() {
           />
         )}
 
-        {/* ── ALL MARKETS ──────────────────────────────────────────────────── */}
+        {/* ── ALL MARKETS (cancelled hariç) ────────────────────────────────── */}
         {tab === "all" && (
           <MarketList
-            markets={markets}
+            markets={markets.filter((m) => m.state !== 3)}
             now={now}
             resolvingId={resolvingId}
             setResolvingId={setResolvingId}
@@ -398,6 +405,61 @@ export default function AdminPage() {
             isPending={isPending || isConfirming}
             t={t}
           />
+        )}
+
+        {/* ── CANCELLED ────────────────────────────────────────────────────── */}
+        {tab === "cancelled" && (
+          <div className="space-y-3">
+            {markets.filter((m) => m.state === 3).length === 0 ? (
+              <div className="text-center py-20">
+                <Ban size={40} className="text-gray-700 mx-auto mb-3" />
+                <p className="text-gray-600">No cancelled markets</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 px-1 mb-4">
+                  <Ban size={14} className="text-red-400" />
+                  <p className="text-sm text-gray-500">
+                    Cancelled markets are read-only. All bettors have been refunded automatically.
+                  </p>
+                </div>
+                {markets.filter((m) => m.state === 3).map((market) => (
+                  <div
+                    key={Number(market.id)}
+                    className="bg-surface-1 border border-red-600/15 rounded-xl overflow-hidden opacity-70"
+                  >
+                    {market.imageUrl && (
+                      <div className="w-full h-20 overflow-hidden grayscale">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={market.imageUrl} alt={market.question} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="p-4 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">#{Number(market.id)}</span>
+                        <span className="text-xs font-medium text-red-400 flex items-center gap-1">
+                          <Ban size={11} /> Cancelled
+                        </span>
+                      </div>
+                      <p className="text-gray-300 text-sm font-medium line-clamp-2">{market.question}</p>
+                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                        <span>Pool: {formatUSDC(market.totalPool)} USDC</span>
+                        <span>{market.options.length} options</span>
+                        <span>ID #{Number(market.id)}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {market.options.map((opt, i) => (
+                          <span key={i} className="text-xs bg-surface-0 border border-border rounded-lg px-2 py-1 text-gray-600">
+                            {opt}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>
