@@ -59,6 +59,8 @@ export interface Translations {
   // Bet modal
   modalTotalPool: string; modalPickOutcome: string; modalBetAmount: string;
   modalPotentialPayout: string; modalBetSuccess: string; modalConfirming: string; modalBettingClosed: string;
+  // Celebration overlay
+  celebrationTitle: string; celebrationSubtitle: string;
   // Common
   back: string; loading: string; noData: string;
 }
@@ -98,6 +100,7 @@ const en: Translations = {
   createOptionPlaceholder:"Option", createQuestionPlaceholder:"e.g. Will Bitcoin reach $200k?",
   modalTotalPool:"Total Pool", modalPickOutcome:"Pick an outcome", modalBetAmount:"Bet Amount (USDC)",
   modalPotentialPayout:"Potential payout", modalBetSuccess:"Bet placed successfully!", modalConfirming:"Confirming…", modalBettingClosed:"Betting Closed",
+  celebrationTitle:"Bet Placed! 🍀", celebrationSubtitle:"Good Luck! May the odds be in your favour.",
   back:"Back", loading:"Loading…", noData:"No data",
 };
 
@@ -136,6 +139,7 @@ const tr: Translations = {
   createOptionPlaceholder:"Seçenek", createQuestionPlaceholder:"ör: Bitcoin $200k'ya ulaşacak mı?",
   modalTotalPool:"Toplam Havuz", modalPickOutcome:"Sonuç seç", modalBetAmount:"Bahis Miktarı (USDC)",
   modalPotentialPayout:"Potansiyel kazanç", modalBetSuccess:"Bahis başarıyla yerleştirildi!", modalConfirming:"Onaylanıyor…", modalBettingClosed:"Bahisler Kapalı",
+  celebrationTitle:"Bahis Yatırıldı! 🍀", celebrationSubtitle:"İyi Şanslar! Olasılıklar senin tarafında olsun.",
   back:"Geri", loading:"Yükleniyor…", noData:"Veri yok",
 };
 
@@ -174,6 +178,7 @@ const es: Translations = {
   createOptionPlaceholder:"Opción", createQuestionPlaceholder:"ej. ¿Llegará Bitcoin a $200k?",
   modalTotalPool:"Fondo Total", modalPickOutcome:"Elige un resultado", modalBetAmount:"Monto de Apuesta (USDC)",
   modalPotentialPayout:"Pago potencial", modalBetSuccess:"¡Apuesta realizada con éxito!", modalConfirming:"Confirmando…", modalBettingClosed:"Apuestas Cerradas",
+  celebrationTitle:"¡Apuesta Realizada! 🍀", celebrationSubtitle:"¡Buena Suerte! Que las probabilidades estén a tu favor.",
   back:"Atrás", loading:"Cargando…", noData:"Sin datos",
 };
 
@@ -212,6 +217,7 @@ const fr: Translations = {
   createOptionPlaceholder:"Option", createQuestionPlaceholder:"ex. Le Bitcoin atteindra-t-il 200k$ ?",
   modalTotalPool:"Cagnotte Totale", modalPickOutcome:"Choisir un résultat", modalBetAmount:"Montant du Pari (USDC)",
   modalPotentialPayout:"Gain potentiel", modalBetSuccess:"Pari placé avec succès !", modalConfirming:"Confirmation…", modalBettingClosed:"Paris Fermés",
+  celebrationTitle:"Pari Placé ! 🍀", celebrationSubtitle:"Bonne Chance ! Que les probabilités soient en ta faveur.",
   back:"Retour", loading:"Chargement…", noData:"Aucune donnée",
 };
 
@@ -250,6 +256,7 @@ const de: Translations = {
   createOptionPlaceholder:"Option", createQuestionPlaceholder:"z.B. Wird Bitcoin 200k$ erreichen?",
   modalTotalPool:"Gesamtpool", modalPickOutcome:"Ergebnis wählen", modalBetAmount:"Wetteinsatz (USDC)",
   modalPotentialPayout:"Mögliche Auszahlung", modalBetSuccess:"Wette erfolgreich platziert!", modalConfirming:"Bestätigung…", modalBettingClosed:"Wetten Geschlossen",
+  celebrationTitle:"Wette Platziert! 🍀", celebrationSubtitle:"Viel Glück! Mögen die Chancen auf deiner Seite sein.",
   back:"Zurück", loading:"Lädt…", noData:"Keine Daten",
 };
 
@@ -288,6 +295,7 @@ const zh: Translations = {
   createOptionPlaceholder:"选项", createQuestionPlaceholder:"例如：比特币会达到20万美元吗？",
   modalTotalPool:"总奖池", modalPickOutcome:"选择结果", modalBetAmount:"下注金额 (USDC)",
   modalPotentialPayout:"潜在赔付", modalBetSuccess:"下注成功！", modalConfirming:"确认中…", modalBettingClosed:"下注已关闭",
+  celebrationTitle:"下注成功！🍀", celebrationSubtitle:"祝你好运！愿胜率与你同在。",
   back:"返回", loading:"加载中…", noData:"暂无数据",
 };
 
@@ -326,6 +334,7 @@ const ja: Translations = {
   createOptionPlaceholder:"選択肢", createQuestionPlaceholder:"例：ビットコインは20万ドルに達するか？",
   modalTotalPool:"総プール", modalPickOutcome:"結果を選択", modalBetAmount:"ベット額 (USDC)",
   modalPotentialPayout:"潜在的な払い戻し", modalBetSuccess:"ベットが成功しました！", modalConfirming:"確認中…", modalBettingClosed:"ベット締め切り",
+  celebrationTitle:"ベット完了！🍀", celebrationSubtitle:"グッドラック！オッズがあなたに味方しますように。",
   back:"戻る", loading:"読み込み中…", noData:"データなし",
 };
 
@@ -364,6 +373,7 @@ const ko: Translations = {
   createOptionPlaceholder:"선택지", createQuestionPlaceholder:"예: 비트코인이 $200k에 도달할까요?",
   modalTotalPool:"총 풀", modalPickOutcome:"결과 선택", modalBetAmount:"베팅 금액 (USDC)",
   modalPotentialPayout:"예상 수익", modalBetSuccess:"베팅 성공!", modalConfirming:"확인 중…", modalBettingClosed:"베팅 마감",
+  celebrationTitle:"베팅 완료! 🍀", celebrationSubtitle:"행운을 빕니다! 확률이 당신 편이 되길.",
   back:"뒤로", loading:"로드 중…", noData:"데이터 없음",
 };
 
@@ -402,6 +412,7 @@ const ar: Translations = {
   createOptionPlaceholder:"خيار", createQuestionPlaceholder:"مثال: هل سيصل البيتكوين إلى 200 ألف دولار؟",
   modalTotalPool:"إجمالي المجموع", modalPickOutcome:"اختر نتيجة", modalBetAmount:"مبلغ الرهان (USDC)",
   modalPotentialPayout:"العائد المحتمل", modalBetSuccess:"تم وضع الرهان بنجاح!", modalConfirming:"جارٍ التأكيد…", modalBettingClosed:"الرهانات مغلقة",
+  celebrationTitle:"تم وضع الرهان! 🍀", celebrationSubtitle:"حظاً موفقاً! عسى الاحتمالات في صالحك.",
   back:"رجوع", loading:"جارٍ التحميل…", noData:"لا توجد بيانات",
 };
 
@@ -440,6 +451,7 @@ const ru: Translations = {
   createOptionPlaceholder:"Вариант", createQuestionPlaceholder:"Напр.: Достигнет ли биткоин $200k?",
   modalTotalPool:"Общий Пул", modalPickOutcome:"Выбрать исход", modalBetAmount:"Сумма Ставки (USDC)",
   modalPotentialPayout:"Потенциальная выплата", modalBetSuccess:"Ставка успешно сделана!", modalConfirming:"Подтверждение…", modalBettingClosed:"Ставки Закрыты",
+  celebrationTitle:"Ставка сделана! 🍀", celebrationSubtitle:"Удачи! Пусть шансы будут на твоей стороне.",
   back:"Назад", loading:"Загрузка…", noData:"Нет данных",
 };
 
@@ -478,6 +490,7 @@ const pt: Translations = {
   createOptionPlaceholder:"Opção", createQuestionPlaceholder:"ex.: O Bitcoin vai atingir $200k?",
   modalTotalPool:"Fundo Total", modalPickOutcome:"Escolha um resultado", modalBetAmount:"Valor da Aposta (USDC)",
   modalPotentialPayout:"Pagamento potencial", modalBetSuccess:"Aposta realizada com sucesso!", modalConfirming:"Confirmando…", modalBettingClosed:"Apostas Encerradas",
+  celebrationTitle:"Aposta Realizada! 🍀", celebrationSubtitle:"Boa Sorte! Que as probabilidades estejam ao seu favor.",
   back:"Voltar", loading:"Carregando…", noData:"Sem dados",
 };
 
@@ -516,6 +529,7 @@ const it: Translations = {
   createOptionPlaceholder:"Opzione", createQuestionPlaceholder:"es.: Il Bitcoin raggiungerà i $200k?",
   modalTotalPool:"Pool Totale", modalPickOutcome:"Scegli un risultato", modalBetAmount:"Importo Scommessa (USDC)",
   modalPotentialPayout:"Vincita potenziale", modalBetSuccess:"Scommessa piazzata con successo!", modalConfirming:"Conferma…", modalBettingClosed:"Scommesse Chiuse",
+  celebrationTitle:"Scommessa Piazzata! 🍀", celebrationSubtitle:"Buona Fortuna! Che le probabilità siano dalla tua parte.",
   back:"Indietro", loading:"Caricamento…", noData:"Nessun dato",
 };
 

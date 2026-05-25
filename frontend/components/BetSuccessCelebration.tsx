@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useI18n } from "@/lib/i18nContext";
 
 interface Props {
   onDone: () => void;
@@ -50,6 +51,7 @@ const DURATION = 4200; // total ms
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function BetSuccessCelebration({ onDone }: Props) {
+  const { t } = useI18n();
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const animRef    = useRef<number>(0);
   const startRef   = useRef<number>(0);
@@ -333,10 +335,10 @@ export function BetSuccessCelebration({ onDone }: Props) {
           style={{ animation: "bounce-in 0.65s 0.18s cubic-bezier(0.34,1.56,0.64,1) both" }}
         >
           <p className="text-white font-black text-3xl tracking-tight mb-2">
-            Bet Placed! 🍀
+            {t("celebrationTitle")}
           </p>
           <p className="text-green-400 font-semibold text-base">
-            Good Luck! May the odds be in your favour.
+            {t("celebrationSubtitle")}
           </p>
         </div>
 
