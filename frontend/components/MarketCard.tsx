@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatUnits } from "viem";
-import { Clock, TrendingUp, Trophy } from "lucide-react";
+import { Clock, TrendingUp, Trophy, Share2 } from "lucide-react";
 import { PlaceBetModal } from "./PlaceBetModal";
 import type { Market } from "@/lib/types";
 import {
@@ -128,7 +128,21 @@ export function MarketCard({ market, onRefresh }: Props) {
             </div>
           </div>
 
-          {/* CTA */}
+          {/* Share + CTA */}
+          <div className="flex gap-2">
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎯 "${market.question}"\n\nPredict the outcome on CirBet — powered by Arc Network!\n`)}&url=${encodeURIComponent("https://cirbet.xyz")}&hashtags=CirBet,ArcNetwork,PredictionMarket`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl
+                       text-sm font-medium border border-border text-gray-400
+                       hover:text-white hover:border-gray-500 bg-surface-2
+                       hover:bg-surface-3 transition-all shrink-0"
+            title="Share on X"
+          >
+            <Share2 size={14} />
+            <span className="hidden sm:inline text-xs">X</span>
+          </a>
           <button
             onClick={() => setShowModal(true)}
             className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200
@@ -142,6 +156,7 @@ export function MarketCard({ market, onRefresh }: Props) {
           >
             {isActive ? "Place Bet" : isResolved ? "View Result" : "Locked"}
           </button>
+          </div>
         </div>
       </div>
 
