@@ -11,17 +11,19 @@ import {
 import { useRouter } from "next/navigation";
 import {
   LayoutDashboard, Home, Loader2, CheckCircle2, AlertCircle, Trophy, RotateCcw, Coins,
+  PlusCircle, Users, Clock,
 } from "lucide-react";
 import { contractConfig, OWNER_ADDRESS } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
 import type { Market, UserBet } from "@/lib/types";
+import { CATEGORY_COLOR, CATEGORY_LABEL, STATE_COLOR } from "@/lib/types";
 import { formatUnits } from "viem";
 
 function formatUSDC(wei: bigint): string {
   return parseFloat(formatUnits(wei, 6)).toFixed(2);
 }
 
-type DashTab = "all" | "claims" | "refunds";
+type DashTab = "all" | "claims" | "refunds" | "mymarkets";
 
 interface BetWithMarket {
   market:          Market;
@@ -73,10 +75,19 @@ function useUserBets(address: `0x${string}` | undefined) {
     return result;
   }, [marketResults, betResults, refundedResults]);
 
+  // All markets (for "my created markets" tab)
+  const allMarkets: Market[] = useMemo(() => {
+    if (!marketResults) return [];
+    return marketResults
+      .map((r) => r.result as Market | undefined)
+      .filter((m): m is Market => m !== undefined && m.state !== 3);
+  }, [marketResults]);
+
   function refetch() { refetchMarkets(); refetchBets(); refetchRefunded(); }
 
   return {
     betsWithMarkets,
+    allMarkets,
     isLoading: (loadingMarkets || loadingBets) && count > 0,
     refetch,
   };
@@ -98,7 +109,7 @@ export default function DashboardPage() {
   const { address } = useAccount();
   const [tab, setTab] = useState<DashTab>("all");
 
-  const { betsWithMarkets, isLoading, refetch } = useUserBets(address);
+  const { betsWithMarkets, allMarkets, isLoading, refetch } = useUserBets(address);
 
   const { writeContract, data: txHash, isPending, error: writeError, reset } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
@@ -168,6 +179,12 @@ export default function DashboardPage() {
     market.state === 2 && market.winningOption === bet.optionIndex && !bet.claimed
   ).length;
   const refundsCount = refundableMarketIds.size;
+
+  // Markets created by this wallet
+  const createdMarkets = useMemo(
+    () => allMarkets.filter((m) => m.creator.toLowerCase() === address?.toLowerCase()),
+    [allMarkets, address],
+  );
 
   const filtered = useMemo(() => {
     if (tab === "claims")  return betsWithMarkets.filter(
@@ -310,11 +327,12 @@ export default function DashboardPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-border">
+        <div className="flex gap-2 border-b border-border overflow-x-auto [&::-webkit-scrollbar]:h-0">
           {([
-            { key: "all",     label: t("accountAllBets"), count: betsWithMarkets.length },
-            { key: "claims",  label: t("accountClaims"),  count: claimsCount },
-            { key: "refunds", label: t("accountRefunds"), count: refundsCount },
+            { key: "all",       label: t("accountAllBets"),  count: betsWithMarkets.length },
+            { key: "claims",    label: t("accountClaims"),   count: claimsCount },
+            { key: "refunds",   label: t("accountRefunds"),  count: refundsCount },
+            { key: "mymarkets", label: t("accountMyMarkets"), count: createdMarkets.length },
           ] as const).map((tab_item) => (
             <button
               key={tab_item.key}
@@ -327,9 +345,9 @@ export default function DashboardPage() {
             >
               {tab_item.label}
               <span className={`ml-2 text-xs rounded-full px-2 py-0.5 ${
-                tab_item.key === "refunds" && tab_item.count > 0
-                  ? "bg-red-600/20 text-red-400"
-                  : "bg-surface-2"
+                tab_item.key === "refunds"   && tab_item.count > 0 ? "bg-red-600/20 text-red-400"   :
+                tab_item.key === "mymarkets" && tab_item.count > 0 ? "bg-arc-600/20 text-arc-400"   :
+                "bg-surface-2 text-gray-500"
               }`}>{tab_item.count}</span>
             </button>
           ))}
@@ -353,8 +371,94 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Bet list */}
-        {isLoading ? (
+        {/* ── My Created Markets tab ── */}
+        {tab === "mymarkets" && (
+          isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 size={32} className="animate-spin text-arc-400" />
+            </div>
+          ) : createdMarkets.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-600">
+              <PlusCircle size={40} />
+              <p className="text-sm">{t("accountNoMarkets")}</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {createdMarkets.map((market) => {
+                const pool     = parseFloat(formatUnits(market.totalPool, 6));
+                const poolFmt  = pool >= 1000
+                  ? `${(pool / 1000).toFixed(1)}k USDC`
+                  : `${pool.toFixed(2)} USDC`;
+                const diff     = Number(market.endTime) - Math.floor(Date.now() / 1000);
+                const timeStr  = diff <= 0
+                  ? t("ended")
+                  : diff < 3600
+                    ? `${Math.floor(diff / 60)}m`
+                    : diff < 86400
+                      ? `${Math.floor(diff / 3600)}h ${Math.floor((diff % 3600) / 60)}m`
+                      : `${Math.floor(diff / 86400)}d ${Math.floor((diff % 86400) / 3600)}h`;
+
+                return (
+                  <div key={market.id.toString()}
+                    className="bg-surface-1 border border-border rounded-xl p-4 space-y-3
+                               hover:border-arc-600/30 transition-colors">
+
+                    {/* Top row: badges + pool */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <span className={`badge text-[10px] py-0.5 ${CATEGORY_COLOR[market.category]}`}>
+                          {CATEGORY_LABEL[market.category]}
+                        </span>
+                        <span className={`badge text-[10px] py-0.5 ${STATE_COLOR[market.state]}`}>
+                          <span className={`w-1 h-1 rounded-full mr-1 inline-block ${
+                            market.state === 0 ? "bg-green-400" :
+                            market.state === 1 ? "bg-amber-400" : "bg-arc-400"
+                          }`}/>
+                          {STATE_BADGE_LABEL[market.state]}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-400 font-mono font-semibold">{poolFmt}</span>
+                    </div>
+
+                    {/* Question */}
+                    <p className="text-white text-sm font-medium leading-snug line-clamp-2">
+                      {market.question}
+                    </p>
+
+                    {/* Options preview */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {market.options.map((opt, i) => {
+                        const optPool = Number(formatUnits(market.optionPools[i] ?? 0n, 6));
+                        const pct = pool === 0 ? 0 : Math.round((optPool / pool) * 100);
+                        return (
+                          <span key={i}
+                            className="text-[11px] px-2 py-0.5 rounded-full bg-surface-2
+                                       border border-border text-gray-400">
+                            {opt} <span className="text-gray-600">{pct}%</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {/* Bottom row: market ID + time */}
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <Users size={11}/> {market.options.length} options · Market #{Number(market.id)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock size={11}/>
+                        {diff <= 0 ? t("ended") : `${timeStr} ${t("adminTimeLeft")}`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )
+        )}
+
+        {/* Bet list — all / claims / refunds tabs */}
+        {tab !== "mymarkets" && (isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 size={32} className="animate-spin text-arc-400" />
           </div>
@@ -472,8 +576,13 @@ export default function DashboardPage() {
               );
             })}
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
+
+// ── Label maps used in My Markets tab ─────────────────────────────────────────
+const STATE_BADGE_LABEL: Record<number, string> = {
+  0: "Active", 1: "Locked", 2: "Resolved", 3: "Cancelled",
+};
