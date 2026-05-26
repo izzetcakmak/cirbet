@@ -4,8 +4,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useReadContract, useReadContracts, useAccount } from "wagmi";
 import { formatUnits } from "viem";
 import { Loader2, SearchX, Sparkles } from "lucide-react";
-import { Header } from "@/components/Header";
 import { CirBetLogo } from "@/components/CirBetLogo";
+import { Header } from "@/components/Header";
 import { MarketCard } from "@/components/MarketCard";
 import { MarketFilters } from "@/components/MarketFilters";
 import { MeshBackground } from "@/components/MeshBackground";
@@ -190,9 +190,9 @@ export default function Home() {
 
                 {/* Left: icon + text */}
                 <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-arc-600/20 border border-arc-600/30
+                  <div className="w-12 h-12 rounded-xl bg-surface-2 border border-arc-600/30
                                   flex items-center justify-center shrink-0 glow-arc-sm">
-                    <Sparkles size={20} className="text-arc-400" />
+                    <CirBetLogo size={36} />
                   </div>
                   <div className="text-left">
                     <p className="text-white font-bold text-sm tracking-tight">
