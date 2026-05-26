@@ -29,8 +29,16 @@ import {
 import { ArcTestnet } from "@circle-fin/app-kit/chains";
 
 /* ── Types ────────────────────────────────────────────────────────────────── */
-type ActiveTab = "send" | "bridge" | "swap";
-type OpStatus  = { type: "success" | "error"; msg: string } | null;
+type ActiveTab   = "send" | "bridge" | "swap";
+type OpStatus    = { type: "success" | "error"; msg: string } | null;
+type SwapToken   = "USDC" | "EURC" | "cirBTC";
+
+/* ── Arc Testnet swap tokens (USDT not supported; cirBTC on 0xf0C4…) ──────── */
+const SWAP_TOKENS: { id: SwapToken; label: string }[] = [
+  { id: "USDC",   label: "USDC"   },
+  { id: "EURC",   label: "EURC"   },
+  { id: "cirBTC", label: "cirBTC" },
+];
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
 const BRIDGE_CHAINS = [
@@ -154,8 +162,8 @@ export function WalletButton() {
 
   /* Swap */
   const [swapAmt,        setSwapAmt]        = useState("");
-  const [swapIn,         setSwapIn]         = useState<"USDC" | "USDT">("USDC");
-  const [swapOut,        setSwapOut]        = useState<"USDC" | "USDT">("USDT");
+  const [swapIn,         setSwapIn]         = useState<SwapToken>("USDC");
+  const [swapOut,        setSwapOut]        = useState<SwapToken>("EURC");
   const [swapLoading,    setSwapLoading]    = useState(false);
   const [swapStatus,     setSwapStatus]     = useState<OpStatus>(null);
 
@@ -298,6 +306,23 @@ export function WalletButton() {
   const flipSwap = () => {
     setSwapIn(swapOut);
     setSwapOut(swapIn);
+  };
+
+  /* ── Ensure tokenIn ≠ tokenOut when selection changes ─────────────────── */
+  const changeSwapIn = (v: SwapToken) => {
+    setSwapIn(v);
+    if (v === swapOut) {
+      // Pick next available token that differs
+      const other = SWAP_TOKENS.find((t) => t.id !== v);
+      if (other) setSwapOut(other.id);
+    }
+  };
+  const changeSwapOut = (v: SwapToken) => {
+    setSwapOut(v);
+    if (v === swapIn) {
+      const other = SWAP_TOKENS.find((t) => t.id !== v);
+      if (other) setSwapIn(other.id);
+    }
   };
 
   /* ════════════════════════════════════════════════════════════════════════
@@ -476,26 +501,27 @@ export function WalletButton() {
               {activeTab === "swap" && (
                 <>
                   <div className="flex items-end gap-2">
+                    {/* Token In */}
                     <div className="flex-1">
                       <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">
                         From
                       </p>
                       <select
                         value={swapIn}
-                        onChange={(e) => {
-                          const v = e.target.value as "USDC" | "USDT";
-                          setSwapIn(v);
-                          setSwapOut(v === "USDC" ? "USDT" : "USDC");
-                        }}
+                        onChange={(e) => changeSwapIn(e.target.value as SwapToken)}
                         className="w-full px-3 py-2 bg-surface-1 border border-border
                                    rounded-lg text-sm text-white
                                    focus:outline-none focus:border-arc-500 transition-colors"
                       >
-                        <option value="USDC">USDC</option>
-                        <option value="USDT">USDT</option>
+                        {SWAP_TOKENS.map((t) => (
+                          <option key={t.id} value={t.id} disabled={t.id === swapOut}>
+                            {t.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
+                    {/* Flip button */}
                     <button
                       onClick={flipSwap}
                       className="mb-0.5 p-2 rounded-lg bg-surface-1 border border-border
@@ -506,16 +532,24 @@ export function WalletButton() {
                       <ArrowLeftRight size={13} />
                     </button>
 
+                    {/* Token Out */}
                     <div className="flex-1">
                       <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">
                         To
                       </p>
-                      <div
-                        className="px-3 py-2 bg-surface-1/60 border border-border
-                                   rounded-lg text-sm text-gray-400"
+                      <select
+                        value={swapOut}
+                        onChange={(e) => changeSwapOut(e.target.value as SwapToken)}
+                        className="w-full px-3 py-2 bg-surface-1 border border-border
+                                   rounded-lg text-sm text-white
+                                   focus:outline-none focus:border-arc-500 transition-colors"
                       >
-                        {swapOut}
-                      </div>
+                        {SWAP_TOKENS.map((t) => (
+                          <option key={t.id} value={t.id} disabled={t.id === swapIn}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
