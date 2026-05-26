@@ -186,6 +186,16 @@ export default function DashboardPage() {
     [allMarkets, address],
   );
 
+  // Estimated creator fee: 1% of pool for active/locked created markets that crossed 100 USDC threshold
+  const POOL_THRESHOLD = 100_000_000n; // 100 USDC (6 decimals)
+  const estimatedCreatorFee = useMemo(
+    () =>
+      createdMarkets
+        .filter((m) => (m.state === 0 || m.state === 1) && m.totalPool >= POOL_THRESHOLD)
+        .reduce((acc, m) => acc + m.totalPool / 100n, 0n),
+    [createdMarkets],
+  );
+
   const filtered = useMemo(() => {
     if (tab === "claims")  return betsWithMarkets.filter(
       ({ market, bet }) => market.state === 2 && market.winningOption === bet.optionIndex && !bet.claimed
@@ -256,14 +266,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className={`grid grid-cols-2 gap-3 ${estimatedCreatorFee > 0n ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
           {[
-            { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,        color: "text-white" },
-            { label: t("accountPendingWin"), value: `${pendingIsEstimate ? "≈ " : ""}${formatUSDC(pendingWin)} USDC`, color: "text-yellow-400" },
-            { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,      color: "text-green-400" },
-            { label: t("accountRefunds"),    value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400" },
+            { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,        color: "text-white",        border: "" },
+            { label: t("accountPendingWin"), value: `${pendingIsEstimate ? "≈ " : ""}${formatUSDC(pendingWin)} USDC`, color: "text-yellow-400",  border: "" },
+            { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,      color: "text-green-400",   border: "" },
+            { label: t("accountRefunds"),    value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400",     border: "" },
+            ...(estimatedCreatorFee > 0n ? [{
+              label:  t("accountEstFee"),
+              value:  `≈ ${formatUSDC(estimatedCreatorFee)} USDC`,
+              color:  "text-arc-400",
+              border: "border-arc-600/30",
+            }] : []),
           ].map((s) => (
-            <div key={s.label} className="bg-surface-1 border border-border rounded-xl p-4">
+            <div key={s.label} className={`bg-surface-1 border rounded-xl p-4 ${s.border || "border-border"}`}>
               <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
               <div className="text-xs text-gray-500 mt-1">{s.label}</div>
             </div>
