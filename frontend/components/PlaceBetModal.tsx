@@ -173,6 +173,46 @@ export function PlaceBetModal({ market, onClose, onSuccess }: Props) {
               <label className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 {t("modalBetAmount")}
               </label>
+
+              {/* Currency selector */}
+              <div className="flex gap-2">
+                {/* USDC — active */}
+                <div
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border
+                             border-arc-500 bg-arc-600/15 cursor-default select-none"
+                  title="Active currency"
+                >
+                  <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center
+                                   text-[9px] font-black text-white leading-none shrink-0">$</span>
+                  <span className="text-xs font-semibold text-arc-300">USDC</span>
+                  <span className="text-[9px] text-arc-400 bg-arc-600/20 px-1 rounded">✓</span>
+                </div>
+
+                {/* EURC — coming soon */}
+                <div
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border
+                             border-border bg-surface-2 opacity-50 cursor-not-allowed select-none"
+                  title="Coming soon"
+                >
+                  <span className="w-4 h-4 rounded-full bg-blue-700 flex items-center justify-center
+                                   text-[9px] font-black text-white leading-none shrink-0">€</span>
+                  <span className="text-xs font-semibold text-gray-400">EURC</span>
+                  <span className="text-[9px] text-gray-500 bg-surface-3 px-1 rounded">Soon</span>
+                </div>
+
+                {/* QCAD — coming soon */}
+                <div
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border
+                             border-border bg-surface-2 opacity-50 cursor-not-allowed select-none"
+                  title="QCAD — Canada's regulated CAD stablecoin, coming soon"
+                >
+                  <span className="w-4 h-4 rounded-full bg-red-700 flex items-center justify-center
+                                   text-[9px] font-black text-white leading-none shrink-0">🍁</span>
+                  <span className="text-xs font-semibold text-gray-400">QCAD</span>
+                  <span className="text-[9px] text-gray-500 bg-surface-3 px-1 rounded">Soon</span>
+                </div>
+              </div>
+
               <div className="relative">
                 <input
                   type="number"
