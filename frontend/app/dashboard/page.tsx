@@ -117,15 +117,34 @@ export default function DashboardPage() {
   // ── Stats ────────────────────────────────────────────────────────────────────
   const totalBet = betsWithMarkets.reduce((acc, { bet }) => acc + bet.amount, 0n);
 
+  // pendingWin = resolved-won unclaimed (exact) + active/locked estimated payout
   const pendingWin = betsWithMarkets.reduce((acc, { market, bet }) => {
-    if (market.state !== 2 || bet.claimed) return acc;
-    if (market.winningOption !== bet.optionIndex) return acc;
+    if (bet.claimed) return acc;
     const optPool = market.optionPools[Number(bet.optionIndex)] ?? 0n;
     if (optPool === 0n) return acc;
-    const gross = (bet.amount * market.totalPool) / optPool;
-    const fee   = (gross * 300n) / 10000n;
-    return acc + gross - fee;
+
+    if (market.state === 2) {
+      // Resolved: only count if this option actually won
+      if (market.winningOption !== bet.optionIndex) return acc;
+      const gross = (bet.amount * market.totalPool) / optPool;
+      const fee   = (gross * 300n) / 10000n;
+      return acc + gross - fee;
+    }
+
+    if (market.state === 0 || market.state === 1) {
+      // Active / Locked: estimated payout at current pool ratios
+      const gross = (bet.amount * market.totalPool) / optPool;
+      const fee   = (gross * 300n) / 10000n;
+      return acc + gross - fee;
+    }
+
+    return acc;
   }, 0n);
+
+  // True when result includes estimates from still-active bets (show ≈ prefix)
+  const pendingIsEstimate = betsWithMarkets.some(
+    ({ market, bet }) => !bet.claimed && (market.state === 0 || market.state === 1),
+  );
 
   const claimedWin = betsWithMarkets.reduce((acc, { bet }) => {
     if (bet.claimed) return acc + bet.amount;
@@ -223,7 +242,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,        color: "text-white" },
-            { label: t("accountPendingWin"), value: `${formatUSDC(pendingWin)} USDC`,      color: "text-yellow-400" },
+            { label: t("accountPendingWin"), value: `${pendingIsEstimate ? "≈ " : ""}${formatUSDC(pendingWin)} USDC`, color: "text-yellow-400" },
             { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,      color: "text-green-400" },
             { label: t("accountRefunds"),    value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400" },
           ].map((s) => (
