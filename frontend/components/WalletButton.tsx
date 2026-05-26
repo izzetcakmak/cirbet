@@ -41,13 +41,15 @@ const SWAP_TOKENS: { id: SwapToken; label: string }[] = [
 ];
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
+/* Arc Testnet bridges to other testnets only — not mainnets */
 const BRIDGE_CHAINS = [
-  { id: "Base",      name: "Base"      },
-  { id: "Ethereum",  name: "Ethereum"  },
-  { id: "Polygon",   name: "Polygon"   },
-  { id: "Arbitrum",  name: "Arbitrum"  },
-  { id: "Optimism",  name: "Optimism"  },
-  { id: "Avalanche", name: "Avalanche" },
+  { id: "Base_Sepolia",          name: "Base Sepolia"       },
+  { id: "Ethereum_Sepolia",      name: "Ethereum Sepolia"   },
+  { id: "Arbitrum_Sepolia",      name: "Arbitrum Sepolia"   },
+  { id: "Optimism_Sepolia",      name: "Optimism Sepolia"   },
+  { id: "Polygon_Amoy_Testnet",  name: "Polygon Amoy"       },
+  { id: "Avalanche_Fuji",        name: "Avalanche Fuji"     },
+  { id: "Unichain_Sepolia",      name: "Unichain Sepolia"   },
 ];
 
 /* ── Module-level AppKit instance ─────────────────────────────────────────── */
