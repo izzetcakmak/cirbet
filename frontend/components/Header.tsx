@@ -81,18 +81,6 @@ export function Header() {
               </a>
             )}
 
-            {/* Create a Market — connected non-admin users */}
-            {address && !isAdmin && (
-              <button
-                onClick={() => setShowPropose(true)}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl
-                           text-sm text-arc-300 hover:text-white bg-arc-600/10
-                           hover:bg-arc-600/20 border border-arc-600/30 transition-all"
-              >
-                <Sparkles size={14} />
-                <span>{t("navPropose")}</span>
-              </button>
-            )}
 
             {/* Admin panel — owner only */}
             {isAdmin && (
