@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { LayoutDashboard, Shield, Plus, Lightbulb, LineChart } from "lucide-react";
 import { WalletButton } from "./WalletButton";
 import { LanguageSelector } from "./LanguageSelector";
+import { BlockTicker } from "./BlockTicker";
 import { CreateMarketModal } from "./CreateMarketModal";
 import { ProposeMarketModal } from "./ProposeMarketModal";
 import { CirBetLogo } from "./CirBetLogo";
@@ -21,7 +22,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-surface-0/80 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-40 header-glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
 
           {/* Logo */}
@@ -62,6 +63,7 @@ export function Header() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            <BlockTicker />
             <LanguageSelector />
 
             {/* My Account — any connected user */}

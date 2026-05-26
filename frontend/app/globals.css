@@ -31,6 +31,12 @@
     @apply bg-arc-600 hover:bg-arc-500 text-white font-semibold px-5 py-2.5 rounded-xl
            transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed
            focus:outline-none focus:ring-2 focus:ring-arc-500/50;
+    box-shadow: 0 0 18px rgba(108,71,255,0.25), 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .btn-primary:not(:disabled):hover {
+    box-shadow: 0 0 28px rgba(108,71,255,0.45), 0 4px 14px rgba(108,71,255,0.2);
+    transform: translateY(-1px);
   }
 
   .btn-ghost {
@@ -40,8 +46,10 @@
   }
 
   .card {
-    @apply bg-surface-1 border border-border rounded-2xl transition-all duration-200
-           hover:border-arc-600/30 hover:shadow-lg hover:shadow-arc-600/5;
+    @apply relative bg-surface-1 border border-border rounded-2xl;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.028) inset,
+                0 4px 24px rgba(0,0,0,0.25);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
   .badge {
@@ -124,4 +132,182 @@
 @keyframes confetti-burst {
   0%   { transform: scale(0); opacity: 1; }
   100% { transform: scale(1); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ██████╗ ██████╗ ███████╗███╗   ███╗██╗██╗   ██╗███╗   ███╗
+   ██╔══██╗██╔══██╗██╔════╝████╗ ████║██║██║   ██║████╗ ████║
+   ██████╔╝██████╔╝█████╗  ██╔████╔██║██║██║   ██║██╔████╔██║
+   ██╔═══╝ ██╔══██╗██╔══╝  ██║╚██╔╝██║██║██║   ██║██║╚██╔╝██║
+   ██║     ██║  ██║███████╗██║ ╚═╝ ██║██║╚██████╔╝██║ ╚═╝ ██║
+   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝ ╚═════╝ ╚═╝     ╚═╝
+   Premium Web3 UI — CirBet Overhaul
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes needed by plain CSS (not via Tailwind JIT classes) ──────────── */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1;   }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ── Ambient mesh blob keyframes ────────────────────────────────────────────── */
+@keyframes blobDrift {
+  0%   { transform: translate(0px,  0px)   scale(1);    }
+  25%  { transform: translate(55px,-45px)  scale(1.06); }
+  50%  { transform: translate(15px, 70px)  scale(0.97); }
+  75%  { transform: translate(-35px,30px)  scale(1.04); }
+  100% { transform: translate(70px, 10px)  scale(1.02); }
+}
+@keyframes blobDrift2 {
+  0%   { transform: translate(0px,   0px)   scale(1);    }
+  33%  { transform: translate(-50px, 35px)  scale(1.07); }
+  66%  { transform: translate(40px, -55px)  scale(0.94); }
+  100% { transform: translate(-60px,-18px)  scale(1.05); }
+}
+@keyframes blobDrift3 {
+  0%   { transform: translate(0px,  0px)   scale(1);    }
+  50%  { transform: translate(28px, 58px)  scale(1.08); }
+  100% { transform: translate(-38px,16px)  scale(0.96); }
+}
+
+/* ── Card premium hover glow (overrides @layer components) ─────────────────── */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card:hover {
+  border-color: rgba(108, 71, 255, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(108, 71, 255, 0.13),
+    0 20px 55px rgba(108, 71, 255, 0.14),
+    0 8px 22px rgba(0, 0, 0, 0.35),
+    0 1px 0 rgba(255,255,255,0.028) inset;
+}
+
+/* ── Active market top-edge glow bar ────────────────────────────────────────── */
+.card-active-aura::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%; right: 12%;
+  height: 1px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(108,71,255,0.95) 50%,
+    transparent 100%
+  );
+  animation: glowPulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Glassmorphism utility ───────────────────────────────────────────────────── */
+.glass {
+  background: rgba(11, 11, 22, 0.65);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid rgba(255,255,255,0.055);
+}
+
+.glass-dark {
+  background: rgba(8, 8, 15, 0.82);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ── Glow utilities ──────────────────────────────────────────────────────────── */
+.glow-arc {
+  box-shadow:
+    0 0 18px rgba(108, 71, 255, 0.22),
+    0 0 40px rgba(108, 71, 255, 0.09);
+}
+
+.glow-arc-sm {
+  box-shadow: 0 0 12px rgba(108, 71, 255, 0.3);
+}
+
+.glow-green {
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+}
+
+/* ── Shimmer text gradient ───────────────────────────────────────────────────── */
+.shimmer-gradient {
+  background: linear-gradient(
+    90deg,
+    #9c7bff 0%,
+    #c8b0ff 30%,
+    #f0ecff 50%,
+    #c8b0ff 70%,
+    #9c7bff 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ── Stagger animation delays (via data attribute) ───────────────────────────── */
+[data-stagger="1"]  { animation-delay: 0.04s; }
+[data-stagger="2"]  { animation-delay: 0.09s; }
+[data-stagger="3"]  { animation-delay: 0.14s; }
+[data-stagger="4"]  { animation-delay: 0.19s; }
+[data-stagger="5"]  { animation-delay: 0.24s; }
+[data-stagger="6"]  { animation-delay: 0.29s; }
+[data-stagger="7"]  { animation-delay: 0.34s; }
+[data-stagger="8"]  { animation-delay: 0.39s; }
+[data-stagger="9"]  { animation-delay: 0.44s; }
+[data-stagger="10"] { animation-delay: 0.49s; }
+[data-stagger="11"] { animation-delay: 0.54s; }
+[data-stagger="12"] { animation-delay: 0.59s; }
+
+/* ── Subtle noise texture on body ────────────────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ── Premium header glass border ─────────────────────────────────────────────── */
+.header-glass {
+  background: rgba(8, 8, 15, 0.75);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border-bottom: 1px solid rgba(108,71,255,0.12);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.025);
+}
+
+/* ── Hero grid overlay ────────────────────────────────────────────────────────── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(108,71,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,71,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 100%);
 }

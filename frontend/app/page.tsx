@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { formatUnits } from "viem";
 import { Loader2, SearchX } from "lucide-react";
@@ -8,6 +8,7 @@ import { Header } from "@/components/Header";
 import { CirBetLogo } from "@/components/CirBetLogo";
 import { MarketCard } from "@/components/MarketCard";
 import { MarketFilters } from "@/components/MarketFilters";
+import { MeshBackground } from "@/components/MeshBackground";
 import { PlaceBetModal } from "@/components/PlaceBetModal";
 import { contractConfig } from "@/lib/contracts";
 import type { Market, CategoryFilter, StateFilter } from "@/lib/types";
@@ -46,6 +47,28 @@ function useMarkets() {
   }
 
   return { markets, isLoading: isLoading && count > 0, total: count, refetch };
+}
+
+// ─── Count-up animation hook ──────────────────────────────────────────────────
+
+function useCountUp(target: number, duration = 1100): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (target === 0) { setCount(0); return; }
+    let raf: number;
+    const startTime = performance.now();
+    const step = (now: number) => {
+      const elapsed  = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutCubic
+      const eased    = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return count;
 }
 
 // ─── Category / State filter logic ───────────────────────────────────────────
@@ -91,36 +114,54 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <MeshBackground />
       <Header />
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-16 pb-14 px-4">
-        {/* Background glow */}
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 hero-grid pointer-events-none" />
+
+        {/* Radial center glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[600px] h-[300px] bg-arc-600/8 rounded-full blur-[120px]" />
+          <div className="w-[700px] h-[320px] rounded-full blur-[140px]"
+               style={{ background: "radial-gradient(ellipse, rgba(108,71,255,0.14) 0%, transparent 70%)" }} />
         </div>
 
         <div className="relative max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-arc-600/10 border border-arc-600/20
-                          rounded-full px-4 py-1.5 mb-6 text-xs font-medium text-arc-400">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-arc-600/10 border border-arc-600/25
+                          rounded-full px-4 py-1.5 mb-7 text-xs font-medium text-arc-400
+                          animate-badge-in glow-arc-sm">
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
             {t("heroBadge")}
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+          {/* Main heading — Syne display font */}
+          <h1
+            className="text-4xl sm:text-6xl font-black text-white tracking-tight mb-5
+                       animate-hero-in font-display leading-[1.1]"
+            style={{ animationDelay: "0.1s" }}
+          >
             {t("heroTitle")}
           </h1>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
+          <p
+            className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed animate-hero-in"
+            style={{ animationDelay: "0.22s" }}
+          >
             {t("heroSubtitle")}
           </p>
 
-          {/* Stats bar */}
-          <div className="flex items-center justify-center gap-8 mt-10 text-sm">
-            <Stat label={t("statsMarkets")}  value={markets.filter((m) => m.state !== 3).length.toString()} />
+          {/* Stats bar — count-up animation */}
+          <div
+            className="flex items-center justify-center gap-8 mt-10 text-sm animate-hero-in"
+            style={{ animationDelay: "0.35s" }}
+          >
+            <Stat label={t("statsMarkets")}  value={markets.filter((m) => m.state !== 3).length} />
             <div className="w-px h-8 bg-border" />
-            <Stat label={t("statsActive")}   value={markets.filter((m) => m.state === 0).length.toString()} />
+            <Stat label={t("statsActive")}   value={markets.filter((m) => m.state === 0).length} />
             <div className="w-px h-8 bg-border" />
-            <Stat label={t("statsResolved")} value={markets.filter((m) => m.state === 2).length.toString()} />
+            <Stat label={t("statsResolved")} value={markets.filter((m) => m.state === 2).length} />
           </div>
         </div>
       </section>
@@ -232,11 +273,12 @@ export default function Home() {
         {/* Market grid */}
         {!isLoading && filtered.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((market) => (
+            {filtered.map((market, i) => (
               <MarketCard
                 key={market.id.toString()}
                 market={market}
                 onRefresh={refetch}
+                staggerIndex={i}
               />
             ))}
           </div>
@@ -275,11 +317,14 @@ export default function Home() {
 
 // ─── Stat ─────────────────────────────────────────────────────────────────────
 
-function Stat({ label, value, className = "" }: { label: string; value: string; className?: string }) {
+function Stat({ label, value, className = "" }: { label: string; value: number; className?: string }) {
+  const count = useCountUp(value, 1200);
   return (
     <div className={`flex flex-col items-center gap-0.5 ${className}`}>
-      <span className="text-white font-bold text-xl">{value}</span>
-      <span className="text-gray-500 text-xs">{label}</span>
+      <span className="text-white font-black text-2xl font-display animate-count-up tabular-nums">
+        {count}
+      </span>
+      <span className="text-gray-500 text-xs uppercase tracking-wider">{label}</span>
     </div>
   );
 }
