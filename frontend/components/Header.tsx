@@ -58,12 +58,14 @@ export function Header() {
               Institutional
             </a>
             <a href="https://faucet.circle.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navFaucet")}</a>
-            <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navExplorer")}</a>
+            {isAdmin && (
+              <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{t("navExplorer")}</a>
+            )}
           </nav>
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            <BlockTicker />
+            {isAdmin && <BlockTicker />}
             <LanguageSelector />
 
             {/* My Account — any connected user */}
