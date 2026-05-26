@@ -73,7 +73,7 @@ export interface Translations {
 
 const en: Translations = {
   navMarkets:"Markets", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
-  navMyAccount:"My Account", navAdmin:"Admin", navCreate:"Create", navPropose:"Create a Market",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Create", navPropose:"Create a Market",
   heroTitle:"Prediction Market",
   heroSubtitle:"Bet on real-world outcomes with native USDC on Arc Network. Sub-second finality. Zero gas friction.",
   heroBadge:"Live on Arc Testnet",
@@ -114,7 +114,7 @@ const en: Translations = {
 
 const tr: Translations = {
   navMarkets:"Marketler", navFaucet:"Faucet", navExplorer:"Gezgin", navDocs:"Dokümanlar",
-  navMyAccount:"Hesabım", navAdmin:"Admin", navCreate:"Oluştur", navPropose:"Market Oluştur",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Oluştur", navPropose:"Market Oluştur",
   heroTitle:"Tahmin Piyasası",
   heroSubtitle:"Arc Network'te native USDC ile gerçek dünya sonuçlarına bahis yap. Saniyenin altında kesinlik. Sıfır gas yükü.",
   heroBadge:"Arc Testnet'te Canlı · Zincir ID 5042002",
@@ -155,7 +155,7 @@ const tr: Translations = {
 
 const es: Translations = {
   navMarkets:"Mercados", navFaucet:"Faucet", navExplorer:"Explorador", navDocs:"Docs",
-  navMyAccount:"Mi Cuenta", navAdmin:"Admin", navCreate:"Crear", navPropose:"Crear Mercado",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Crear", navPropose:"Crear Mercado",
   heroTitle:"Mercado de Predicciones",
   heroSubtitle:"Apuesta en resultados del mundo real con USDC nativo en Arc Network. Finalidad en menos de un segundo. Sin fricción de gas.",
   heroBadge:"En vivo en Arc Testnet",
@@ -196,7 +196,7 @@ const es: Translations = {
 
 const fr: Translations = {
   navMarkets:"Marchés", navFaucet:"Faucet", navExplorer:"Explorateur", navDocs:"Docs",
-  navMyAccount:"Mon Compte", navAdmin:"Admin", navCreate:"Créer", navPropose:"Créer un Marché",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Créer", navPropose:"Créer un Marché",
   heroTitle:"Marché de Prédictions",
   heroSubtitle:"Pariez sur des résultats réels avec l'USDC natif sur Arc Network. Finalité en moins d'une seconde. Zéro friction de gaz.",
   heroBadge:"En direct sur Arc Testnet",
@@ -237,7 +237,7 @@ const fr: Translations = {
 
 const de: Translations = {
   navMarkets:"Märkte", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
-  navMyAccount:"Mein Konto", navAdmin:"Admin", navCreate:"Erstellen", navPropose:"Markt Erstellen",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Erstellen", navPropose:"Markt Erstellen",
   heroTitle:"Vorhersagemarkt",
   heroSubtitle:"Wette auf reale Ergebnisse mit nativem USDC im Arc Network. Finality unter einer Sekunde. Keine Gasgebühren.",
   heroBadge:"Live auf Arc Testnet",
@@ -278,7 +278,7 @@ const de: Translations = {
 
 const zh: Translations = {
   navMarkets:"市场", navFaucet:"水龙头", navExplorer:"区块浏览器", navDocs:"文档",
-  navMyAccount:"我的账户", navAdmin:"管理", navCreate:"创建", navPropose:"创建市场",
+  navMyAccount:"Dashboard", navAdmin:"管理", navCreate:"创建", navPropose:"创建市场",
   heroTitle:"预测市场",
   heroSubtitle:"在Arc网络上使用原生USDC竞猜真实世界的结果。亚秒级确定性。零Gas摩擦。",
   heroBadge:"在Arc测试网上线 · 链ID 5042002",
@@ -319,7 +319,7 @@ const zh: Translations = {
 
 const ja: Translations = {
   navMarkets:"マーケット", navFaucet:"フォーセット", navExplorer:"エクスプローラー", navDocs:"ドキュメント",
-  navMyAccount:"マイアカウント", navAdmin:"管理", navCreate:"作成", navPropose:"マーケット作成",
+  navMyAccount:"Dashboard", navAdmin:"管理", navCreate:"作成", navPropose:"マーケット作成",
   heroTitle:"予測マーケット",
   heroSubtitle:"Arcネットワーク上のネイティブUSDCで実世界の結果に賭けましょう。サブ秒の確定性。ガス手数料ゼロ。",
   heroBadge:"Arc Testnetで稼働中 · チェーンID 5042002",
@@ -360,7 +360,7 @@ const ja: Translations = {
 
 const ko: Translations = {
   navMarkets:"마켓", navFaucet:"파우셋", navExplorer:"탐색기", navDocs:"문서",
-  navMyAccount:"내 계정", navAdmin:"관리자", navCreate:"생성", navPropose:"마켓 생성",
+  navMyAccount:"Dashboard", navAdmin:"관리자", navCreate:"생성", navPropose:"마켓 생성",
   heroTitle:"예측 마켓",
   heroSubtitle:"Arc 네트워크에서 네이티브 USDC로 실제 결과에 베팅하세요. 1초 미만의 확정성. 제로 가스 마찰.",
   heroBadge:"Arc 테스트넷 라이브 · 체인 ID 5042002",
@@ -401,7 +401,7 @@ const ko: Translations = {
 
 const ar: Translations = {
   navMarkets:"الأسواق", navFaucet:"الصنبور", navExplorer:"المستكشف", navDocs:"الوثائق",
-  navMyAccount:"حسابي", navAdmin:"الإدارة", navCreate:"إنشاء", navPropose:"إنشاء سوق",
+  navMyAccount:"Dashboard", navAdmin:"الإدارة", navCreate:"إنشاء", navPropose:"إنشاء سوق",
   heroTitle:"سوق التنبؤات",
   heroSubtitle:"راهن على نتائج العالم الحقيقي باستخدام USDC الأصلي على شبكة Arc. نهائية دون ثانية. لا احتكاك للغاز.",
   heroBadge:"مباشر على Arc Testnet · معرف السلسلة 5042002",
@@ -442,7 +442,7 @@ const ar: Translations = {
 
 const ru: Translations = {
   navMarkets:"Рынки", navFaucet:"Кран", navExplorer:"Обозреватель", navDocs:"Документы",
-  navMyAccount:"Мой Аккаунт", navAdmin:"Админ", navCreate:"Создать", navPropose:"Создать Рынок",
+  navMyAccount:"Dashboard", navAdmin:"Админ", navCreate:"Создать", navPropose:"Создать Рынок",
   heroTitle:"Рынок Предсказаний",
   heroSubtitle:"Делайте ставки на реальные результаты с нативным USDC в сети Arc. Окончательность менее секунды. Нулевые газовые издержки.",
   heroBadge:"В эфире на Arc Testnet · ID цепи 5042002",
@@ -483,7 +483,7 @@ const ru: Translations = {
 
 const pt: Translations = {
   navMarkets:"Mercados", navFaucet:"Torneira", navExplorer:"Explorador", navDocs:"Docs",
-  navMyAccount:"Minha Conta", navAdmin:"Admin", navCreate:"Criar", navPropose:"Criar Mercado",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Criar", navPropose:"Criar Mercado",
   heroTitle:"Mercado de Previsões",
   heroSubtitle:"Aposte em resultados do mundo real com USDC nativo na Rede Arc. Finalidade em menos de um segundo. Zero fricção de gás.",
   heroBadge:"Ao vivo na Arc Testnet",
@@ -524,7 +524,7 @@ const pt: Translations = {
 
 const it: Translations = {
   navMarkets:"Mercati", navFaucet:"Faucet", navExplorer:"Esploratore", navDocs:"Docs",
-  navMyAccount:"Il Mio Account", navAdmin:"Admin", navCreate:"Crea", navPropose:"Crea Mercato",
+  navMyAccount:"Dashboard", navAdmin:"Admin", navCreate:"Crea", navPropose:"Crea Mercato",
   heroTitle:"Mercato delle Previsioni",
   heroSubtitle:"Scommetti su risultati del mondo reale con USDC nativo su Arc Network. Finalità inferiore al secondo. Zero frizione di gas.",
   heroBadge:"In diretta su Arc Testnet",

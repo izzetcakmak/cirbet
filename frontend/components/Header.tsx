@@ -65,10 +65,7 @@ export function Header() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            {isAdmin && <BlockTicker />}
-            <LanguageSelector />
-
-            {/* My Account — any connected user */}
+            {/* Dashboard — any connected user, shown first */}
             {address && (
               <a
                 href="/dashboard"
@@ -80,6 +77,9 @@ export function Header() {
                 <span>{t("navMyAccount")}</span>
               </a>
             )}
+
+            {isAdmin && <BlockTicker />}
+            <LanguageSelector />
 
 
             {/* Admin panel — owner only */}
