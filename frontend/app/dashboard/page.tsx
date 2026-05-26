@@ -266,12 +266,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className={`grid grid-cols-2 gap-3 ${estimatedCreatorFee > 0n ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+        <div className={`grid grid-cols-2 gap-3 ${estimatedCreatorFee > 0n ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
           {[
-            { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,        color: "text-white",        border: "" },
-            { label: t("accountPendingWin"), value: `${pendingIsEstimate ? "≈ " : ""}${formatUSDC(pendingWin)} USDC`, color: "text-yellow-400",  border: "" },
-            { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,      color: "text-green-400",   border: "" },
-            { label: t("accountRefunds"),    value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400",     border: "" },
+            { label: t("accountTotalBet"),   value: `${formatUSDC(totalBet)} USDC`,        color: "text-white",      border: "" },
+            { label: t("accountClaimedWin"), value: `${formatUSDC(claimedWin)} USDC`,      color: "text-green-400",  border: "" },
+            { label: t("accountRefunds"),    value: `${formatUSDC(refundableTotal)} USDC`, color: "text-red-400",    border: "" },
             ...(estimatedCreatorFee > 0n ? [{
               label:  t("accountEstFee"),
               value:  `≈ ${formatUSDC(estimatedCreatorFee)} USDC`,
