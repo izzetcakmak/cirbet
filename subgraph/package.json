@@ -1,0 +1,15 @@
+{
+  "name": "cirbet-subgraph",
+  "version": "1.0.0",
+  "description": "CirBet Prediction Market subgraph on Arc Testnet",
+  "scripts": {
+    "codegen":  "graph codegen",
+    "build":    "graph build",
+    "deploy":   "goldsky subgraph deploy cirbet/v1 --path .",
+    "redeploy": "goldsky subgraph deploy cirbet/v1 --path . --token $GOLDSKY_TOKEN"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.91.0",
+    "@graphprotocol/graph-ts":  "^0.35.1"
+  }
+}

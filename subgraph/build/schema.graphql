@@ -1,0 +1,65 @@
+type Market @entity {
+  id:            ID!          # market id (uint256 as string)
+  question:      String!
+  category:      Int!
+  state:         Int!         # 0=Active 1=Locked 2=Resolved 3=Cancelled
+  endTime:       BigInt!
+  createdAt:     BigInt!
+  creator:       Bytes!
+  winningOption: BigInt!
+  totalPool:     BigInt!
+  optionCount:   Int!
+  imageUrl:      String!
+  resolvedAt:    BigInt
+  cancelledAt:   BigInt
+  lockedAt:      BigInt
+
+  bets:          [Bet!]!      @derivedFrom(field: "market")
+  activities:    [Activity!]! @derivedFrom(field: "market")
+}
+
+type Bet @entity {
+  id:          ID!            # marketId-bettorHex-logIndex
+  market:      Market!
+  bettor:      User!          # relation to User for @derivedFrom
+  optionIndex: BigInt!
+  amount:      BigInt!
+  claimed:     Boolean!
+  refunded:    Boolean!
+  timestamp:   BigInt!
+  txHash:      Bytes!
+}
+
+type User @entity {
+  id:          ID!            # lowercase hex address
+  totalBet:    BigInt!
+  totalWon:    BigInt!
+  totalRefund: BigInt!
+  betCount:    Int!
+  wonCount:    Int!
+  firstBetAt:  BigInt!
+  lastBetAt:   BigInt!
+  bets:        [Bet!]!        @derivedFrom(field: "bettor")
+}
+
+type Activity @entity {
+  id:          ID!            # txHash-logIndex
+  type:        String!        # BetPlaced | MarketCreated | MarketResolved | MarketLocked | MarketCancelled
+  market:      Market!
+  bettorAddr:  String         # only for BetPlaced (hex string)
+  amount:      BigInt         # only for BetPlaced
+  optionIndex: BigInt         # only for BetPlaced / MarketResolved
+  timestamp:   BigInt!
+  txHash:      Bytes!
+}
+
+type Protocol @entity {
+  id:              ID!        # singleton: "1"
+  totalVolume:     BigInt!
+  totalBets:       BigInt!
+  totalMarkets:    Int!
+  activeMarkets:   Int!
+  resolvedMarkets: Int!
+  uniqueBettors:   Int!
+  updatedAt:       BigInt!
+}

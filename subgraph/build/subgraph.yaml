@@ -1,0 +1,40 @@
+specVersion: 0.0.5
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PredictionMarket
+    network: arc-testnet
+    source:
+      address: "0x169912c97c7bec28A5EE6561C1D14a5F18E36DF9"
+      abi: PredictionMarket
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Market
+        - Bet
+        - User
+        - Activity
+        - Protocol
+      abis:
+        - name: PredictionMarket
+          file: PredictionMarket\PredictionMarket.json
+      eventHandlers:
+        - event: MarketCreated(indexed uint256,string,uint8,uint256,indexed address)
+          handler: handleMarketCreated
+        - event: BetPlaced(indexed uint256,indexed address,uint256,uint256)
+          handler: handleBetPlaced
+        - event: MarketLocked(indexed uint256)
+          handler: handleMarketLocked
+        - event: MarketResolved(indexed uint256,uint256)
+          handler: handleMarketResolved
+        - event: MarketCancelled(indexed uint256,uint256,uint256)
+          handler: handleMarketCancelled
+        - event: WinningsClaimed(indexed uint256,indexed address,uint256)
+          handler: handleWinningsClaimed
+        - event: RefundClaimed(indexed uint256,indexed address,uint256)
+          handler: handleRefundClaimed
+      file: PredictionMarket\PredictionMarket.wasm
