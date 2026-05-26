@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { contractConfig, OWNER_ADDRESS } from "@/lib/contracts";
 import { useI18n } from "@/lib/i18nContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import type { Translations } from "@/lib/i18n";
 import type { Market, Proposal } from "@/lib/types";
 import { formatUnits } from "viem";
@@ -180,6 +181,9 @@ export default function AdminPage() {
               {notifCount}
             </span>
           )}
+          <div className="ml-auto">
+            <LanguageSelector showAll />
+          </div>
         </div>
       </div>
 

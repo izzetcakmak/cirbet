@@ -1,17 +1,20 @@
 export const LANGUAGES = [
-  { code: "en", flag: "🇺🇸", name: "English",    short: "EN" },
-  { code: "tr", flag: "🇹🇷", name: "Türkçe",     short: "TR" },
-  { code: "es", flag: "🇪🇸", name: "Español",    short: "ES" },
-  { code: "fr", flag: "🇫🇷", name: "Français",   short: "FR" },
-  { code: "de", flag: "🇩🇪", name: "Deutsch",    short: "DE" },
-  { code: "zh", flag: "🇨🇳", name: "中文",        short: "ZH" },
-  { code: "ja", flag: "🇯🇵", name: "日本語",      short: "JA" },
-  { code: "ko", flag: "🇰🇷", name: "한국어",      short: "KO" },
-  { code: "ar", flag: "🇸🇦", name: "العربية",    short: "AR" },
-  { code: "ru", flag: "🇷🇺", name: "Русский",    short: "RU" },
-  { code: "pt", flag: "🇧🇷", name: "Português",  short: "PT" },
-  { code: "it", flag: "🇮🇹", name: "Italiano",   short: "IT" },
+  { code: "en", flag: "🇺🇸", name: "English",    short: "EN",  adminOnly: false },
+  { code: "tr", flag: "🇹🇷", name: "Türkçe",     short: "TR",  adminOnly: true  },
+  { code: "es", flag: "🇪🇸", name: "Español",    short: "ES",  adminOnly: false },
+  { code: "fr", flag: "🇫🇷", name: "Français",   short: "FR",  adminOnly: false },
+  { code: "de", flag: "🇩🇪", name: "Deutsch",    short: "DE",  adminOnly: false },
+  { code: "zh", flag: "🇨🇳", name: "中文",        short: "ZH",  adminOnly: false },
+  { code: "ja", flag: "🇯🇵", name: "日本語",      short: "JA",  adminOnly: false },
+  { code: "ko", flag: "🇰🇷", name: "한국어",      short: "KO",  adminOnly: false },
+  { code: "ar", flag: "🇸🇦", name: "العربية",    short: "AR",  adminOnly: false },
+  { code: "ru", flag: "🇷🇺", name: "Русский",    short: "RU",  adminOnly: false },
+  { code: "pt", flag: "🇧🇷", name: "Português",  short: "PT",  adminOnly: false },
+  { code: "it", flag: "🇮🇹", name: "Italiano",   short: "IT",  adminOnly: false },
 ] as const;
+
+/** Languages visible to the public (excludes admin-only entries like Türkçe) */
+export const PUBLIC_LANGUAGES = LANGUAGES.filter((l) => !l.adminOnly);
 
 export type LangCode = typeof LANGUAGES[number]["code"];
 

@@ -2,12 +2,19 @@
 
 import { useState } from "react";
 import { Globe } from "lucide-react";
-import { LANGUAGES, type LangCode } from "@/lib/i18n";
+import { LANGUAGES, PUBLIC_LANGUAGES, type LangCode } from "@/lib/i18n";
 import { useI18n } from "@/lib/i18nContext";
 
-export function LanguageSelector() {
+interface Props {
+  /** Show all languages including admin-only ones (e.g. Türkçe). Default: false */
+  showAll?: boolean;
+}
+
+export function LanguageSelector({ showAll = false }: Props) {
   const { lang, setLang } = useI18n();
   const [open, setOpen] = useState(false);
+
+  const list    = showAll ? LANGUAGES : PUBLIC_LANGUAGES;
   const current = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
 
   return (
@@ -27,7 +34,7 @@ export function LanguageSelector() {
           <div className="absolute left-0 mt-2 w-44 bg-surface-2 border border-border
                           rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in">
             <div className="max-h-72 overflow-y-auto">
-              {LANGUAGES.map((l) => (
+              {list.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => { setLang(l.code as LangCode); setOpen(false); }}
