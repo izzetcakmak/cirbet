@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { LayoutDashboard, Shield, Plus, Lightbulb, LineChart } from "lucide-react";
+import { LayoutDashboard, Shield, Plus, Sparkles, LineChart } from "lucide-react";
 import { WalletButton } from "./WalletButton";
 import { LanguageSelector } from "./LanguageSelector";
 import { BlockTicker } from "./BlockTicker";
@@ -79,7 +79,7 @@ export function Header() {
               </a>
             )}
 
-            {/* Propose Market — connected non-admin users */}
+            {/* Create a Market — connected non-admin users */}
             {address && !isAdmin && (
               <button
                 onClick={() => setShowPropose(true)}
@@ -87,7 +87,7 @@ export function Header() {
                            text-sm text-arc-300 hover:text-white bg-arc-600/10
                            hover:bg-arc-600/20 border border-arc-600/30 transition-all"
               >
-                <Lightbulb size={14} />
+                <Sparkles size={14} />
                 <span>{t("navPropose")}</span>
               </button>
             )}

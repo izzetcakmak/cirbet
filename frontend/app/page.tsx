@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useReadContract, useReadContracts } from "wagmi";
+import { useReadContract, useReadContracts, useAccount } from "wagmi";
 import { formatUnits } from "viem";
-import { Loader2, SearchX } from "lucide-react";
+import { Loader2, SearchX, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { CirBetLogo } from "@/components/CirBetLogo";
 import { MarketCard } from "@/components/MarketCard";
 import { MarketFilters } from "@/components/MarketFilters";
 import { MeshBackground } from "@/components/MeshBackground";
 import { PlaceBetModal } from "@/components/PlaceBetModal";
+import { ProposeMarketModal } from "@/components/ProposeMarketModal";
 import { contractConfig } from "@/lib/contracts";
+import { OWNER_ADDRESS } from "@/lib/contracts";
 import type { Market, CategoryFilter, StateFilter } from "@/lib/types";
 import { CATEGORY_LABEL, MARKET_STATE_LABEL, CATEGORY_COLOR } from "@/lib/types";
 import { useI18n } from "@/lib/i18nContext";
@@ -92,9 +94,13 @@ function filterMarkets(
 
 export default function Home() {
   const { t } = useI18n();
-  const [category,  setCategory]  = useState<CategoryFilter>("All");
-  const [state,     setState]     = useState<StateFilter>("All");
-  const [betMarket, setBetMarket] = useState<Market | null>(null);
+  const { address } = useAccount();
+  const isAdmin = address?.toLowerCase() === OWNER_ADDRESS.toLowerCase();
+
+  const [category,    setCategory]    = useState<CategoryFilter>("All");
+  const [state,       setState]       = useState<StateFilter>("All");
+  const [betMarket,   setBetMarket]   = useState<Market | null>(null);
+  const [showPropose, setShowPropose] = useState(false);
 
   const { markets, isLoading, refetch } = useMarkets();
   const filtered = useMemo(
@@ -163,6 +169,53 @@ export default function Home() {
             <div className="w-px h-8 bg-border" />
             <Stat label={t("statsResolved")} value={markets.filter((m) => m.state === 2).length} />
           </div>
+
+          {/* ── Create a Market CTA — connected non-admin users only ── */}
+          {address && !isAdmin && (
+            <div
+              className="mt-8 max-w-2xl mx-auto animate-hero-in"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <div
+                className="relative flex flex-col sm:flex-row items-center justify-between gap-4
+                           px-6 py-5 rounded-2xl overflow-hidden
+                           border border-arc-600/25 cursor-default"
+                style={{
+                  background: "linear-gradient(135deg, rgba(108,71,255,0.08) 0%, rgba(108,71,255,0.03) 50%, rgba(0,153,204,0.05) 100%)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                {/* Subtle top highlight */}
+                <div className="absolute top-0 left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-arc-500/60 to-transparent pointer-events-none" />
+
+                {/* Left: icon + text */}
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-arc-600/20 border border-arc-600/30
+                                  flex items-center justify-center shrink-0 glow-arc-sm">
+                    <Sparkles size={20} className="text-arc-400" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-white font-bold text-sm tracking-tight">
+                      {t("navPropose")}
+                    </p>
+                    <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">
+                      {t("proposeCtaSubtitle")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right: CTA button */}
+                <button
+                  onClick={() => setShowPropose(true)}
+                  className="btn-primary shrink-0 flex items-center gap-2 px-5 py-2.5 text-sm font-bold
+                             whitespace-nowrap"
+                >
+                  <Sparkles size={14} />
+                  {t("proposeCtaBtn")}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -284,6 +337,11 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Propose modal — opened from hero CTA */}
+      {showPropose && (
+        <ProposeMarketModal onClose={() => setShowPropose(false)} />
+      )}
 
       {/* Bet modal — opened from marquee cards */}
       {betMarket && (

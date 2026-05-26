@@ -65,13 +65,15 @@ export interface Translations {
   modalPotentialPayout: string; modalBetSuccess: string; modalConfirming: string; modalBettingClosed: string;
   // Celebration overlay
   celebrationTitle: string; celebrationSubtitle: string;
+  // Propose / Create Market CTA
+  proposeCtaSubtitle: string; proposeCtaBtn: string;
   // Common
   back: string; loading: string; noData: string;
 }
 
 const en: Translations = {
   navMarkets:"Markets", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
-  navMyAccount:"My Account", navAdmin:"Admin", navCreate:"Create", navPropose:"Propose",
+  navMyAccount:"My Account", navAdmin:"Admin", navCreate:"Create", navPropose:"Create a Market",
   heroTitle:"Prediction Market",
   heroSubtitle:"Bet on real-world outcomes with native USDC on Arc Network. Sub-second finality. Zero gas friction.",
   heroBadge:"Live on Arc Testnet",
@@ -106,12 +108,13 @@ const en: Translations = {
   modalTotalPool:"Total Pool", modalPickOutcome:"Pick an outcome", modalBetAmount:"Bet Amount (USDC)",
   modalPotentialPayout:"Potential payout", modalBetSuccess:"Bet placed successfully!", modalConfirming:"Confirming…", modalBettingClosed:"Betting Closed",
   celebrationTitle:"Bet Placed! 🍀", celebrationSubtitle:"Good Luck! May the odds be in your favour.",
+  proposeCtaSubtitle:"Earn creator fees from approved markets.", proposeCtaBtn:"Create Now",
   back:"Back", loading:"Loading…", noData:"No data",
 };
 
 const tr: Translations = {
   navMarkets:"Marketler", navFaucet:"Faucet", navExplorer:"Gezgin", navDocs:"Dokümanlar",
-  navMyAccount:"Hesabım", navAdmin:"Admin", navCreate:"Oluştur", navPropose:"Öner",
+  navMyAccount:"Hesabım", navAdmin:"Admin", navCreate:"Oluştur", navPropose:"Market Oluştur",
   heroTitle:"Tahmin Piyasası",
   heroSubtitle:"Arc Network'te native USDC ile gerçek dünya sonuçlarına bahis yap. Saniyenin altında kesinlik. Sıfır gas yükü.",
   heroBadge:"Arc Testnet'te Canlı · Zincir ID 5042002",
@@ -146,12 +149,13 @@ const tr: Translations = {
   modalTotalPool:"Toplam Havuz", modalPickOutcome:"Sonuç seç", modalBetAmount:"Bahis Miktarı (USDC)",
   modalPotentialPayout:"Potansiyel kazanç", modalBetSuccess:"Bahis başarıyla yerleştirildi!", modalConfirming:"Onaylanıyor…", modalBettingClosed:"Bahisler Kapalı",
   celebrationTitle:"Bahis Yatırıldı! 🍀", celebrationSubtitle:"İyi Şanslar! Olasılıklar senin tarafında olsun.",
+  proposeCtaSubtitle:"Onaylanan marketler ile ek kazanç sağlayabilirsiniz.", proposeCtaBtn:"Şimdi Oluştur",
   back:"Geri", loading:"Yükleniyor…", noData:"Veri yok",
 };
 
 const es: Translations = {
   navMarkets:"Mercados", navFaucet:"Faucet", navExplorer:"Explorador", navDocs:"Docs",
-  navMyAccount:"Mi Cuenta", navAdmin:"Admin", navCreate:"Crear", navPropose:"Proponer",
+  navMyAccount:"Mi Cuenta", navAdmin:"Admin", navCreate:"Crear", navPropose:"Crear Mercado",
   heroTitle:"Mercado de Predicciones",
   heroSubtitle:"Apuesta en resultados del mundo real con USDC nativo en Arc Network. Finalidad en menos de un segundo. Sin fricción de gas.",
   heroBadge:"En vivo en Arc Testnet",
@@ -186,12 +190,13 @@ const es: Translations = {
   modalTotalPool:"Fondo Total", modalPickOutcome:"Elige un resultado", modalBetAmount:"Monto de Apuesta (USDC)",
   modalPotentialPayout:"Pago potencial", modalBetSuccess:"¡Apuesta realizada con éxito!", modalConfirming:"Confirmando…", modalBettingClosed:"Apuestas Cerradas",
   celebrationTitle:"¡Apuesta Realizada! 🍀", celebrationSubtitle:"¡Buena Suerte! Que las probabilidades estén a tu favor.",
+  proposeCtaSubtitle:"Gana comisiones como creador en mercados aprobados.", proposeCtaBtn:"Crear Ahora",
   back:"Atrás", loading:"Cargando…", noData:"Sin datos",
 };
 
 const fr: Translations = {
   navMarkets:"Marchés", navFaucet:"Faucet", navExplorer:"Explorateur", navDocs:"Docs",
-  navMyAccount:"Mon Compte", navAdmin:"Admin", navCreate:"Créer", navPropose:"Proposer",
+  navMyAccount:"Mon Compte", navAdmin:"Admin", navCreate:"Créer", navPropose:"Créer un Marché",
   heroTitle:"Marché de Prédictions",
   heroSubtitle:"Pariez sur des résultats réels avec l'USDC natif sur Arc Network. Finalité en moins d'une seconde. Zéro friction de gaz.",
   heroBadge:"En direct sur Arc Testnet",
@@ -226,12 +231,13 @@ const fr: Translations = {
   modalTotalPool:"Cagnotte Totale", modalPickOutcome:"Choisir un résultat", modalBetAmount:"Montant du Pari (USDC)",
   modalPotentialPayout:"Gain potentiel", modalBetSuccess:"Pari placé avec succès !", modalConfirming:"Confirmation…", modalBettingClosed:"Paris Fermés",
   celebrationTitle:"Pari Placé ! 🍀", celebrationSubtitle:"Bonne Chance ! Que les probabilités soient en ta faveur.",
+  proposeCtaSubtitle:"Gagnez des frais de créateur sur les marchés approuvés.", proposeCtaBtn:"Créer Maintenant",
   back:"Retour", loading:"Chargement…", noData:"Aucune donnée",
 };
 
 const de: Translations = {
   navMarkets:"Märkte", navFaucet:"Faucet", navExplorer:"Explorer", navDocs:"Docs",
-  navMyAccount:"Mein Konto", navAdmin:"Admin", navCreate:"Erstellen", navPropose:"Vorschlagen",
+  navMyAccount:"Mein Konto", navAdmin:"Admin", navCreate:"Erstellen", navPropose:"Markt Erstellen",
   heroTitle:"Vorhersagemarkt",
   heroSubtitle:"Wette auf reale Ergebnisse mit nativem USDC im Arc Network. Finality unter einer Sekunde. Keine Gasgebühren.",
   heroBadge:"Live auf Arc Testnet",
@@ -266,12 +272,13 @@ const de: Translations = {
   modalTotalPool:"Gesamtpool", modalPickOutcome:"Ergebnis wählen", modalBetAmount:"Wetteinsatz (USDC)",
   modalPotentialPayout:"Mögliche Auszahlung", modalBetSuccess:"Wette erfolgreich platziert!", modalConfirming:"Bestätigung…", modalBettingClosed:"Wetten Geschlossen",
   celebrationTitle:"Wette Platziert! 🍀", celebrationSubtitle:"Viel Glück! Mögen die Chancen auf deiner Seite sein.",
+  proposeCtaSubtitle:"Verdiene Ersteller-Gebühren bei genehmigten Märkten.", proposeCtaBtn:"Jetzt Erstellen",
   back:"Zurück", loading:"Lädt…", noData:"Keine Daten",
 };
 
 const zh: Translations = {
   navMarkets:"市场", navFaucet:"水龙头", navExplorer:"区块浏览器", navDocs:"文档",
-  navMyAccount:"我的账户", navAdmin:"管理", navCreate:"创建", navPropose:"提议",
+  navMyAccount:"我的账户", navAdmin:"管理", navCreate:"创建", navPropose:"创建市场",
   heroTitle:"预测市场",
   heroSubtitle:"在Arc网络上使用原生USDC竞猜真实世界的结果。亚秒级确定性。零Gas摩擦。",
   heroBadge:"在Arc测试网上线 · 链ID 5042002",
@@ -306,12 +313,13 @@ const zh: Translations = {
   modalTotalPool:"总奖池", modalPickOutcome:"选择结果", modalBetAmount:"下注金额 (USDC)",
   modalPotentialPayout:"潜在赔付", modalBetSuccess:"下注成功！", modalConfirming:"确认中…", modalBettingClosed:"下注已关闭",
   celebrationTitle:"下注成功！🍀", celebrationSubtitle:"祝你好运！愿胜率与你同在。",
+  proposeCtaSubtitle:"在已批准的市场中赚取创建者手续费。", proposeCtaBtn:"立即创建",
   back:"返回", loading:"加载中…", noData:"暂无数据",
 };
 
 const ja: Translations = {
   navMarkets:"マーケット", navFaucet:"フォーセット", navExplorer:"エクスプローラー", navDocs:"ドキュメント",
-  navMyAccount:"マイアカウント", navAdmin:"管理", navCreate:"作成", navPropose:"提案",
+  navMyAccount:"マイアカウント", navAdmin:"管理", navCreate:"作成", navPropose:"マーケット作成",
   heroTitle:"予測マーケット",
   heroSubtitle:"Arcネットワーク上のネイティブUSDCで実世界の結果に賭けましょう。サブ秒の確定性。ガス手数料ゼロ。",
   heroBadge:"Arc Testnetで稼働中 · チェーンID 5042002",
@@ -346,12 +354,13 @@ const ja: Translations = {
   modalTotalPool:"総プール", modalPickOutcome:"結果を選択", modalBetAmount:"ベット額 (USDC)",
   modalPotentialPayout:"潜在的な払い戻し", modalBetSuccess:"ベットが成功しました！", modalConfirming:"確認中…", modalBettingClosed:"ベット締め切り",
   celebrationTitle:"ベット完了！🍀", celebrationSubtitle:"グッドラック！オッズがあなたに味方しますように。",
+  proposeCtaSubtitle:"承認されたマーケットで作成者手数料を獲得。", proposeCtaBtn:"今すぐ作成",
   back:"戻る", loading:"読み込み中…", noData:"データなし",
 };
 
 const ko: Translations = {
   navMarkets:"마켓", navFaucet:"파우셋", navExplorer:"탐색기", navDocs:"문서",
-  navMyAccount:"내 계정", navAdmin:"관리자", navCreate:"생성", navPropose:"제안",
+  navMyAccount:"내 계정", navAdmin:"관리자", navCreate:"생성", navPropose:"마켓 생성",
   heroTitle:"예측 마켓",
   heroSubtitle:"Arc 네트워크에서 네이티브 USDC로 실제 결과에 베팅하세요. 1초 미만의 확정성. 제로 가스 마찰.",
   heroBadge:"Arc 테스트넷 라이브 · 체인 ID 5042002",
@@ -386,12 +395,13 @@ const ko: Translations = {
   modalTotalPool:"총 풀", modalPickOutcome:"결과 선택", modalBetAmount:"베팅 금액 (USDC)",
   modalPotentialPayout:"예상 수익", modalBetSuccess:"베팅 성공!", modalConfirming:"확인 중…", modalBettingClosed:"베팅 마감",
   celebrationTitle:"베팅 완료! 🍀", celebrationSubtitle:"행운을 빕니다! 확률이 당신 편이 되길.",
+  proposeCtaSubtitle:"승인된 마켓에서 생성자 수수료를 받으세요.", proposeCtaBtn:"지금 만들기",
   back:"뒤로", loading:"로드 중…", noData:"데이터 없음",
 };
 
 const ar: Translations = {
   navMarkets:"الأسواق", navFaucet:"الصنبور", navExplorer:"المستكشف", navDocs:"الوثائق",
-  navMyAccount:"حسابي", navAdmin:"الإدارة", navCreate:"إنشاء", navPropose:"اقتراح",
+  navMyAccount:"حسابي", navAdmin:"الإدارة", navCreate:"إنشاء", navPropose:"إنشاء سوق",
   heroTitle:"سوق التنبؤات",
   heroSubtitle:"راهن على نتائج العالم الحقيقي باستخدام USDC الأصلي على شبكة Arc. نهائية دون ثانية. لا احتكاك للغاز.",
   heroBadge:"مباشر على Arc Testnet · معرف السلسلة 5042002",
@@ -426,12 +436,13 @@ const ar: Translations = {
   modalTotalPool:"إجمالي المجموع", modalPickOutcome:"اختر نتيجة", modalBetAmount:"مبلغ الرهان (USDC)",
   modalPotentialPayout:"العائد المحتمل", modalBetSuccess:"تم وضع الرهان بنجاح!", modalConfirming:"جارٍ التأكيد…", modalBettingClosed:"الرهانات مغلقة",
   celebrationTitle:"تم وضع الرهان! 🍀", celebrationSubtitle:"حظاً موفقاً! عسى الاحتمالات في صالحك.",
+  proposeCtaSubtitle:"اكسب رسوم المنشئ من الأسواق المعتمدة.", proposeCtaBtn:"أنشئ الآن",
   back:"رجوع", loading:"جارٍ التحميل…", noData:"لا توجد بيانات",
 };
 
 const ru: Translations = {
   navMarkets:"Рынки", navFaucet:"Кран", navExplorer:"Обозреватель", navDocs:"Документы",
-  navMyAccount:"Мой Аккаунт", navAdmin:"Админ", navCreate:"Создать", navPropose:"Предложить",
+  navMyAccount:"Мой Аккаунт", navAdmin:"Админ", navCreate:"Создать", navPropose:"Создать Рынок",
   heroTitle:"Рынок Предсказаний",
   heroSubtitle:"Делайте ставки на реальные результаты с нативным USDC в сети Arc. Окончательность менее секунды. Нулевые газовые издержки.",
   heroBadge:"В эфире на Arc Testnet · ID цепи 5042002",
@@ -466,12 +477,13 @@ const ru: Translations = {
   modalTotalPool:"Общий Пул", modalPickOutcome:"Выбрать исход", modalBetAmount:"Сумма Ставки (USDC)",
   modalPotentialPayout:"Потенциальная выплата", modalBetSuccess:"Ставка успешно сделана!", modalConfirming:"Подтверждение…", modalBettingClosed:"Ставки Закрыты",
   celebrationTitle:"Ставка сделана! 🍀", celebrationSubtitle:"Удачи! Пусть шансы будут на твоей стороне.",
+  proposeCtaSubtitle:"Зарабатывайте комиссии создателя на одобренных рынках.", proposeCtaBtn:"Создать Сейчас",
   back:"Назад", loading:"Загрузка…", noData:"Нет данных",
 };
 
 const pt: Translations = {
   navMarkets:"Mercados", navFaucet:"Torneira", navExplorer:"Explorador", navDocs:"Docs",
-  navMyAccount:"Minha Conta", navAdmin:"Admin", navCreate:"Criar", navPropose:"Propor",
+  navMyAccount:"Minha Conta", navAdmin:"Admin", navCreate:"Criar", navPropose:"Criar Mercado",
   heroTitle:"Mercado de Previsões",
   heroSubtitle:"Aposte em resultados do mundo real com USDC nativo na Rede Arc. Finalidade em menos de um segundo. Zero fricção de gás.",
   heroBadge:"Ao vivo na Arc Testnet",
@@ -506,12 +518,13 @@ const pt: Translations = {
   modalTotalPool:"Fundo Total", modalPickOutcome:"Escolha um resultado", modalBetAmount:"Valor da Aposta (USDC)",
   modalPotentialPayout:"Pagamento potencial", modalBetSuccess:"Aposta realizada com sucesso!", modalConfirming:"Confirmando…", modalBettingClosed:"Apostas Encerradas",
   celebrationTitle:"Aposta Realizada! 🍀", celebrationSubtitle:"Boa Sorte! Que as probabilidades estejam ao seu favor.",
+  proposeCtaSubtitle:"Ganhe taxas de criador em mercados aprovados.", proposeCtaBtn:"Criar Agora",
   back:"Voltar", loading:"Carregando…", noData:"Sem dados",
 };
 
 const it: Translations = {
   navMarkets:"Mercati", navFaucet:"Faucet", navExplorer:"Esploratore", navDocs:"Docs",
-  navMyAccount:"Il Mio Account", navAdmin:"Admin", navCreate:"Crea", navPropose:"Proponi",
+  navMyAccount:"Il Mio Account", navAdmin:"Admin", navCreate:"Crea", navPropose:"Crea Mercato",
   heroTitle:"Mercato delle Previsioni",
   heroSubtitle:"Scommetti su risultati del mondo reale con USDC nativo su Arc Network. Finalità inferiore al secondo. Zero frizione di gas.",
   heroBadge:"In diretta su Arc Testnet",
@@ -546,6 +559,7 @@ const it: Translations = {
   modalTotalPool:"Pool Totale", modalPickOutcome:"Scegli un risultato", modalBetAmount:"Importo Scommessa (USDC)",
   modalPotentialPayout:"Vincita potenziale", modalBetSuccess:"Scommessa piazzata con successo!", modalConfirming:"Conferma…", modalBettingClosed:"Scommesse Chiuse",
   celebrationTitle:"Scommessa Piazzata! 🍀", celebrationSubtitle:"Buona Fortuna! Che le probabilità siano dalla tua parte.",
+  proposeCtaSubtitle:"Guadagna commissioni come creatore nei mercati approvati.", proposeCtaBtn:"Crea Ora",
   back:"Indietro", loading:"Caricamento…", noData:"Nessun dato",
 };
 
