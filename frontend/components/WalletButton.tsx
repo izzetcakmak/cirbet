@@ -55,6 +55,19 @@ const BRIDGE_CHAINS = [
 /* ── Module-level AppKit instance ─────────────────────────────────────────── */
 const kit = new AppKit();
 
+/* ── Proxy Circle API through Next.js to avoid CORS ─────────────────────── */
+if (typeof window !== "undefined") {
+  const _origFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (url.startsWith("https://api.circle.com/")) {
+      const proxied = url.replace("https://api.circle.com/", "/circle-proxy/");
+      return _origFetch(proxied, init);
+    }
+    return _origFetch(input, init);
+  };
+}
+
 /* ── Reusable sub-components ─────────────────────────────────────────────── */
 function StatusMsg({ status }: { status: OpStatus }) {
   if (!status) return null;
@@ -288,6 +301,7 @@ export function WalletButton() {
         tokenIn:  swapIn,
         tokenOut: swapOut,
         amountIn: swapAmt,
+        config:   { kitKey: process.env.NEXT_PUBLIC_CIRCLE_KIT_KEY },
       });
       setSwapStatus({
         type: "success",
