@@ -158,7 +158,7 @@ export function WalletButton() {
 
   /* Bridge */
   const [bridgeAmt,      setBridgeAmt]      = useState("");
-  const [bridgeDest,     setBridgeDest]     = useState("Base");
+  const [bridgeDest,     setBridgeDest]     = useState("Base_Sepolia");
   const [bridgeLoading,  setBridgeLoading]  = useState(false);
   const [bridgeStatus,   setBridgeStatus]   = useState<OpStatus>(null);
 

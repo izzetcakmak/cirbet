@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 900px; height: 420px; overflow: hidden; background: #050508; }
+</style>
+</head>
+<body>
+<svg width="900" height="420" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Base bg -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#060610"/>
+      <stop offset="50%"  stop-color="#08080f"/>
+      <stop offset="100%" stop-color="#050508"/>
+    </linearGradient>
+
+    <!-- Thunder side glow (blue-orange) -->
+    <radialGradient id="glowLeft" cx="22%" cy="50%" r="48%">
+      <stop offset="0%"   stop-color="#007ac1" stop-opacity="0.22"/>
+      <stop offset="60%"  stop-color="#f05a28" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#f05a28" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Spurs side glow (silver) -->
+    <radialGradient id="glowRight" cx="78%" cy="50%" r="48%">
+      <stop offset="0%"   stop-color="#c4ced4" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#c4ced4" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Thunder jersey gradient -->
+    <linearGradient id="thunderJersey" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#007ac1"/>
+      <stop offset="100%" stop-color="#002d62"/>
+    </linearGradient>
+
+    <!-- Spurs jersey gradient -->
+    <linearGradient id="spursJersey" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#c4ced4"/>
+      <stop offset="100%" stop-color="#8a9298"/>
+    </linearGradient>
+
+    <!-- Center glow for GAME 6 -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="30%">
+      <stop offset="0%"   stop-color="#f05a28" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#f05a28" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Lightning gradient -->
+    <linearGradient id="lightningGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="40%"  stop-color="#f8d347"/>
+      <stop offset="100%" stop-color="#f05a28"/>
+    </linearGradient>
+
+    <!-- Orange fire gradient -->
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%"   stop-color="#f05a28" stop-opacity="0.9"/>
+      <stop offset="60%"  stop-color="#f8d347" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#ffffff"  stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Glow filters -->
+    <filter id="glowStrong">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowSoft">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowText">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadowDrop">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.7"/>
+    </filter>
+    <filter id="orangeGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feFlood flood-color="#f05a28" flood-opacity="0.6" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="blueGlow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feFlood flood-color="#007ac1" flood-opacity="0.6" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="clip900">
+      <rect width="900" height="420"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#clip900)">
+
+  <!-- ─── Background ──────────────────────────────────────────────────── -->
+  <rect width="900" height="420" fill="url(#bg)"/>
+  <rect width="900" height="420" fill="url(#glowLeft)"/>
+  <rect width="900" height="420" fill="url(#glowRight)"/>
+  <rect width="900" height="420" fill="url(#centerGlow)"/>
+
+  <!-- Hardwood court lines (subtle) -->
+  <g stroke="#1a1208" stroke-width="1" opacity="0.5">
+    <!-- Court center circle -->
+    <circle cx="450" cy="210" r="80" fill="none" stroke="#1e1608" stroke-width="1.5"/>
+    <circle cx="450" cy="210" r="3"  fill="#1e1608"/>
+    <!-- Half-court line -->
+    <line x1="450" y1="0" x2="450" y2="420" stroke="#1a1208" stroke-width="1"/>
+    <!-- Three-point arcs (very subtle) -->
+    <path d="M 80,80 Q 220,210 80,340"  fill="none" stroke="#1e1608" stroke-width="1"/>
+    <path d="M 820,80 Q 680,210 820,340" fill="none" stroke="#1e1608" stroke-width="1"/>
+  </g>
+
+  <!-- ─── Thunder side (LEFT) ─────────────────────────────────────────── -->
+
+  <!-- Big abstract lightning bolt behind Thunder logo -->
+  <polygon
+    points="160,20 120,180 150,180 105,390 200,210 165,210 230,20"
+    fill="url(#lightningGrad)"
+    opacity="0.07"
+    filter="url(#glowSoft)"
+  />
+
+  <!-- Thunder color bar (left edge accent) -->
+  <rect x="0" y="0" width="6" height="420" fill="#007ac1" opacity="0.8"/>
+  <rect x="6" y="0" width="3" height="420" fill="#f05a28" opacity="0.6"/>
+  <rect x="9" y="0" width="2" height="420" fill="#f8d347" opacity="0.4"/>
+
+  <!-- OKC Thunder shield / logo area -->
+  <!-- Shield shape -->
+  <path d="M 112,105 L 190,105 L 200,155 L 151,195 L 102,155 Z"
+        fill="url(#thunderJersey)" stroke="#007ac1" stroke-width="1.5" opacity="0.9"
+        filter="url(#shadowDrop)"/>
+  <!-- Shield inner detail -->
+  <path d="M 118,112 L 184,112 L 193,155 L 151,188 L 109,155 Z"
+        fill="none" stroke="#4da6d8" stroke-width="0.8" opacity="0.5"/>
+  <!-- OKC lightning bolt on shield -->
+  <polygon
+    points="155,120 145,150 152,150 143,182 163,152 156,152 168,120"
+    fill="#f8d347"
+    filter="url(#glowStrong)"
+  />
+  <!-- OKC text on shield -->
+  <text x="151" y="200" font-family="'Arial Black',sans-serif" font-size="11"
+        font-weight="900" fill="#f8d347" text-anchor="middle" letter-spacing="2">OKC</text>
+
+  <!-- Team name -->
+  <text x="151" y="240"
+        font-family="'Arial Black','Impact',sans-serif"
+        font-size="26" font-weight="900" fill="white"
+        text-anchor="middle" filter="url(#shadowDrop)">THUNDER</text>
+
+  <!-- Conference record -->
+  <text x="151" y="264"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="13" fill="#007ac1" text-anchor="middle" font-weight="700">
+    Western Conference
+  </text>
+
+  <!-- Season stat pills -->
+  <rect x="72" y="278" width="58" height="22" rx="11" fill="#007ac1" fill-opacity="0.2"
+        stroke="#007ac1" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="101" y="293" font-family="'Helvetica Neue',Arial,sans-serif" font-size="10"
+        fill="#4da6d8" text-anchor="middle" font-weight="600">SERIES</text>
+
+  <rect x="138" y="278" width="58" height="22" rx="11" fill="#f05a28" fill-opacity="0.2"
+        stroke="#f05a28" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="167" y="293" font-family="'Helvetica Neue',Arial,sans-serif" font-size="10"
+        fill="#f87a58" text-anchor="middle" font-weight="600">TIED 2-2</text>
+
+  <!-- Frost Bank Center note -->
+  <text x="151" y="338"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="10" fill="#334155" text-anchor="middle">
+    Frost Bank Center · San Antonio
+  </text>
+
+  <!-- ─── CENTER SECTION ──────────────────────────────────────────────── -->
+
+  <!-- Vertical dividers -->
+  <line x1="310" y1="30"  x2="310" y2="390" stroke="#1e293b" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="590" y1="30"  x2="590" y2="390" stroke="#1e293b" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- WCF badge at top -->
+  <rect x="355" y="28" width="190" height="26" rx="13"
+        fill="#0f172a" stroke="#f05a28" stroke-width="1" stroke-opacity="0.7"/>
+  <text x="450" y="46"
+        font-family="'Arial Black',sans-serif"
+        font-size="10" fill="#f87a58" text-anchor="middle" letter-spacing="2"
+        font-weight="900">WESTERN CONF FINALS</text>
+
+  <!-- GAME 6 — hero text -->
+  <text x="450" y="120"
+        font-family="'Arial Black','Impact',sans-serif"
+        font-size="14" fill="#94a3b8" text-anchor="middle" letter-spacing="4"
+        font-weight="700">GAME</text>
+
+  <text x="450" y="195"
+        font-family="'Arial Black','Impact',sans-serif"
+        font-size="100" fill="white" text-anchor="middle"
+        letter-spacing="-4"
+        filter="url(#orangeGlow)"
+        font-weight="900">6</text>
+
+  <!-- Orange underline accent -->
+  <rect x="405" y="200" width="90" height="4" rx="2" fill="#f05a28" filter="url(#glowStrong)"/>
+
+  <!-- VS badge -->
+  <circle cx="450" cy="248" r="22" fill="#0f172a" stroke="#f05a28" stroke-width="1.5"/>
+  <text x="450" y="255"
+        font-family="'Arial Black',sans-serif"
+        font-size="14" fill="#f05a28" text-anchor="middle"
+        font-weight="900">VS</text>
+
+  <!-- Date / time pill -->
+  <rect x="388" y="282" width="124" height="36" rx="10"
+        fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="450" y="298"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="11" fill="#94a3b8" text-anchor="middle" font-weight="600"
+        letter-spacing="1">MAY 29, 2026</text>
+  <text x="450" y="313"
+        font-family="'SF Mono','Fira Code',monospace"
+        font-size="11" fill="#f05a28" text-anchor="middle" font-weight="700">03:30 TIP-OFF</text>
+
+  <!-- CirBet predict badge -->
+  <rect x="370" y="335" width="160" height="28" rx="8"
+        fill="#6c47ff" fill-opacity="0.18" stroke="#6c47ff" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="450" y="354"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="11" fill="#a78bfa" text-anchor="middle" font-weight="700"
+        letter-spacing="0.5">🔮 Predict on CirBet</text>
+
+  <!-- ─── Spurs side (RIGHT) ──────────────────────────────────────────── -->
+
+  <!-- Silver shimmer behind Spurs logo -->
+  <ellipse cx="748" cy="150" rx="90" ry="110"
+           fill="#c4ced4" opacity="0.04" filter="url(#glowSoft)"/>
+
+  <!-- Spurs color bar (right edge accent) -->
+  <rect x="891" y="0" width="6" height="420" fill="#c4ced4" opacity="0.7"/>
+  <rect x="888" y="0" width="3" height="420" fill="#8a9298" opacity="0.5"/>
+
+  <!-- Spurs spur logo area -->
+  <!-- Outer ring -->
+  <circle cx="748" cy="150" r="46"
+          fill="#0d0d0d" stroke="#c4ced4" stroke-width="2" opacity="0.95"
+          filter="url(#shadowDrop)"/>
+  <!-- Inner ring -->
+  <circle cx="748" cy="150" r="38"
+          fill="none" stroke="#8a9298" stroke-width="1" opacity="0.5"/>
+  <!-- Spur wheel spokes -->
+  <g stroke="#c4ced4" stroke-width="2.5" stroke-linecap="round" opacity="0.9">
+    <line x1="748" y1="112" x2="748" y2="125"/>
+    <line x1="748" y1="175" x2="748" y2="188"/>
+    <line x1="710" y1="150" x2="723" y2="150"/>
+    <line x1="773" y1="150" x2="786" y2="150"/>
+    <line x1="721" y1="123" x2="730" y2="132"/>
+    <line x1="766" y1="168" x2="775" y2="177"/>
+    <line x1="775" y1="123" x2="766" y2="132"/>
+    <line x1="730" y1="168" x2="721" y2="177"/>
+  </g>
+  <!-- Spur center hub -->
+  <circle cx="748" cy="150" r="12" fill="#1a1a1a" stroke="#c4ced4" stroke-width="2"/>
+  <circle cx="748" cy="150" r="5"  fill="#c4ced4"/>
+
+  <!-- Team name -->
+  <text x="748" y="236"
+        font-family="'Arial Black','Impact',sans-serif"
+        font-size="26" font-weight="900" fill="white"
+        text-anchor="middle" filter="url(#shadowDrop)">SPURS</text>
+
+  <text x="748" y="260"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="13" fill="#8a9298" text-anchor="middle" font-weight="700">
+    San Antonio
+  </text>
+
+  <!-- Spurs stat pills -->
+  <rect x="669" y="274" width="58" height="22" rx="11" fill="#c4ced4" fill-opacity="0.1"
+        stroke="#c4ced4" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="698" y="289" font-family="'Helvetica Neue',Arial,sans-serif" font-size="10"
+        fill="#94a3b8" text-anchor="middle" font-weight="600">HOME</text>
+
+  <rect x="736" y="274" width="58" height="22" rx="11" fill="#c4ced4" fill-opacity="0.1"
+        stroke="#c4ced4" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="765" y="289" font-family="'Helvetica Neue',Arial,sans-serif" font-size="10"
+        fill="#94a3b8" text-anchor="middle" font-weight="600">TIED 2-2</text>
+
+  <!-- ─── Bottom strip ────────────────────────────────────────────────── -->
+  <rect x="0" y="390" width="900" height="30" fill="#0a0a14" fill-opacity="0.95"/>
+  <line x1="0" y1="390" x2="900" y2="390" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Bottom text -->
+  <text x="20" y="409"
+        font-family="'SF Mono','Fira Code',monospace"
+        font-size="9" fill="#334155" letter-spacing="1">NBA · 2025-26 PLAYOFFS</text>
+
+  <text x="450" y="409"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="9" fill="#475569" text-anchor="middle">
+    Who wins Game 6? Predict now on CirBet
+  </text>
+
+  <text x="880" y="409"
+        font-family="'Helvetica Neue',Arial,sans-serif"
+        font-size="9" fill="#334155" text-anchor="end" letter-spacing="1">CIRBET.XYZ</text>
+
+  <!-- ─── Decorative sparks / energy lines ───────────────────────────── -->
+
+  <!-- Left energy streaks (Thunder blue/orange) -->
+  <line x1="0" y1="80"  x2="280" y2="195" stroke="#007ac1" stroke-width="0.8" opacity="0.15"/>
+  <line x1="0" y1="130" x2="260" y2="210" stroke="#f05a28" stroke-width="0.6" opacity="0.10"/>
+  <line x1="0" y1="290" x2="280" y2="220" stroke="#007ac1" stroke-width="0.8" opacity="0.12"/>
+  <line x1="0" y1="340" x2="260" y2="215" stroke="#f8d347" stroke-width="0.5" opacity="0.10"/>
+
+  <!-- Right energy streaks (Spurs silver) -->
+  <line x1="900" y1="70"  x2="620" y2="195" stroke="#c4ced4" stroke-width="0.8" opacity="0.12"/>
+  <line x1="900" y1="160" x2="630" y2="210" stroke="#8a9298" stroke-width="0.6" opacity="0.08"/>
+  <line x1="900" y1="300" x2="620" y2="220" stroke="#c4ced4" stroke-width="0.8" opacity="0.10"/>
+  <line x1="900" y1="360" x2="635" y2="218" stroke="#8a9298" stroke-width="0.5" opacity="0.08"/>
+
+  <!-- Tiny spark dots around the "6" -->
+  <circle cx="392" cy="140" r="2" fill="#f8d347" opacity="0.7" filter="url(#glowStrong)"/>
+  <circle cx="510" cy="118" r="1.5" fill="#f8d347" opacity="0.6" filter="url(#glowStrong)"/>
+  <circle cx="380" cy="175" r="1.5" fill="#007ac1" opacity="0.8" filter="url(#glowStrong)"/>
+  <circle cx="520" cy="170" r="2" fill="#c4ced4" opacity="0.6" filter="url(#glowStrong)"/>
+  <circle cx="408" cy="96"  r="1.5" fill="#f05a28" opacity="0.7" filter="url(#glowStrong)"/>
+  <circle cx="496" cy="92"  r="1.5" fill="#f05a28" opacity="0.6" filter="url(#glowStrong)"/>
+
+  </g>
+</svg>
+</body>
+</html>
