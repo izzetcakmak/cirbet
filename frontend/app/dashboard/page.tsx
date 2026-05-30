@@ -39,7 +39,7 @@ function useUserBets(address: `0x${string}` | undefined) {
     contracts: Array.from({ length: count }, (_, i) => ({
       ...contractConfig, functionName: "getMarket" as const, args: [BigInt(i)] as const,
     })),
-    query: { enabled: count > 0 },
+    query: { enabled: count > 0, refetchInterval: 15_000, staleTime: 0 },
   });
 
   const { data: betResults, isLoading: loadingBets, refetch: refetchBets } = useReadContracts({
@@ -48,7 +48,7 @@ function useUserBets(address: `0x${string}` | undefined) {
       functionName: "getUserBets" as const,
       args: [BigInt(i), address ?? "0x0000000000000000000000000000000000000000"] as const,
     })),
-    query: { enabled: count > 0 && !!address },
+    query: { enabled: count > 0 && !!address, refetchInterval: 15_000, staleTime: 0 },
   });
 
   const { data: refundedResults, refetch: refetchRefunded } = useReadContracts({
@@ -57,7 +57,7 @@ function useUserBets(address: `0x${string}` | undefined) {
       functionName: "isRefunded" as const,
       args: [BigInt(i), address ?? "0x0000000000000000000000000000000000000000"] as const,
     })),
-    query: { enabled: count > 0 && !!address },
+    query: { enabled: count > 0 && !!address, refetchInterval: 15_000, staleTime: 0 },
   });
 
   const betsWithMarkets: BetWithMarket[] = useMemo(() => {
@@ -110,6 +110,13 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<DashTab>("all");
 
   const { betsWithMarkets, allMarkets, isLoading, refetch } = useUserBets(address);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function handleManualRefresh() {
+    setRefreshing(true);
+    await refetch();
+    setTimeout(() => setRefreshing(false), 800);
+  }
 
   const { writeContract, data: txHash, isPending, error: writeError, reset } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
@@ -260,9 +267,21 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
         {/* Title */}
-        <div>
-          <h1 className="text-2xl font-bold text-white">{t("accountTitle")}</h1>
-          <p className="text-gray-500 text-sm mt-1">{t("accountSubtitle")}</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white">{t("accountTitle")}</h1>
+            <p className="text-gray-500 text-sm mt-1">{t("accountSubtitle")}</p>
+          </div>
+          <button
+            onClick={handleManualRefresh}
+            disabled={refreshing || isLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm text-gray-400
+                       hover:text-white bg-surface-1 border border-border hover:border-arc-600/40
+                       disabled:opacity-40 transition-all shrink-0"
+          >
+            <RotateCcw size={14} className={refreshing ? "animate-spin" : ""} />
+            Refresh
+          </button>
         </div>
 
         {/* Stats */}
