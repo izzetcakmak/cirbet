@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { formatUnits } from "viem";
 import { Clock, TrendingUp, Trophy } from "lucide-react";
 import { PlaceBetModal } from "./PlaceBetModal";
@@ -11,6 +11,50 @@ import {
 } from "@/lib/types";
 import { useI18n } from "@/lib/i18nContext";
 
+/* ── Live countdown component ───────────────────────────────────────────── */
+function Countdown({ endTime, endedText }: { endTime: bigint; endedText: string }) {
+  const calc = () => {
+    const diff = Number(endTime) - Math.floor(Date.now() / 1000);
+    return diff;
+  };
+
+  const [diff, setDiff] = useState(calc);
+
+  useEffect(() => {
+    // Tick every second when under 1 hour, every 30s otherwise
+    const interval = diff > 0 && diff <= 3600 ? 1000 : 30_000;
+    const id = setInterval(() => setDiff(calc()), interval);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diff > 3600]);   // re-register when crossing the 1-hour threshold
+
+  if (diff <= 0) return <span className="text-gray-600">{endedText}</span>;
+
+  const d = Math.floor(diff / 86400);
+  const h = Math.floor((diff % 86400) / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+
+  // Color: red < 1h, amber < 6h, green otherwise
+  const color =
+    diff < 3600   ? "text-red-400"
+    : diff < 21600 ? "text-amber-400"
+    : "text-gray-400";
+
+  const pulse = diff < 3600 ? "animate-pulse" : "";
+
+  let label: string;
+  if (d > 0)          label = `${d}d ${h}h ${m}m`;
+  else if (h > 0)     label = `${h}h ${m}m`;
+  else                label = `${m}m ${String(s).padStart(2, "0")}s`;
+
+  return (
+    <span className={`font-mono tabular-nums ${color} ${pulse}`}>
+      {label}
+    </span>
+  );
+}
+
 interface Props {
   market: Market;
   onRefresh?: () => void;
@@ -18,16 +62,6 @@ interface Props {
   staggerIndex?: number;
 }
 
-function timeLeft(endTime: bigint, endedText: string): string {
-  const diff = Number(endTime) - Math.floor(Date.now() / 1000);
-  if (diff <= 0) return endedText;
-  const d = Math.floor(diff / 86400);
-  const h = Math.floor((diff % 86400) / 3600);
-  const m = Math.floor((diff % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
 
 export function MarketCard({ market, onRefresh, staggerIndex = 0 }: Props) {
   const { t } = useI18n();
@@ -191,10 +225,19 @@ export function MarketCard({ market, onRefresh, staggerIndex = 0 }: Props) {
                 <span>{t("pool")}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock size={13} />
-                <span className={isActive ? "text-gray-400" : "text-gray-600"}>
-                  {isActive ? timeLeft(market.endTime, t("ended")) : t("closed")}
-                </span>
+                <Clock size={13} className={
+                  isActive
+                    ? (Number(market.endTime) - Math.floor(Date.now() / 1000)) < 3600
+                      ? "text-red-400"
+                      : (Number(market.endTime) - Math.floor(Date.now() / 1000)) < 21600
+                      ? "text-amber-400"
+                      : "text-gray-500"
+                    : "text-gray-600"
+                } />
+                {isActive
+                  ? <Countdown endTime={market.endTime} endedText={t("ended")} />
+                  : <span className="text-gray-600">{t("closed")}</span>
+                }
               </div>
             </div>
 
