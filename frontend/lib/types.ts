@@ -54,6 +54,8 @@ export interface Market {
   imageUrl:      string;
   createdAt:     bigint;
   creator:       `0x${string}`;
+  resolvedAt:    bigint;
+  hasClaims:     boolean;
 }
 
 export interface UserBet {

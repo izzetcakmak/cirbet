@@ -33,6 +33,8 @@ export const PREDICTION_MARKET_ABI = [
       {name:"imageUrl",      type:"string"},
       {name:"createdAt",     type:"uint256"},
       {name:"creator",       type:"address"},
+      {name:"resolvedAt",    type:"uint256"},
+      {name:"hasClaims",     type:"bool"},
     ]}],
   },
   {
@@ -115,6 +117,11 @@ export const PREDICTION_MARKET_ABI = [
   {
     name:"resolveMarket", type:"function", stateMutability:"nonpayable",
     inputs:[{name:"marketId",type:"uint256"},{name:"winningOption",type:"uint256"}],
+    outputs:[],
+  },
+  {
+    name:"reResolveMarket", type:"function", stateMutability:"nonpayable",
+    inputs:[{name:"marketId",type:"uint256"},{name:"newWinningOption",type:"uint256"}],
     outputs:[],
   },
   { name:"withdrawFees",           type:"function", stateMutability:"nonpayable", inputs:[{name:"to",type:"address"}], outputs:[] },

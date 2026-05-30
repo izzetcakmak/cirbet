@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Syne:wght@700;800&display=swap');
+
+  body {
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+    background: #07070f;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+  }
+
+  /* ── Background blobs ── */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+  }
+  .blob-1 { width: 500px; height: 500px; background: #5b2cff; top: -150px; left: -100px; }
+  .blob-2 { width: 400px; height: 400px; background: #8b5cf6; bottom: -100px; right: 100px; opacity: 0.4; }
+  .blob-3 { width: 300px; height: 300px; background: #1a0066; top: 50%; right: -80px; }
+
+  /* ── Grid overlay ── */
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(108,71,255,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,71,255,0.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* ── Noise ── */
+  .noise {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  /* ── Main layout ── */
+  .content {
+    position: relative; z-index: 10;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 80px;
+    gap: 60px;
+  }
+
+  /* ── Left: Text ── */
+  .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #6c47ff, #a78bff);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900; color: white;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: -1px;
+    box-shadow: 0 0 20px rgba(108,71,255,0.5);
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    gap: 6px;
+    background: rgba(108,71,255,0.2);
+    border: 1px solid rgba(108,71,255,0.4);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 13px; font-weight: 600;
+    color: #a78bff;
+    letter-spacing: 0.3px;
+    width: fit-content;
+  }
+
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #6c47ff; box-shadow: 0 0 8px #6c47ff; }
+
+  .headline {
+    font-family: 'Syne', sans-serif;
+    font-size: 72px; font-weight: 800;
+    line-height: 1.0;
+    color: white;
+    letter-spacing: -3px;
+  }
+
+  .headline em {
+    font-style: normal;
+    background: linear-gradient(90deg, #a78bff, #e0d7ff, #a78bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sub {
+    font-size: 20px; font-weight: 500;
+    color: #9ca3af;
+    line-height: 1.5;
+    max-width: 480px;
+  }
+
+  .sub strong { color: #e5e7eb; font-weight: 600; }
+
+  .tags {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .tag {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px; font-weight: 500;
+    color: #d1d5db;
+  }
+
+  /* ── Right: Mock UI card ── */
+  .right {
+    width: 400px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(20px);
+  }
+
+  .card-title {
+    font-size: 11px; font-weight: 600;
+    color: #6c47ff; letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .market-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .market-row:last-child { border-bottom: none; }
+
+  .market-q {
+    font-size: 13px; font-weight: 500; color: #e5e7eb;
+    flex: 1; margin-right: 12px;
+  }
+
+  .market-pool {
+    font-size: 12px; font-weight: 700;
+    color: #a78bff;
+    white-space: nowrap;
+  }
+
+  .market-bar {
+    height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.06);
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .market-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #6c47ff, #a78bff); }
+
+  /* stats row */
+  .stats-row {
+    display: flex; gap: 10px;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: rgba(108,71,255,0.12);
+    border: 1px solid rgba(108,71,255,0.25);
+    border-radius: 14px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px; font-weight: 800;
+    color: white;
+    letter-spacing: -1px;
+  }
+
+  .stat-lbl {
+    font-size: 11px; font-weight: 500; color: #6b7280;
+    margin-top: 3px;
+  }
+
+  /* ── Bottom bar ── */
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+    height: 4px;
+    background: linear-gradient(90deg, #6c47ff, #a78bff, #6c47ff);
+  }
+
+  /* ── Powered by ── */
+  .powered {
+    position: absolute; bottom: 24px; right: 80px; z-index: 20;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; color: #4b5563;
+  }
+  .powered span { color: #6b7280; }
+  .powered strong { color: #9ca3af; }
+</style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="grid"></div>
+  <div class="noise"></div>
+
+  <div class="content">
+    <!-- LEFT -->
+    <div class="left">
+      <div class="logo-row">
+        <div class="logo-icon">C</div>
+        <div class="logo-text">CirBet</div>
+      </div>
+
+      <div class="badge">
+        <div class="badge-dot"></div>
+        Live on Arc Testnet
+      </div>
+
+      <div class="headline">
+        Predict.<br><em>Win on-chain.</em>
+      </div>
+
+      <div class="sub">
+        On-chain prediction markets powered by <strong>USDC</strong> —
+        no gas fees, instant settlement, built on <strong>Arc Network</strong>.
+      </div>
+
+      <div class="tags">
+        <div class="tag">Circle App Kit</div>
+        <div class="tag">Goldsky Subgraph</div>
+        <div class="tag">USDC · EURC · QCAD</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div class="card">
+        <div class="card-title">Live Markets</div>
+
+        <div class="market-row">
+          <div>
+            <div class="market-q">BTC above $120K by end of June?</div>
+            <div class="market-bar"><div class="market-fill" style="width:68%"></div></div>
+          </div>
+          <div class="market-pool">4,200 USDC</div>
+        </div>
+
+        <div class="market-row">
+          <div>
+            <div class="market-q">ETH 2.0 staking rate drops below 3%?</div>
+            <div class="market-bar"><div class="market-fill" style="width:41%"></div></div>
+          </div>
+          <div class="market-pool">2,850 USDC</div>
+        </div>
+
+        <div class="market-row">
+          <div>
+            <div class="market-q">Arc Mainnet launch before Q3 2026?</div>
+            <div class="market-bar"><div class="market-fill" style="width:83%"></div></div>
+          </div>
+          <div class="market-pool">6,100 USDC</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-val">$24K</div>
+          <div class="stat-lbl">Total Volume</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">12</div>
+          <div class="stat-lbl">Active Markets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">340</div>
+          <div class="stat-lbl">Bettors</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar"></div>
+  <div class="powered">
+    <span>Built on</span> <strong>Arc Network</strong>
+    <span>·</span>
+    <span>Powered by</span> <strong>Circle</strong>
+    <span>·</span>
+    <strong>cirbet.xyz</strong>
+  </div>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIRBET — Logo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c8a96e;
+    --gold-bright: #f0cc80;
+    --arc: #00d4ff;
+    --arc-dim: #0099cc;
+    --bg: #07070d;
+    --bg2: #0e0e1a;
+    --white: #f0efe8;
+  }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Ambient background glow */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,169,110,0.06) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-bg 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.04) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-bg 4s ease-in-out infinite reverse;
+    pointer-events: none;
+  }
+
+  @keyframes pulse-bg {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  }
+
+  /* LOGO CONTAINER */
+  .logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* SVG MARK */
+  .logo-mark {
+    width: 220px;
+    height: 220px;
+    position: relative;
+  }
+
+  svg.mark {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* Outer ring — Arc Network yayı */
+  .arc-ring {
+    fill: none;
+    stroke: url(#arcGrad);
+    stroke-width: 2;
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    stroke-linecap: round;
+    animation: draw-arc 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+    transform-origin: center;
+    transform: rotate(-90deg);
+  }
+
+  .arc-ring-gap {
+    fill: none;
+    stroke: var(--bg);
+    stroke-width: 6;
+    opacity: 0;
+    animation: fade-in 0.1s 2s forwards;
+  }
+
+  @keyframes draw-arc {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* Inner circle — Circle/USDC */
+  .circle-inner {
+    fill: none;
+    stroke: url(#goldGrad);
+    stroke-width: 1.5;
+    stroke-dasharray: 251;
+    stroke-dashoffset: 251;
+    stroke-linecap: round;
+    animation: draw-arc 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.9s forwards;
+    transform-origin: center;
+    transform: rotate(-90deg);
+  }
+
+  /* C letterform — chiseled */
+  .c-path {
+    fill: none;
+    stroke: var(--white);
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: draw-c 1s cubic-bezier(0.22, 1, 0.36, 1) 1.4s forwards;
+    filter: drop-shadow(0 0 6px rgba(240,204,128,0.4));
+  }
+
+  @keyframes draw-c {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* Arc connector dot */
+  .arc-dot {
+    fill: var(--arc);
+    r: 0;
+    animation: dot-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s forwards;
+    filter: drop-shadow(0 0 8px var(--arc));
+  }
+
+  .arc-dot-2 {
+    fill: var(--gold-bright);
+    r: 0;
+    animation: dot-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.3s forwards;
+    filter: drop-shadow(0 0 8px var(--gold-bright));
+  }
+
+  @keyframes dot-pop {
+    to { r: 5; }
+  }
+
+  /* Subtle orbit particle */
+  .orbit-particle {
+    fill: var(--arc);
+    r: 2.5;
+    opacity: 0;
+    filter: drop-shadow(0 0 4px var(--arc));
+    animation: fade-in 0.3s 2.5s forwards;
+  }
+
+  .orbit-path {
+    animation: orbit 8s linear 2.5s infinite;
+    transform-origin: 110px 110px;
+    transform-box: fill-box;
+  }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes fade-in {
+    to { opacity: 1; }
+  }
+
+  /* WORDMARK */
+  .wordmark {
+    margin-top: -10px;
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    opacity: 0;
+    animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 2s forwards;
+  }
+
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .word-main {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 52px;
+    letter-spacing: -1px;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .word-cir { color: var(--white); }
+  .word-bet {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--gold);
+    letter-spacing: 2px;
+  }
+
+  /* Tagline */
+  .tagline {
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--arc-dim);
+    opacity: 0;
+    animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 2.3s forwards;
+  }
+
+  /* Divider line */
+  .divider {
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin-top: 6px;
+    animation: expand-line 0.8s cubic-bezier(0.22, 1, 0.36, 1) 2.2s forwards;
+  }
+
+  @keyframes expand-line {
+    to { width: 220px; }
+  }
+
+  /* BOTTOM BADGES */
+  .badges {
+    display: flex;
+    gap: 16px;
+    margin-top: 36px;
+    opacity: 0;
+    animation: rise-in 0.8s ease 2.6s forwards;
+  }
+
+  .badge {
+    padding: 4px 12px;
+    border: 1px solid;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .badge-arc {
+    border-color: rgba(0,212,255,0.3);
+    color: var(--arc-dim);
+    background: rgba(0,212,255,0.04);
+  }
+
+  .badge-circle {
+    border-color: rgba(200,169,110,0.3);
+    color: var(--gold);
+    background: rgba(200,169,110,0.04);
+  }
+
+  /* Export hint */
+  .hint {
+    position: fixed;
+    bottom: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(240,239,232,0.2);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fade-in 1s 3.2s forwards;
+  }
+
+  /* Scanline grain overlay */
+  .grain {
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="logo-wrap">
+
+  <!-- SVG MARK -->
+  <div class="logo-mark">
+    <svg class="mark" viewBox="0 0 220 220">
+      <defs>
+        <!-- Arc Network gradient — electric blue to cyan -->
+        <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00d4ff"/>
+          <stop offset="40%" stop-color="#0099cc"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.2"/>
+        </linearGradient>
+
+        <!-- Circle/USDC gradient — gold -->
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f0cc80"/>
+          <stop offset="50%" stop-color="#c8a96e"/>
+          <stop offset="100%" stop-color="#f0cc80" stop-opacity="0.3"/>
+        </linearGradient>
+
+        <!-- Glow filter -->
+        <filter id="glow-arc" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-gold" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Outer Arc ring (r=80, stroke centered → radius to center = 80) -->
+      <!-- Full circle then we'll mask the opening -->
+      <circle
+        class="arc-ring"
+        cx="110" cy="110" r="80"
+        filter="url(#glow-arc)"
+      />
+
+      <!-- Arc gap — white eraser to create the "open arc" at bottom-right -->
+      <line class="arc-ring-gap"
+        x1="110" y1="30"
+        x2="110" y2="185"
+        stroke="var(--bg)"
+        stroke-width="0"
+      />
+      <!-- Actually use a short arc gap segment -->
+      <path class="arc-ring-gap"
+        d="M 163 163 A 80 80 0 0 0 190 110"
+        stroke="var(--bg)"
+        stroke-width="7"
+        fill="none"
+        stroke-linecap="round"
+      />
+
+      <!-- Inner Circle ring (r=40) -->
+      <circle
+        class="circle-inner"
+        cx="110" cy="110" r="40"
+        filter="url(#glow-gold)"
+      />
+
+      <!-- C letterform — bold arc from ~40° to ~320° -->
+      <!-- Arc from top-right sweeping counterclockwise, leaving right gap -->
+      <path
+        class="c-path"
+        d="M 145 75 A 48 48 0 1 0 145 145"
+        filter="url(#glow-gold)"
+      />
+
+      <!-- Arc endpoint dots -->
+      <!-- Top endpoint (Arc Network color) -->
+      <circle class="arc-dot" cx="145" cy="75"/>
+      <!-- Bottom endpoint (Gold) -->
+      <circle class="arc-dot-2" cx="145" cy="145"/>
+
+      <!-- Orbiting particle on outer ring -->
+      <g class="orbit-path">
+        <circle class="orbit-particle" cx="190" cy="110"/>
+      </g>
+
+    </svg>
+  </div>
+
+  <!-- WORDMARK -->
+  <div class="wordmark">
+    <span class="word-main">
+      <span class="word-cir">CIR</span><span class="word-bet">BET</span>
+    </span>
+  </div>
+
+  <div class="divider"></div>
+  <div class="tagline">Built on Arc · Powered by Circle</div>
+
+  <div class="badges">
+    <div class="badge badge-arc">Arc Network</div>
+    <div class="badge badge-circle">USDC · Circle</div>
+  </div>
+
+</div>
+
+<div class="hint">www.cirbet.xyz</div>
+
+</body>
+</html>

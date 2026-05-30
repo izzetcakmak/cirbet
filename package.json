@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "deploy:arc":       "npm run deploy:arc    --prefix contracts",
-    "compile":          "npm run compile       --prefix contracts",
-    "dev":              "npm run dev            --prefix frontend",
-    "build":            "npm run build          --prefix frontend"
+    "deploy:arc": "npm run deploy:arc    --prefix contracts",
+    "compile": "npm run compile       --prefix contracts",
+    "dev": "npm run dev            --prefix frontend",
+    "build": "npm run build          --prefix frontend"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  },
+  "dependencies": {
+    "edge-tts": "^1.0.1",
+    "ffmpeg-static": "^5.3.0"
   }
 }

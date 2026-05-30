@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CirBet Demo – 90s</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --arc:       #6c47ff;
+    --arc-light: #9c7bff;
+    --arc-glow:  rgba(108,71,255,.35);
+    --bg:        #08080f;
+    --s1:        #0e0e1a;
+    --s2:        #13131f;
+    --s3:        #1a1a2e;
+    --border:    rgba(255,255,255,.07);
+    --text:      #e8e8f0;
+    --gray:      #6b7280;
+    --green:     #4ade80;
+    --amber:     #fbbf24;
+    --red:       #f87171;
+    --teal:      #22d3ee;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    width:1920px; height:1080px; overflow:hidden;
+    background:var(--bg);
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+  }
+
+  /* ── SCENE SYSTEM ─────────────────────────────────── */
+  .scene {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .7s ease;
+  }
+  .scene.active { opacity:1; pointer-events:auto; }
+
+  /* ── NOISE OVERLAY ────────────────────────────────── */
+  body::after {
+    content:''; position:fixed; inset:0; z-index:9999; pointer-events:none;
+    opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:200px;
+  }
+
+  /* ── AMBIENT BLOBS ────────────────────────────────── */
+  .blob {
+    position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0;
+  }
+  .blob1 { width:900px; height:900px; background:rgba(108,71,255,.09); top:-200px; left:-100px; animation:drift1 20s ease-in-out infinite; }
+  .blob2 { width:700px; height:700px; background:rgba(34,211,238,.06); bottom:-150px; right:-50px; animation:drift2 25s ease-in-out infinite; }
+  .blob3 { width:500px; height:500px; background:rgba(168,85,247,.055); top:50%; left:50%; transform:translate(-50%,-50%); animation:drift3 18s ease-in-out infinite; }
+
+  @keyframes drift1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-50px) scale(1.05)} 66%{transform:translate(-40px,40px) scale(.97)} }
+  @keyframes drift2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-60px,-40px) scale(1.08)} }
+  @keyframes drift3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-52%,-48%) scale(1.1)} }
+
+  /* ── HEADER BAR ───────────────────────────────────── */
+  .header {
+    position:fixed; top:0; left:0; right:0; z-index:100; height:64px;
+    background:rgba(8,8,15,.78); backdrop-filter:blur(28px);
+    border-bottom:1px solid rgba(108,71,255,.12);
+    display:flex; align-items:center; justify-content:space-between; padding:0 40px;
+  }
+  .logo { display:flex; align-items:center; gap:10px; }
+  .logo-icon {
+    width:38px; height:38px; border-radius:10px;
+    background:linear-gradient(135deg,#6c47ff,#9c7bff);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:14px; color:#fff;
+    box-shadow:0 0 16px rgba(108,71,255,.5);
+  }
+  .logo-text { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; }
+  .logo-text span:first-child { color:#f0efe8; }
+  .logo-text span:last-child { -webkit-text-stroke:1.2px #c8a96e; color:transparent; letter-spacing:.08em; }
+  .logo-sub { font-size:8px; color:#0099cc; font-family:'Space Mono',monospace; letter-spacing:.3em; text-transform:uppercase; margin-top:1px; }
+  .header-right { display:flex; align-items:center; gap:10px; }
+  .wallet-btn {
+    display:flex; align-items:center; gap:8px;
+    background:var(--s2); border:1px solid var(--border);
+    padding:8px 16px; border-radius:12px; font-size:13px; font-weight:500;
+  }
+  .wallet-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ── PROGRESS BAR ─────────────────────────────────── */
+  .progress-track {
+    position:fixed; bottom:0; left:0; right:0; height:3px;
+    background:rgba(255,255,255,.05); z-index:200;
+  }
+  .progress-fill {
+    height:100%; background:linear-gradient(90deg,var(--arc),var(--arc-light));
+    width:0%; transition:width .3s linear;
+    box-shadow:0 0 8px rgba(108,71,255,.6);
+  }
+
+  /* ── SLIDE INDICATOR ──────────────────────────────── */
+  .slide-dots {
+    position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+    display:flex; gap:6px; z-index:200;
+  }
+  .dot {
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,255,255,.2); transition:all .3s;
+  }
+  .dot.active { background:var(--arc); width:20px; border-radius:3px; }
+
+  /* ── TIMER ────────────────────────────────────────── */
+  .timer {
+    position:fixed; top:76px; right:20px;
+    font-family:'Space Mono',monospace; font-size:11px;
+    color:rgba(255,255,255,.2); z-index:200; letter-spacing:.05em;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 1 — HERO
+  ═══════════════════════════════════════════════════ */
+  #s1 { flex-direction:column; gap:0; }
+  .hero-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 14px; border-radius:99px; margin-bottom:32px;
+    background:rgba(108,71,255,.12); border:1px solid rgba(108,71,255,.3);
+    font-size:12px; color:var(--arc-light); font-weight:500; letter-spacing:.04em;
+    animation:fadeUp .8s .2s both;
+  }
+  .hero-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--arc-light); animation:pulse 2s infinite; }
+  .hero-h1 {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:88px; line-height:1; text-align:center; margin-bottom:28px;
+    animation:fadeUp .8s .35s both;
+  }
+  .hero-h1 .line1 { display:block; color:#f0efe8; }
+  .hero-h1 .line2 {
+    display:block;
+    background:linear-gradient(90deg,#9c7bff,#c8b0ff,#f0ecff,#c8b0ff,#9c7bff);
+    background-size:200% auto;
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    animation:shimmer 3s linear infinite, fadeUp .8s .35s both;
+  }
+  @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+  .hero-sub {
+    font-size:22px; color:#9ca3af; text-align:center; max-width:700px; line-height:1.6;
+    animation:fadeUp .8s .5s both;
+  }
+  .hero-stats {
+    display:flex; gap:48px; margin-top:56px;
+    animation:fadeUp .8s .65s both;
+  }
+  .stat { text-align:center; }
+  .stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:36px; color:#fff; }
+  .stat-val .accent { color:var(--arc-light); }
+  .stat-lbl { font-size:12px; color:var(--gray); margin-top:4px; letter-spacing:.05em; text-transform:uppercase; }
+  .hero-grid {
+    position:absolute; inset:0; pointer-events:none;
+    background-image:linear-gradient(rgba(108,71,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,71,255,.04) 1px,transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 20%,transparent 100%);
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 2 — MARKETS GRID
+  ═══════════════════════════════════════════════════ */
+  #s2 { align-items:flex-start; padding-top:84px; }
+  .markets-container { width:100%; padding:32px 60px; }
+  .section-title {
+    font-size:13px; color:var(--gray); text-transform:uppercase; letter-spacing:.1em;
+    margin-bottom:24px; display:flex; align-items:center; gap:10px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+  .markets-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .market-card {
+    background:var(--s1); border:1px solid var(--border); border-radius:20px;
+    padding:20px; cursor:pointer; position:relative; overflow:hidden;
+    transition:border-color .3s, box-shadow .3s;
+    animation:cardIn .5s both;
+  }
+  .market-card:hover { border-color:rgba(108,71,255,.45); box-shadow:0 0 0 1px rgba(108,71,255,.13),0 20px 55px rgba(108,71,255,.14); }
+  .market-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); }
+  .market-card.active-aura::after {
+    content:''; position:absolute; top:0; left:12%; right:12%; height:1px;
+    background:linear-gradient(90deg,transparent,rgba(108,71,255,.95),transparent);
+    animation:glowBar 2.8s ease-in-out infinite;
+  }
+  @keyframes glowBar { 0%,100%{opacity:.4} 50%{opacity:1} }
+  @keyframes cardIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .card-badges { display:flex; gap:6px; margin-bottom:12px; }
+  .badge {
+    font-size:10px; font-weight:700; padding:3px 8px; border-radius:99px;
+    letter-spacing:.06em; text-transform:uppercase; border:1px solid;
+  }
+  .badge-crypto  { color:#a78bfa; background:rgba(167,139,250,.1); border-color:rgba(167,139,250,.3); }
+  .badge-sports  { color:#34d399; background:rgba(52,211,153,.1); border-color:rgba(52,211,153,.3); }
+  .badge-macro   { color:#60a5fa; background:rgba(96,165,250,.1); border-color:rgba(96,165,250,.3); }
+  .badge-geo     { color:#f472b6; background:rgba(244,114,182,.1); border-color:rgba(244,114,182,.3); }
+  .badge-active  { color:#4ade80; background:rgba(74,222,128,.1); border-color:rgba(74,222,128,.3); }
+  .badge-locked  { color:#fbbf24; background:rgba(251,191,36,.1); border-color:rgba(251,191,36,.3); }
+
+  .card-question { font-size:14px; font-weight:600; color:#e5e7eb; line-height:1.4; margin-bottom:16px; }
+  .card-options { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .card-option { display:flex; flex-direction:column; gap:4px; }
+  .card-option-row { display:flex; justify-content:space-between; font-size:11px; }
+  .card-option-name { color:#9ca3af; }
+  .card-option-odds { font-weight:700; color:#c4b5fd; }
+  .card-bar { height:4px; border-radius:2px; background:var(--s3); overflow:hidden; }
+  .card-bar-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,#6c47ff,#9c7bff); transition:width .8s ease; }
+  .card-footer { display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--border); }
+  .card-pool { font-size:12px; color:#6b7280; font-family:'Space Mono',monospace; }
+  .card-time { font-size:11px; color:#4b5563; }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 3 — PLACE BET MODAL
+  ═══════════════════════════════════════════════════ */
+  #s3 { }
+  .modal-backdrop-vis {
+    position:absolute; inset:0;
+    background:rgba(8,8,15,.82); backdrop-filter:blur(8px);
+  }
+  .modal {
+    position:relative; z-index:10;
+    background:var(--s1); border:1px solid var(--border);
+    border-radius:24px; width:540px; overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(108,71,255,.1);
+    animation:modalIn .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes modalIn { from{opacity:0;transform:scale(.9) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  .modal-header { padding:24px 24px 20px; border-bottom:1px solid var(--border); }
+  .modal-question { font-size:16px; font-weight:600; color:#f9fafb; line-height:1.4; margin-top:10px; }
+  .modal-body { padding:24px; display:flex; flex-direction:column; gap:20px; }
+  .modal-label { font-size:11px; color:var(--gray); text-transform:uppercase; letter-spacing:.1em; font-weight:600; margin-bottom:8px; }
+  .modal-option {
+    border:1px solid var(--border); border-radius:14px; padding:14px 16px;
+    cursor:pointer; transition:all .2s; background:var(--s2);
+  }
+  .modal-option.selected { border-color:var(--arc); background:rgba(108,71,255,.1); }
+  .modal-option-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .modal-option-name { font-size:13px; font-weight:500; color:#e5e7eb; }
+  .modal-option-meta { display:flex; gap:12px; font-size:11px; color:var(--gray); }
+  .modal-option-odds { font-weight:700; color:#a78bfa; }
+  .modal-bar { height:5px; border-radius:3px; background:var(--s3); overflow:hidden; }
+  .modal-bar-fill { height:100%; border-radius:3px; }
+  .amt-row { display:flex; gap:8px; }
+  .amt-input {
+    flex:1; background:var(--s2); border:1px solid var(--border); border-radius:12px;
+    padding:12px 48px 12px 16px; font-size:14px; color:#fff; font-family:inherit;
+    position:relative;
+  }
+  .amt-currency { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--gray); font-weight:600; }
+  .quick-btns { display:flex; gap:6px; }
+  .quick-btn {
+    flex:1; padding:6px; border-radius:8px; font-size:11px; font-weight:600;
+    background:var(--s2); border:1px solid var(--border); color:var(--gray); cursor:pointer;
+    transition:all .15s;
+  }
+  .quick-btn:hover, .quick-btn.active { background:var(--s3); color:#fff; border-color:var(--arc); }
+  .payout-row { display:flex; justify-content:space-between; font-size:13px; padding:0 2px; }
+  .payout-val { color:var(--green); font-weight:700; }
+  .currency-selector { display:flex; gap:8px; margin-bottom:4px; }
+  .curr-pill {
+    display:flex; align-items:center; gap:6px;
+    padding:6px 12px; border-radius:8px; border:1px solid; font-size:11px; font-weight:600;
+    cursor:pointer;
+  }
+  .curr-pill.active { border-color:var(--arc); background:rgba(108,71,255,.15); color:#c4b5fd; }
+  .curr-pill.inactive { border-color:var(--border); background:var(--s2); color:#4b5563; opacity:.5; cursor:not-allowed; }
+  .curr-icon { width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:900; }
+  .modal-footer { padding:0 24px 24px; display:flex; gap:10px; }
+  .btn-ghost { flex:1; padding:12px; border-radius:14px; border:1px solid var(--border); background:var(--s2); color:#9ca3af; font-size:14px; font-weight:500; cursor:pointer; }
+  .btn-primary {
+    flex:1; padding:12px; border-radius:14px; border:none;
+    background:linear-gradient(135deg,#6c47ff,#8b5cf6);
+    color:#fff; font-size:14px; font-weight:700; cursor:pointer;
+    box-shadow:0 0 18px rgba(108,71,255,.35);
+    transition:box-shadow .2s;
+  }
+  .btn-primary:hover { box-shadow:0 0 28px rgba(108,71,255,.55); }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 4 — SUCCESS
+  ═══════════════════════════════════════════════════ */
+  #s4 { flex-direction:column; gap:0; }
+  .success-ring {
+    width:140px; height:140px; border-radius:50%;
+    background:rgba(74,222,128,.08); border:2px solid rgba(74,222,128,.3);
+    display:flex; align-items:center; justify-content:center; margin-bottom:32px;
+    animation:successPop .6s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 0 50px rgba(74,222,128,.2);
+  }
+  @keyframes successPop { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
+  .success-ring svg { color:var(--green); }
+  .success-h { font-family:'Syne',sans-serif; font-weight:800; font-size:52px; color:#fff; margin-bottom:12px; animation:fadeUp .5s .3s both; }
+  .success-sub { font-size:18px; color:#9ca3af; animation:fadeUp .5s .45s both; }
+  .success-detail {
+    margin-top:36px; background:rgba(74,222,128,.05); border:1px solid rgba(74,222,128,.2);
+    border-radius:16px; padding:20px 32px; display:flex; gap:48px;
+    animation:fadeUp .5s .6s both;
+  }
+  .detail-item { text-align:center; }
+  .detail-val { font-family:'Space Mono',monospace; font-size:22px; font-weight:700; color:var(--green); }
+  .detail-lbl { font-size:11px; color:var(--gray); margin-top:4px; text-transform:uppercase; letter-spacing:.06em; }
+  .confetti-wrap { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .confetti-piece { position:absolute; width:8px; height:8px; border-radius:2px; }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 5 — WALLET DROPDOWN
+  ═══════════════════════════════════════════════════ */
+  #s5 { align-items:flex-start; justify-content:flex-end; padding-top:72px; padding-right:40px; }
+  .wallet-dropdown {
+    width:340px; background:var(--s2); border:1px solid var(--border);
+    border-radius:20px; overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+    animation:dropIn .4s cubic-bezier(.34,1.4,.64,1);
+    position:relative; z-index:10;
+  }
+  @keyframes dropIn { from{opacity:0;transform:translateY(-12px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .wd-header {
+    padding:16px 18px 14px; border-bottom:1px solid var(--border);
+    background:linear-gradient(135deg,var(--s2),var(--s1));
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .wd-chain { font-size:10px; color:var(--gray); text-transform:uppercase; letter-spacing:.1em; margin-bottom:2px; }
+  .wd-addr { font-size:12px; font-family:'Space Mono',monospace; color:#9ca3af; }
+  .wd-bal-lbl { font-size:10px; color:var(--gray); text-transform:uppercase; letter-spacing:.1em; margin-bottom:2px; text-align:right; }
+  .wd-bal { font-size:15px; font-weight:700; color:#fff; }
+  .wd-tabs { display:flex; border-bottom:1px solid var(--border); background:var(--s1); }
+  .wd-tab {
+    flex:1; padding:10px; text-align:center; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.1em; cursor:pointer; position:relative;
+    color:#4b5563; transition:color .2s;
+  }
+  .wd-tab.active { color:#a78bfa; }
+  .wd-tab.active::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--arc); border-radius:2px 2px 0 0; }
+  .wd-body { padding:16px; display:flex; flex-direction:column; gap:10px; min-height:180px; }
+  .wd-input {
+    width:100%; background:var(--s1); border:1px solid var(--border); border-radius:10px;
+    padding:9px 12px; font-size:12px; color:#e5e7eb; font-family:'Space Mono',monospace;
+  }
+  .wd-amt-row { display:flex; gap:6px; }
+  .wd-amt { flex:1; background:var(--s1); border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px; color:#fff; }
+  .wd-token { background:var(--s1); border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:11px; color:var(--gray); font-weight:600; }
+  .wd-hint { font-size:10px; color:#374151; line-height:1.5; }
+  .wd-btn {
+    width:100%; padding:9px; border-radius:10px; border:none;
+    background:linear-gradient(135deg,#6c47ff,#8b5cf6);
+    color:#fff; font-size:13px; font-weight:700; cursor:pointer;
+    box-shadow:0 0 14px rgba(108,71,255,.3);
+  }
+  .wd-select {
+    width:100%; background:var(--s1); border:1px solid var(--border); border-radius:10px;
+    padding:9px 12px; font-size:13px; color:#fff; font-family:inherit;
+  }
+  .wd-footer { border-top:1px solid var(--border); }
+  .wd-link { display:flex; align-items:center; gap:8px; padding:11px 18px; font-size:13px; color:#6b7280; border-bottom:1px solid var(--border); }
+  .wd-disconnect { display:flex; align-items:center; gap:8px; padding:11px 18px; font-size:13px; color:#f87171; }
+  .swap-row { display:flex; align-items:flex-end; gap:6px; }
+  .swap-col { flex:1; }
+  .swap-col-lbl { font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+  .swap-flip { padding:8px; background:var(--s1); border:1px solid var(--border); border-radius:8px; color:var(--gray); font-size:11px; margin-bottom:0; display:flex; align-items:center; justify-content:center; }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 6 — CURRENCY SELECTOR
+  ═══════════════════════════════════════════════════ */
+  #s6 { }
+  .cs-modal {
+    background:var(--s1); border:1px solid var(--border); border-radius:24px;
+    width:540px; overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,.6);
+    animation:modalIn .5s cubic-bezier(.34,1.56,.64,1);
+    position:relative; z-index:10;
+  }
+  .cs-header { padding:24px; border-bottom:1px solid var(--border); }
+  .cs-body { padding:24px; display:flex; flex-direction:column; gap:16px; }
+  .cs-label { font-size:11px; color:var(--gray); text-transform:uppercase; letter-spacing:.1em; font-weight:600; margin-bottom:10px; }
+  .cs-pills { display:flex; gap:8px; flex-wrap:wrap; }
+  .cs-pill {
+    display:flex; align-items:center; gap:8px; padding:10px 16px;
+    border-radius:10px; border:1px solid; cursor:pointer; transition:all .2s;
+  }
+  .cs-pill.active { border-color:var(--arc); background:rgba(108,71,255,.12); }
+  .cs-pill.inactive { border-color:var(--border); background:var(--s2); opacity:.5; cursor:not-allowed; }
+  .cs-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:#fff; }
+  .cs-name { font-size:13px; font-weight:600; }
+  .cs-pill.active .cs-name { color:#c4b5fd; }
+  .cs-pill.inactive .cs-name { color:#4b5563; }
+  .cs-badge { font-size:9px; padding:2px 6px; border-radius:4px; background:var(--s3); color:#4b5563; font-weight:700; }
+  .cs-check { font-size:10px; color:var(--arc-light); background:rgba(108,71,255,.2); padding:2px 6px; border-radius:4px; }
+  .cs-coming { background:rgba(108,71,255,.06); border:1px dashed rgba(108,71,255,.2); border-radius:14px; padding:16px 20px; margin-top:4px; }
+  .cs-coming-title { font-size:13px; font-weight:600; color:#6b7280; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .cs-coming-text { font-size:11px; color:#374151; line-height:1.5; }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 7 — DASHBOARD
+  ═══════════════════════════════════════════════════ */
+  #s7 { align-items:flex-start; padding-top:84px; }
+  .dash-container { width:100%; padding:32px 60px; }
+  .dash-title { font-family:'Syne',sans-serif; font-weight:800; font-size:32px; color:#fff; margin-bottom:6px; }
+  .dash-sub { font-size:14px; color:var(--gray); margin-bottom:28px; }
+  .dash-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+  .dash-stat { background:var(--s1); border:1px solid var(--border); border-radius:16px; padding:18px 20px; animation:cardIn .5s both; }
+  .dash-stat-val { font-size:24px; font-weight:800; margin-bottom:4px; }
+  .dash-stat-lbl { font-size:11px; color:var(--gray); text-transform:uppercase; letter-spacing:.06em; }
+  .dash-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:24px; }
+  .dash-tab {
+    padding:10px 20px; font-size:13px; font-weight:500; border-bottom:2px solid transparent;
+    cursor:pointer; color:#6b7280; transition:all .2s;
+  }
+  .dash-tab.active { color:#a78bfa; border-color:var(--arc); }
+  .dash-bets { display:flex; flex-direction:column; gap:10px; }
+  .dash-bet {
+    background:var(--s1); border:1px solid var(--border); border-radius:14px; padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between;
+    animation:cardIn .5s both;
+  }
+  .dash-bet.winner { border-color:rgba(74,222,128,.35); }
+  .dash-bet-q { font-size:13px; font-weight:500; color:#e5e7eb; max-width:400px; }
+  .dash-bet-meta { font-size:11px; color:var(--gray); margin-top:4px; }
+  .dash-bet-right { display:flex; align-items:center; gap:10px; }
+  .claim-btn {
+    padding:7px 16px; border-radius:8px; font-size:12px; font-weight:600;
+    background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.3); color:var(--green); cursor:pointer;
+  }
+  .winner-badge { font-size:11px; color:var(--green); display:flex; align-items:center; gap:4px; }
+
+  /* ═══════════════════════════════════════════════════
+     SCENE 8 — CTA
+  ═══════════════════════════════════════════════════ */
+  #s8 { flex-direction:column; }
+  .cta-eyebrow {
+    font-size:12px; color:var(--arc-light); letter-spacing:.2em; text-transform:uppercase;
+    font-weight:600; margin-bottom:20px; animation:fadeUp .6s .1s both;
+  }
+  .cta-h { font-family:'Syne',sans-serif; font-weight:800; font-size:72px; text-align:center; line-height:1.05; margin-bottom:20px; animation:fadeUp .6s .2s both; }
+  .cta-h em { font-style:normal; background:linear-gradient(90deg,#9c7bff,#c8b0ff,#f0ecff,#c8b0ff,#9c7bff); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:shimmer 3s linear infinite; }
+  .cta-sub { font-size:20px; color:#9ca3af; text-align:center; margin-bottom:48px; animation:fadeUp .6s .35s both; }
+  .cta-url {
+    font-family:'Space Mono',monospace; font-size:28px;
+    background:rgba(108,71,255,.12); border:1px solid rgba(108,71,255,.3);
+    padding:16px 40px; border-radius:16px; color:#c4b5fd;
+    animation:fadeUp .6s .5s both;
+    box-shadow:0 0 40px rgba(108,71,255,.15);
+  }
+  .cta-built {
+    margin-top:36px; display:flex; align-items:center; gap:10px;
+    font-size:13px; color:#374151; animation:fadeUp .6s .65s both;
+  }
+  .cta-built span { color:#4b5563; }
+  .arc-badge {
+    padding:4px 12px; border-radius:99px; font-size:12px; font-weight:700;
+    background:rgba(108,71,255,.15); border:1px solid rgba(108,71,255,.3); color:var(--arc-light);
+  }
+</style>
+</head>
+<body>
+
+<!-- Blobs -->
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<!-- Fixed Header -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">CB</div>
+    <div>
+      <div class="logo-text"><span>CIR</span><span>BET</span></div>
+      <div class="logo-sub">Prediction Market</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="wallet-btn">
+      <div class="wallet-dot"></div>
+      <span>12.50 USDC</span>
+      <span style="color:#4b5563">|</span>
+      <span style="color:#9ca3af">0x4f2e…9561</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 1: HERO ───────────────────────────────── -->
+<div class="scene active" id="s1">
+  <div class="hero-grid"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="hero-badge">🟣 Live on Arc Testnet</div>
+    <h1 class="hero-h1">
+      <span class="line1">Predict. Bet.</span>
+      <span class="line2">Win On-Chain.</span>
+    </h1>
+    <p class="hero-sub">The first prediction market built natively on Arc Network — settled in USDC, in seconds, with no middlemen.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-val">24<span class="accent">+</span></div><div class="stat-lbl">Active Markets</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--arc-light)">$48,200</div><div class="stat-lbl">Total Volume</div></div>
+      <div class="stat"><div class="stat-val">312</div><div class="stat-lbl">Unique Bettors</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--green)">97<span class="accent" style="color:var(--green)">%</span></div><div class="stat-lbl">Payout Rate</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 2: MARKET CARDS ──────────────────────── -->
+<div class="scene" id="s2">
+  <div class="markets-container">
+    <div class="section-title">🔥 Open Markets</div>
+    <div class="markets-grid">
+
+      <div class="market-card active-aura" style="animation-delay:.05s">
+        <div class="card-badges"><span class="badge badge-crypto">Crypto</span><span class="badge badge-active">● Active</span></div>
+        <div class="card-question">Will Bitcoin close above $110,000 by end of June 2026?</div>
+        <div class="card-options">
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">Yes</span><span class="card-option-odds">1.62x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:62%"></div></div>
+          </div>
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">No</span><span class="card-option-odds">2.63x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:38%;background:linear-gradient(90deg,#4b5563,#6b7280)"></div></div>
+          </div>
+        </div>
+        <div class="card-footer"><span class="card-pool">Pool: 8,400 USDC</span><span class="card-time">12d 4h left</span></div>
+      </div>
+
+      <div class="market-card active-aura" style="animation-delay:.12s">
+        <div class="card-badges"><span class="badge badge-macro">Macro</span><span class="badge badge-active">● Active</span></div>
+        <div class="card-question">Will the Fed cut rates in September 2026?</div>
+        <div class="card-options">
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">Yes — Cut</span><span class="card-option-odds">1.89x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:53%"></div></div>
+          </div>
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">No — Hold</span><span class="card-option-odds">2.17x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:47%;background:linear-gradient(90deg,#4b5563,#6b7280)"></div></div>
+          </div>
+        </div>
+        <div class="card-footer"><span class="card-pool">Pool: 12,750 USDC</span><span class="card-time">45d left</span></div>
+      </div>
+
+      <div class="market-card active-aura" style="animation-delay:.19s">
+        <div class="card-badges"><span class="badge badge-sports">Sports</span><span class="badge badge-active">● Active</span></div>
+        <div class="card-question">Who wins the 2026 World Cup?</div>
+        <div class="card-options">
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">Brazil</span><span class="card-option-odds">2.1x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:48%"></div></div>
+          </div>
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">France</span><span class="card-option-odds">3.4x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:29%;background:linear-gradient(90deg,#4b5563,#6b7280)"></div></div>
+          </div>
+        </div>
+        <div class="card-footer"><span class="card-pool">Pool: 5,900 USDC</span><span class="card-time">30d left</span></div>
+      </div>
+
+      <div class="market-card" style="animation-delay:.26s;border-color:rgba(251,191,36,.25)">
+        <div class="card-badges"><span class="badge badge-geo">Geopolitical</span><span class="badge badge-locked">⏸ Locked</span></div>
+        <div class="card-question">Will USD/CAD trade below 1.35 before July 2026?</div>
+        <div class="card-options">
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">Yes</span><span class="card-option-odds">2.44x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:41%;background:linear-gradient(90deg,#92400e,#fbbf24)"></div></div>
+          </div>
+          <div class="card-option">
+            <div class="card-option-row"><span class="card-option-name">No</span><span class="card-option-odds">1.71x</span></div>
+            <div class="card-bar"><div class="card-bar-fill" style="width:59%;background:linear-gradient(90deg,#4b5563,#6b7280)"></div></div>
+          </div>
+        </div>
+        <div class="card-footer"><span class="card-pool">Pool: 3,200 USDC</span><span class="card-time">Locked</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 3: PLACE BET MODAL ───────────────────── -->
+<div class="scene" id="s3">
+  <div class="modal-backdrop-vis"></div>
+  <div class="modal">
+    <div class="modal-header">
+      <div class="card-badges"><span class="badge badge-crypto">Crypto</span><span class="badge badge-active">● Active</span></div>
+      <div class="modal-question">Will Bitcoin close above $110,000 by end of June 2026?</div>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-label">Pick your outcome</div>
+        <div class="modal-option selected" style="margin-bottom:8px">
+          <div class="modal-option-row">
+            <span class="modal-option-name" style="color:#fff">✓  Yes</span>
+            <div class="modal-option-meta"><span>62%</span><span class="modal-option-odds">1.62x</span></div>
+          </div>
+          <div class="modal-bar"><div class="modal-bar-fill" style="width:62%;background:linear-gradient(90deg,#6c47ff,#9c7bff)"></div></div>
+        </div>
+        <div class="modal-option">
+          <div class="modal-option-row">
+            <span class="modal-option-name">No</span>
+            <div class="modal-option-meta"><span>38%</span><span class="modal-option-odds">2.63x</span></div>
+          </div>
+          <div class="modal-bar"><div class="modal-bar-fill" style="width:38%;background:linear-gradient(90deg,#374151,#4b5563)"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="modal-label">Bet currency</div>
+        <div class="currency-selector">
+          <div class="curr-pill active">
+            <div class="curr-icon" style="background:#3b82f6">$</div>
+            <span style="font-size:12px;font-weight:700;color:#c4b5fd">USDC</span>
+            <span style="font-size:9px;color:var(--arc-light);background:rgba(108,71,255,.2);padding:2px 5px;border-radius:3px">✓</span>
+          </div>
+          <div class="curr-pill inactive">
+            <div class="curr-icon" style="background:#1d4ed8">€</div>
+            <span style="font-size:12px;font-weight:700">EURC</span>
+            <span style="font-size:9px;background:var(--s3);color:#4b5563;padding:2px 5px;border-radius:3px">Soon</span>
+          </div>
+          <div class="curr-pill inactive">
+            <div class="curr-icon" style="background:#7f1d1d;font-size:10px">🍁</div>
+            <span style="font-size:12px;font-weight:700">QCAD</span>
+            <span style="font-size:9px;background:var(--s3);color:#4b5563;padding:2px 5px;border-radius:3px">Soon</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="modal-label">Bet amount</div>
+        <div class="amt-row" style="position:relative">
+          <div class="amt-input" style="font-size:16px;font-weight:700;color:#fff;font-family:'Space Mono',monospace;display:flex;align-items:center">25.00</div>
+          <span style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:11px;color:#6b7280;font-weight:600">USDC</span>
+        </div>
+        <div class="quick-btns" style="margin-top:6px">
+          <div class="quick-btn">1</div>
+          <div class="quick-btn">5</div>
+          <div class="quick-btn">10</div>
+          <div class="quick-btn active">25</div>
+        </div>
+      </div>
+      <div class="payout-row">
+        <span style="color:#9ca3af">Potential payout</span>
+        <span class="payout-val">≈ 39.30 USDC</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost">Cancel</button>
+      <button class="btn-primary">🎯  Place Bet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 4: SUCCESS ─────────────────────────────── -->
+<div class="scene" id="s4">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div class="success-ring">
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+  </div>
+  <div class="success-h">Bet Placed! 🎉</div>
+  <div class="success-sub">Transaction confirmed on Arc Network</div>
+  <div class="success-detail">
+    <div class="detail-item"><div class="detail-val">25.00</div><div class="detail-lbl">USDC Bet</div></div>
+    <div class="detail-item"><div class="detail-val">1.62x</div><div class="detail-lbl">Odds</div></div>
+    <div class="detail-item"><div class="detail-val">≈ 39.30</div><div class="detail-lbl">Potential Win</div></div>
+    <div class="detail-item"><div class="detail-val" style="font-size:16px;color:#9ca3af">0x4f2e…9561</div><div class="detail-lbl">Your Wallet</div></div>
+  </div>
+</div>
+
+<!-- ─── SCENE 5: WALLET DROPDOWN ─────────────────────── -->
+<div class="scene" id="s5">
+  <div class="wallet-dropdown" id="walletDropdown">
+    <div class="wd-header">
+      <div><div class="wd-chain">Arc Testnet</div><div class="wd-addr">0x4f2e…9561</div></div>
+      <div><div class="wd-bal-lbl">Balance</div><div class="wd-bal">12.50 USDC</div></div>
+    </div>
+    <div class="wd-tabs">
+      <div class="wd-tab active" id="tab-send">✈ Send</div>
+      <div class="wd-tab" id="tab-bridge">⇄ Bridge</div>
+      <div class="wd-tab" id="tab-swap">↕ Swap</div>
+    </div>
+    <div class="wd-body" id="wd-content">
+      <!-- Send tab content -->
+      <div class="wd-input" style="font-family:'Space Mono',monospace;color:#6b7280">0x recipient address…</div>
+      <div class="wd-amt-row">
+        <div class="wd-amt" style="font-family:'Space Mono',monospace">10.00</div>
+        <div class="wd-token">USDC</div>
+      </div>
+      <button class="wd-btn">✈  Send USDC</button>
+    </div>
+    <div class="wd-footer">
+      <div class="wd-link">↗ View on ArcScan</div>
+      <div class="wd-disconnect">→ Disconnect</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 6: CURRENCY SELECTOR ───────────────────── -->
+<div class="scene" id="s6">
+  <div class="modal-backdrop-vis"></div>
+  <div class="cs-modal">
+    <div class="cs-header">
+      <div class="card-badges" style="margin-bottom:10px"><span class="badge badge-geo">FX</span><span class="badge badge-active">● Active</span></div>
+      <div class="modal-question">Will USD/CAD trade below 1.35 before July 2026?</div>
+    </div>
+    <div class="cs-body">
+      <div>
+        <div class="cs-label">Select betting currency</div>
+        <div class="cs-pills">
+          <div class="cs-pill active">
+            <div class="cs-icon" style="background:#3b82f6">$</div>
+            <span class="cs-name">USDC</span>
+            <span class="cs-check">✓ Active</span>
+          </div>
+          <div class="cs-pill inactive">
+            <div class="cs-icon" style="background:#1d4ed8">€</div>
+            <span class="cs-name">EURC</span>
+            <span class="cs-badge">Soon</span>
+          </div>
+          <div class="cs-pill inactive">
+            <div class="cs-icon" style="background:#991b1b">🍁</div>
+            <span class="cs-name">QCAD</span>
+            <span class="cs-badge">Soon</span>
+          </div>
+        </div>
+      </div>
+      <div class="cs-coming">
+        <div class="cs-coming-title">
+          <span>🍁</span> QCAD — Coming to CirBet
+        </div>
+        <div class="cs-coming-text">
+          Canada's first regulated CAD-backed stablecoin is now live on Arc Testnet.<br>
+          Issued by Stablecorp · Custodied by VersaBank · Powered by StableFX<br><br>
+          <span style="color:#6b7280">CAD/USD prediction markets will activate with QCAD when the settlement corridor goes live.</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding:0 24px 24px">
+      <button class="btn-ghost">Cancel</button>
+      <button class="btn-primary">🎯  Bet with USDC</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 7: DASHBOARD ───────────────────────────── -->
+<div class="scene" id="s7">
+  <div class="dash-container">
+    <div class="dash-title">Dashboard</div>
+    <div class="dash-sub">Track your positions, claim winnings, and monitor your markets.</div>
+    <div class="dash-stats">
+      <div class="dash-stat" style="animation-delay:.05s">
+        <div class="dash-stat-val" style="color:#fff">48.50 USDC</div>
+        <div class="dash-stat-lbl">Total Bet</div>
+      </div>
+      <div class="dash-stat" style="animation-delay:.1s">
+        <div class="dash-stat-val" style="color:var(--green)">39.30 USDC</div>
+        <div class="dash-stat-lbl">Pending Win</div>
+      </div>
+      <div class="dash-stat" style="animation-delay:.15s">
+        <div class="dash-stat-val" style="color:var(--red)">0.00 USDC</div>
+        <div class="dash-stat-lbl">Refundable</div>
+      </div>
+      <div class="dash-stat" style="animation-delay:.2s;border-color:rgba(108,71,255,.3)">
+        <div class="dash-stat-val" style="color:var(--arc-light)">≈ 0.48 USDC</div>
+        <div class="dash-stat-lbl">Creator Fees</div>
+      </div>
+    </div>
+    <div class="dash-tabs">
+      <div class="dash-tab active">All Bets (3)</div>
+      <div class="dash-tab">Claims (1)</div>
+      <div class="dash-tab">Refunds (0)</div>
+      <div class="dash-tab">My Markets (2)</div>
+    </div>
+    <div class="dash-bets">
+      <div class="dash-bet winner" style="animation-delay:.1s">
+        <div>
+          <div class="dash-bet-q">Will Bitcoin close above $110,000 by end of June 2026?</div>
+          <div class="dash-bet-meta">Your choice: <strong style="color:#e5e7eb">Yes</strong> · Bet: 25.00 USDC · Market #4</div>
+        </div>
+        <div class="dash-bet-right">
+          <div class="winner-badge">🏆 Winner</div>
+          <button class="claim-btn">Claim ≈ 39.30 USDC</button>
+        </div>
+      </div>
+      <div class="dash-bet" style="animation-delay:.17s">
+        <div>
+          <div class="dash-bet-q">Will the Fed cut rates in September 2026?</div>
+          <div class="dash-bet-meta">Your choice: <strong style="color:#e5e7eb">Yes — Cut</strong> · Bet: 15.00 USDC · Market #7</div>
+        </div>
+        <div class="dash-bet-right">
+          <span style="font-size:11px;color:#6b7280;background:var(--s2);border:1px solid var(--border);padding:5px 10px;border-radius:6px">Active</span>
+        </div>
+      </div>
+      <div class="dash-bet" style="animation-delay:.24s">
+        <div>
+          <div class="dash-bet-q">Who wins the 2026 World Cup?</div>
+          <div class="dash-bet-meta">Your choice: <strong style="color:#e5e7eb">Brazil</strong> · Bet: 8.50 USDC · Market #12</div>
+        </div>
+        <div class="dash-bet-right">
+          <span style="font-size:11px;color:#6b7280;background:var(--s2);border:1px solid var(--border);padding:5px 10px;border-radius:6px">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCENE 8: CTA ──────────────────────────────────── -->
+<div class="scene" id="s8">
+  <div class="hero-grid"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="cta-eyebrow">Live on Arc Testnet</div>
+    <div class="cta-h">Predict the future.<br><em>Win on-chain.</em></div>
+    <div class="cta-sub">Try it now — no email, no KYC, just connect and bet.</div>
+    <div class="cta-url">cirbet.xyz</div>
+    <div class="cta-built">
+      <span>Built on</span>
+      <div class="arc-badge">Arc Network</div>
+      <span>·</span>
+      <span>Powered by Circle USDC</span>
+      <span>·</span>
+      <span>App Kit + Goldsky</span>
+    </div>
+  </div>
+</div>
+
+<!-- Progress + Dots -->
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="slide-dots" id="dots"></div>
+<div class="timer" id="timer">0:00</div>
+
+<script>
+  const SCENES = [
+    { id:'s1', dur:8000,  label:'Hero' },
+    { id:'s2', dur:14000, label:'Markets' },
+    { id:'s3', dur:10000, label:'Bet Modal' },
+    { id:'s4', dur:6000,  label:'Success' },
+    { id:'s5', dur:13000, label:'Wallet' },
+    { id:'s6', dur:7000,  label:'Currency' },
+    { id:'s7', dur:15000, label:'Dashboard' },
+    { id:'s8', dur:10000, label:'CTA' },
+  ];
+  const TOTAL = SCENES.reduce((a,s)=>a+s.dur, 0);
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  SCENES.forEach((_,i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0?' active':'');
+    d.id = 'dot'+i;
+    dotsEl.appendChild(d);
+  });
+
+  let current = 0, elapsed = 0, sceneStart = 0;
+  const startTime = performance.now();
+
+  // Wallet tab animation (scene 5)
+  const walletTabs = { send:0, bridge:6500, swap:10000 };
+  let walletTabDone = { send:false, bridge:false, swap:false };
+
+  function showScene(idx) {
+    SCENES.forEach((s,i) => {
+      const el = document.getElementById(s.id);
+      if (el) el.classList.toggle('active', i===idx);
+    });
+    document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+    // Reset wallet tab state
+    walletTabDone = { send:false, bridge:false, swap:false };
+  }
+
+  function updateWalletTabs(sceneElapsed) {
+    if (current !== 4) return;
+    const sendTab   = document.getElementById('tab-send');
+    const bridgeTab = document.getElementById('tab-bridge');
+    const swapTab   = document.getElementById('tab-swap');
+    const content   = document.getElementById('wd-content');
+    if (!sendTab) return;
+
+    if (sceneElapsed < 6500) {
+      // Send tab
+      [sendTab,bridgeTab,swapTab].forEach(t=>t&&t.classList.remove('active'));
+      sendTab.classList.add('active');
+      if (!walletTabDone.send) {
+        walletTabDone.send = true;
+        content.innerHTML = `
+          <div class="wd-input" style="font-family:'Space Mono',monospace;color:#6b7280;font-size:11px">0x recipient address…</div>
+          <div class="wd-amt-row"><div class="wd-amt" style="font-family:'Space Mono',monospace">10.00</div><div class="wd-token">USDC</div></div>
+          <button class="wd-btn">✈  Send USDC</button>`;
+      }
+    } else if (sceneElapsed < 10000) {
+      // Bridge tab
+      [sendTab,bridgeTab,swapTab].forEach(t=>t&&t.classList.remove('active'));
+      bridgeTab.classList.add('active');
+      if (!walletTabDone.bridge) {
+        walletTabDone.bridge = true;
+        content.innerHTML = `
+          <div><div style="font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Destination chain</div>
+          <select class="wd-select"><option>Base Sepolia</option><option>Ethereum Sepolia</option><option>Arbitrum Sepolia</option><option>Optimism Sepolia</option></select></div>
+          <div class="wd-amt-row"><div class="wd-amt" style="font-family:'Space Mono',monospace">5.00</div><div class="wd-token">USDC</div></div>
+          <div class="wd-hint">Bridges to your same address on Base Sepolia via CCTP</div>
+          <button class="wd-btn">⇄  Bridge → Base Sepolia</button>`;
+      }
+    } else {
+      // Swap tab
+      [sendTab,bridgeTab,swapTab].forEach(t=>t&&t.classList.remove('active'));
+      swapTab.classList.add('active');
+      if (!walletTabDone.swap) {
+        walletTabDone.swap = true;
+        content.innerHTML = `
+          <div class="swap-row">
+            <div class="swap-col"><div class="swap-col-lbl">From</div><select class="wd-select"><option>USDC</option><option>EURC</option><option>cirBTC</option></select></div>
+            <div class="swap-flip">⇄</div>
+            <div class="swap-col"><div class="swap-col-lbl">To</div><select class="wd-select"><option>EURC</option><option>USDC</option><option>cirBTC</option></select></div>
+          </div>
+          <div class="wd-amt-row"><div class="wd-amt" style="font-family:'Space Mono',monospace">2.00</div><div class="wd-token">USDC</div></div>
+          <button class="wd-btn">↕  Swap USDC → EURC</button>`;
+      }
+    }
+  }
+
+  // Confetti
+  function spawnConfetti() {
+    const wrap = document.getElementById('confetti');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    const colors = ['#6c47ff','#9c7bff','#4ade80','#fbbf24','#f472b6','#22d3ee'];
+    for (let i=0; i<50; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left:${Math.random()*100}%;top:-10px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        transform:rotate(${Math.random()*360}deg);
+        animation:fall ${1.5+Math.random()*2}s ${Math.random()*1}s ease-in forwards;
+        width:${4+Math.random()*8}px;height:${4+Math.random()*8}px;
+      `;
+      wrap.appendChild(el);
+    }
+  }
+
+  // Add confetti keyframe
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fall {
+      to { transform: translateY(1100px) rotate(${Math.random()*720}deg); opacity:0; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function tick(now) {
+    elapsed = now - startTime;
+    const totalMs = Math.min(elapsed, TOTAL);
+
+    // Update progress bar
+    document.getElementById('progressFill').style.width = (totalMs/TOTAL*100)+'%';
+
+    // Update timer
+    const secs = Math.floor(totalMs/1000);
+    document.getElementById('timer').textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
+
+    // Scene switching
+    let acc = 0;
+    for (let i=0; i<SCENES.length; i++) {
+      if (totalMs < acc + SCENES[i].dur) {
+        if (i !== current) {
+          current = i;
+          showScene(i);
+          sceneStart = elapsed;
+          if (i===3) spawnConfetti();
+        }
+        break;
+      }
+      acc += SCENES[i].dur;
+    }
+
+    // Wallet tab transitions
+    if (current===4) updateWalletTabs(elapsed - sceneStart);
+
+    if (elapsed < TOTAL + 500) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+</script>
+</body>
+</html>
