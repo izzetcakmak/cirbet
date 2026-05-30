@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { LayoutDashboard, Shield, Plus, Sparkles, LineChart } from "lucide-react";
+import { LayoutDashboard, Shield, Plus, LineChart, Menu, X, ExternalLink } from "lucide-react";
 import { WalletButton } from "./WalletButton";
 import { LanguageSelector } from "./LanguageSelector";
 import { BlockTicker } from "./BlockTicker";
@@ -15,8 +15,9 @@ import { OWNER_ADDRESS } from "@/lib/contracts";
 export function Header() {
   const { t } = useI18n();
   const { address } = useAccount();
-  const [showCreate,  setShowCreate]  = useState(false);
-  const [showPropose, setShowPropose] = useState(false);
+  const [showCreate,   setShowCreate]   = useState(false);
+  const [showPropose,  setShowPropose]  = useState(false);
+  const [mobileOpen,   setMobileOpen]   = useState(false);
 
   const isAdmin = address?.toLowerCase() === OWNER_ADDRESS.toLowerCase();
 
@@ -49,7 +50,7 @@ export function Header() {
             </div>
           </a>
 
-          {/* Nav links */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-5 text-sm text-gray-400">
             <a href="/#markets" className="hover:text-white transition-colors">{t("navMarkets")}</a>
             <a href="/institutional"
@@ -65,7 +66,7 @@ export function Header() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            {/* Dashboard — any connected user, shown first */}
+            {/* Desktop: Dashboard */}
             {address && (
               <a
                 href="/dashboard"
@@ -81,8 +82,7 @@ export function Header() {
             {isAdmin && <BlockTicker />}
             <LanguageSelector />
 
-
-            {/* Admin panel — owner only */}
+            {/* Desktop: Admin */}
             {isAdmin && (
               <a
                 href="/admin"
@@ -95,7 +95,7 @@ export function Header() {
               </a>
             )}
 
-            {/* Create market — owner only */}
+            {/* Desktop: Create market */}
             {isAdmin && (
               <button
                 onClick={() => setShowCreate(true)}
@@ -109,8 +109,90 @@ export function Header() {
             )}
 
             <WalletButton />
+
+            {/* Mobile: hamburger */}
+            <button
+              onClick={() => setMobileOpen(v => !v)}
+              className="sm:hidden flex items-center justify-center w-9 h-9 rounded-xl
+                         bg-surface-2 border border-border text-gray-300 hover:text-white transition-colors"
+              aria-label="Menu"
+            >
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileOpen && (
+          <div className="sm:hidden border-t border-border bg-surface-1/95 backdrop-blur-md px-4 py-3 flex flex-col gap-2">
+            <a
+              href="/#markets"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-gray-300
+                         hover:text-white hover:bg-surface-2 transition-all"
+            >
+              {t("navMarkets")}
+            </a>
+
+            <a
+              href="/institutional"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-blue-400
+                         hover:text-blue-300 hover:bg-surface-2 transition-all"
+            >
+              <LineChart size={15} />
+              Institutional
+            </a>
+
+            <a
+              href="https://faucet.circle.com"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-gray-300
+                         hover:text-white hover:bg-surface-2 transition-all"
+            >
+              {t("navFaucet")}
+              <ExternalLink size={13} className="ml-auto opacity-50" />
+            </a>
+
+            {address && (
+              <a
+                href="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-gray-300
+                           hover:text-white hover:bg-surface-2 border border-border transition-all"
+              >
+                <LayoutDashboard size={15} />
+                {t("navMyAccount")}
+              </a>
+            )}
+
+            {isAdmin && (
+              <a
+                href="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-amber-400
+                           hover:text-amber-300 bg-amber-600/10 hover:bg-amber-600/20
+                           border border-amber-600/30 transition-all"
+              >
+                <Shield size={15} />
+                {t("navAdmin")}
+              </a>
+            )}
+
+            {isAdmin && (
+              <button
+                onClick={() => { setShowCreate(true); setMobileOpen(false); }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-white
+                           bg-arc-600 hover:bg-arc-500 border border-arc-500 transition-all"
+              >
+                <Plus size={15} />
+                {t("navCreate")}
+              </button>
+            )}
+          </div>
+        )}
       </header>
 
       {showCreate  && <CreateMarketModal  onClose={() => setShowCreate(false)}  onSuccess={() => setShowCreate(false)} />}
