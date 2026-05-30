@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import {
   X, Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Upload, ImageIcon,
@@ -77,6 +77,14 @@ export function CreateMarketModal({ onClose, onSuccess }: Props) {
 
   const { writeContract, data: txHash, isPending, error } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+
+  // Auto-close after success — show checkmark briefly then dismiss
+  useEffect(() => {
+    if (!isSuccess) return;
+    onSuccess?.();
+    const id = setTimeout(() => onClose(), 1200);
+    return () => clearTimeout(id);
+  }, [isSuccess, onClose, onSuccess]);
 
   function addOption() {
     if (options.length < 8) setOptions([...options, ""]);
