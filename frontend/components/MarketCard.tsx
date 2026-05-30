@@ -12,21 +12,36 @@ import {
 import { useI18n } from "@/lib/i18nContext";
 
 /* ── Live countdown component ───────────────────────────────────────────── */
-function Countdown({ endTime, endedText }: { endTime: bigint; endedText: string }) {
+function Countdown({
+  endTime,
+  endedText,
+  onExpire,
+}: {
+  endTime: bigint;
+  endedText: string;
+  onExpire?: () => void;
+}) {
   const calc = () => {
     const diff = Number(endTime) - Math.floor(Date.now() / 1000);
     return diff;
   };
 
   const [diff, setDiff] = useState(calc);
+  const firedRef = useRef(false);
 
   useEffect(() => {
-    // Tick every second when under 1 hour, every 30s otherwise
     const interval = diff > 0 && diff <= 3600 ? 1000 : 30_000;
-    const id = setInterval(() => setDiff(calc()), interval);
+    const id = setInterval(() => {
+      const next = calc();
+      setDiff(next);
+      if (next <= 0 && !firedRef.current) {
+        firedRef.current = true;
+        onExpire?.();
+      }
+    }, interval);
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [diff > 3600]);   // re-register when crossing the 1-hour threshold
+  }, [diff > 3600]);
 
   if (diff <= 0) return <span className="text-gray-600">{endedText}</span>;
 
@@ -65,7 +80,10 @@ interface Props {
 
 export function MarketCard({ market, onRefresh, staggerIndex = 0 }: Props) {
   const { t } = useI18n();
-  const [showModal, setShowModal] = useState(false);
+  const [showModal,    setShowModal]    = useState(false);
+  const [timeExpired,  setTimeExpired]  = useState(
+    () => Number(market.endTime) <= Math.floor(Date.now() / 1000)
+  );
 
   // ── 3D tilt state ────────────────────────────────────────────────────────────
   const cardRef   = useRef<HTMLDivElement>(null);
@@ -235,7 +253,11 @@ export function MarketCard({ market, onRefresh, staggerIndex = 0 }: Props) {
                     : "text-gray-600"
                 } />
                 {isActive
-                  ? <Countdown endTime={market.endTime} endedText={t("ended")} />
+                  ? <Countdown
+                      endTime={market.endTime}
+                      endedText={t("ended")}
+                      onExpire={() => setTimeExpired(true)}
+                    />
                   : <span className="text-gray-600">{t("closed")}</span>
                 }
               </div>
@@ -262,15 +284,21 @@ export function MarketCard({ market, onRefresh, staggerIndex = 0 }: Props) {
               <button
                 onClick={() => setShowModal(true)}
                 className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200
-                  ${isActive
+                  ${isActive && !timeExpired
                     ? "btn-primary"
                     : isResolved
                     ? "bg-surface-2 hover:bg-surface-3 border border-border text-gray-400 hover:text-white"
                     : "bg-surface-2 border border-border text-gray-500 cursor-default opacity-60"
                   }`}
-                disabled={market.state === 1}
+                disabled={market.state === 1 || timeExpired}
               >
-                {isActive ? t("placeBet") : isResolved ? t("viewResult") : t("lockedBtn")}
+                {isActive && !timeExpired
+                  ? t("placeBet")
+                  : isActive && timeExpired
+                  ? t("ended")
+                  : isResolved
+                  ? t("viewResult")
+                  : t("lockedBtn")}
               </button>
             </div>
           </div>
