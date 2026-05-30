@@ -8,6 +8,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   LayoutDashboard, Home, Loader2, CheckCircle2, AlertCircle, Trophy, RotateCcw, Coins,
@@ -110,12 +111,15 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<DashTab>("all");
 
   const { betsWithMarkets, allMarkets, isLoading, refetch } = useUserBets(address);
+  const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
 
   async function handleManualRefresh() {
     setRefreshing(true);
-    await refetch();
-    setTimeout(() => setRefreshing(false), 800);
+    // Invalidate ALL wagmi/react-query cache — forces fresh RPC calls
+    await queryClient.invalidateQueries();
+    refetch();
+    setTimeout(() => setRefreshing(false), 1200);
   }
 
   const { writeContract, data: txHash, isPending, error: writeError, reset } = useWriteContract();
